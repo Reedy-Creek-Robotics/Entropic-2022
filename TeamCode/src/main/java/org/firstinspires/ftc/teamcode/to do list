@@ -1,0 +1,115 @@
+Important
+Choose field relative position as opposed to robot relative position
+
+
+Mechanical
+
+Shared structure - for each component
+    method to update - called with each loop iteration
+        components will use this method to move toward their desired state
+        in autonomous mode, components will use this to check if their current command is complete (e.g. has the robot moved the requested distance)
+        in teleOp mode, can be used to read state and fine tune (e.g. keep the arm from falling due to gravity)
+    method to get status
+        for autonomous mode, this will indicate if the previous command has finished
+        possible statuses: busy, idle
+
+
+Mecanum drive train code
+    method to go forward
+        types: distance, time
+        params
+            distance
+            time
+            direction(string)
+            speed
+    method to turn
+        types: distance, time
+        params
+            distance turned
+            time
+            direction(string)
+            speed
+    method to strafe
+        types: distance, time
+        params
+            distance
+            time
+            direction(string)
+            speed
+    method to set move speed and turn speed (combining all previous methods into one, used for teleOp)
+
+Arm
+    method to go to position (and hold there until told otherwise)
+        one for position defined by numbers, takes any number(private)
+        one for position defined by string(public)
+        has 5 possible positions
+            positions: intake, level 1, level 2, level 3, capping
+        params
+            position(string)
+            position(int)
+
+Collector
+    method that turns front wheels
+        params
+            direction(string)
+            speed
+    method that opens/closes door
+        params
+            position(open/closed)
+
+Carousel spin
+    method that starts spinning
+    method that stops spinning
+    params
+        speeds(int)
+    (note: test code to see how fast we can turn carousel without ducks flying off)
+
+Digital side
+
+Machine vision
+
+Tile boundary detector
+    used by the Mecanum drive train component to correct for errors from the motor encoders
+    method to indicate if a tile boundary has been passed since last invocation
+    method to get heading of robot relative to tile boundary
+    method to indicate the approximate distance to the tile boundary (?)
+
+    //ideally it will be quick
+    var currentPosition, made of x, y, heading
+    var image
+    make the hough transform work
+        method to make useable image
+            makes a canny image
+            uses canny to get lines
+            produces the image variable
+        updatePositionWithHough
+            //needs currentPosition variables
+            method to get distance to edge of mat
+            method to update position on the digital map
+    make the LED work
+        method to turn on specific lights
+        method to turn on specific colors
+        method to turn on specific brightness
+    make digital map of the field(class)
+        var position of robot
+        var mapCoordinate[][]
+
+Autonomous
+    calls methods on the above components to script actions of the robot
+        must wait until previous command is finished by checking status of the component
+        maybe use a separate thread?
+            example:
+                thread 1:
+                    main program loop
+                        call update on each component
+
+                thread 2:
+                    autonomous script thread
+                        // tell the drive train to make an autonomous movement
+                        driveTrain.move(...)
+                        // don't return until the drive train is finished moving
+                        driveTrain.waitUntilComplete()
+                        // now the robot moved, lower the arm
+                        arm.moveToPosition(...)
+
+    need routes
