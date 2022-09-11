@@ -14,10 +14,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.robotcore.external.navigation.Position;
-import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.util.PointUtil;
-import org.opencv.core.Point;
+//import org.opencv.core.Point;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,11 +54,6 @@ public class DriveTrain extends BaseComponent {
     private double heading;
 
     /**
-     * Where we think the robot is (measured from the starting point at init time).
-     */
-    private Point position;
-
-    /**
      * The last orientation obtained from the IMU.
      */
     private Orientation lastOrientation;
@@ -82,7 +75,23 @@ public class DriveTrain extends BaseComponent {
         addSubComponents(tileEdgeDetectorSide);
         addSubComponents(tileEdgeDetectorRear);
 
-        position = new Point(0, 0);
+        heading = 90.0;
+    }
+
+    public DriveTrain(OpMode opMode, WebCam webCamSide) {
+        super(opMode);
+
+        frontLeft = (DcMotorEx) hardwareMap.dcMotor.get("FrontLeft");
+        frontRight = (DcMotorEx) hardwareMap.dcMotor.get("FrontRight");
+        backLeft = (DcMotorEx) hardwareMap.dcMotor.get("BackLeft");
+        backRight = (DcMotorEx) hardwareMap.dcMotor.get("BackRight");
+        motors = Arrays.asList(frontLeft, frontRight, backLeft, backRight);
+
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        tileEdgeDetectorSide = new TileEdgeDetector(opMode, webCamSide);
+        addSubComponents(tileEdgeDetectorSide);
+
         heading = 90.0;
     }
 
@@ -103,11 +112,6 @@ public class DriveTrain extends BaseComponent {
 
         // Activate the side tile edge detector immediately
         tileEdgeDetectorSide.activate();
-    }
-
-    public void activateRearTileEdgeDetection() {
-        // Activate rear tile edge detection after the rear webcam is available
-        tileEdgeDetectorRear.activate();
     }
 
     private void initIMU() {
@@ -140,12 +144,8 @@ public class DriveTrain extends BaseComponent {
     public void updateStatus() {
         // Update the heading based off the IMU
         updateHeading();
-        updatePosition();
-
-        // todo: Update the position based off of encoders
 
         telemetry.addData("Heading", heading);
-        telemetry.addData("Position", position);
 
         if (tileEdgeDetectorSide.isDetected()) {
             telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
@@ -187,33 +187,16 @@ public class DriveTrain extends BaseComponent {
     }
 
     /**
-     * Updates the current position using observed data (e.g. IMU and tile edge detection)
+     * Sets the motor powers equal to the controllers inputs.
+     * @param drive
+     * @param turn
+     * @param strafe
      */
-    private void updatePosition() {
-
-        // Get the current position from the IMU in feet
-        Position position = imu.getPosition();
-        double x = inches(position.unit.toInches(position.x));
-        double y = inches(position.unit.toInches(position.y));
-
-        if (position.acquisitionTime != 0) {
-
-            // Get the velocity in feet / second
-            Velocity velocity = imu.getVelocity();
-            double vx = inches(velocity.unit.toInches(velocity.xVeloc));
-            double vy = inches(velocity.unit.toInches(velocity.yVeloc));
-
-            // Assuming we continued at the same velocity since the acquisition time, update the
-            // position based on the age of the data.
-            double elapsed = (System.nanoTime() - position.acquisitionTime) / 1e9;
-            x += vx * elapsed;
-            y += vy * elapsed;
-
-        }
-
-        // todo: add tile edge detection here
-
-        this.position = new Point(x, y);
+    public void drive(double drive, double turn, double strafe) {
+        frontLeft.setPower(drive - turn - strafe);
+        frontRight.setPower(drive + turn + strafe);
+        backRight.setPower(drive + turn - strafe);
+        backLeft.setPower(drive - turn + strafe);
     }
 
     /**
@@ -224,22 +207,6 @@ public class DriveTrain extends BaseComponent {
      */
     public void moveForward(double distance, double speed) {
         executeCommand(new MoveForward(distance, speed));
-    }
-
-    public void moveForwardByObservedPosition(double distance, double speed) {
-        // todo: this is a temporary command for testing movement based on an observed position
-        //  rather than motor encoder ticks (e.g. IMU or tile edge detector)
-        executeCommand(new MoveForwardByObservedPosition(distance, speed));
-    }
-
-    /**
-     * Moves backward the given distance.
-     *
-     * @param distance the distance to move in feet
-     * @param speed    a factor 0-1 that indicates how fast to move
-     */
-    public void moveBackward(double distance, double speed) {
-        executeCommand(new MoveForward(-distance, speed));
     }
 
     /**
@@ -253,8 +220,8 @@ public class DriveTrain extends BaseComponent {
         executeCommand(new Strafe(distance, speed, direction));
     }
 
-    public void strafeWithoutRamping(double time, double speed, StrafeDirection direction) {
-        executeCommand(new StrafeWithoutRamping(time,speed,direction));
+    public void strafeTime(double time, double speed, StrafeDirection direction) {
+        executeCommand(new StrafeTime(time,speed,direction));
     }
 
     /**
@@ -265,16 +232,6 @@ public class DriveTrain extends BaseComponent {
      */
     public void rotate(double angle, double speed) {
         executeCommand(new Rotate(angle, speed));
-    }
-
-    /**
-     * Moves the robot to a point relative to it
-     *
-     * @param destination the point relative to the robot we are approaching. The points are feet.
-     * @param speed       the speed at which to go
-     */
-    public void vectorMove(Point destination, double speed) {
-        executeCommand(new VectorMove(destination, speed));
     }
 
     /**
@@ -366,16 +323,6 @@ public class DriveTrain extends BaseComponent {
             sum += Math.abs(motor.getCurrentPosition());
         }
         return sum / motors.size();
-    }
-
-    /**
-     * Runs each motor at the given speed for the given time in milliseconds.
-     */
-    public void runEachMotor(double speed, int time) {
-        for (DcMotorEx motor : motors) {
-            motor.setPower(speed);
-            sleep(time);
-        }
     }
 
     /**
@@ -495,54 +442,6 @@ public class DriveTrain extends BaseComponent {
 
     }
 
-    private class MoveForwardByObservedPosition extends BaseCommand {
-
-        /**
-         * The distance we want to move.
-         */
-        private double distance;
-
-        /**
-         * The speed at which to move (0 - 1).
-         */
-        private double speed;
-
-        /**
-         * The origin point.
-         */
-        private Point origin;
-
-        public MoveForwardByObservedPosition(double distance, double speed) {
-            this.distance = distance;
-            this.speed = speed;
-        }
-
-        @Override
-        public void start() {
-
-            // Remember the origin point
-            this.origin = position;
-
-            setMotorMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        }
-
-        @Override
-        public boolean updateStatus() {
-
-            // Check the distance from the destination point
-            double distanceMoved = PointUtil.distance(position, origin);
-
-            double power = getPowerCurveForPosition(distanceMoved, 0, distance, speed);
-
-            telemetry.addData("Distance Moved", distanceMoved);
-            telemetry.addData("Current Power", power);
-
-            setMotorPower(power);
-            return distanceMoved >= distance;
-        }
-
-    }
-
     public enum StrafeDirection {
         RIGHT,
         LEFT
@@ -608,7 +507,7 @@ public class DriveTrain extends BaseComponent {
         }
     }
 
-    private class StrafeWithoutRamping extends BaseCommand {
+    private class StrafeTime extends BaseCommand {
 
         /**
          * The direction in which to strafe.
@@ -626,7 +525,7 @@ public class DriveTrain extends BaseComponent {
         private double speed;
 
         // todo check distance multiplied by strafe modifier
-        public StrafeWithoutRamping(double duration, double speed, StrafeDirection direction) {
+        public StrafeTime(double duration, double speed, StrafeDirection direction) {
             this.direction = direction;
             this.duration = duration;
             this.speed = speed;
@@ -700,92 +599,4 @@ public class DriveTrain extends BaseComponent {
 
 
     }
-
-    private class VectorMove extends BaseCommand {
-
-        private double rightSlantDist;
-        private double leftSlantDist;
-        private double rightSlantSpeed;
-        private double leftSlantSpeed;
-        double speed;
-
-        public VectorMove(Point point, double speed) {
-            this.speed = speed;
-            double tickY = feetToTicks(point.y);
-            double tickX = feetToTicks(point.x);
-            rightSlantDist = tickY - tickX;
-            leftSlantDist = tickY + tickX;
-        }
-
-        @Override
-        public void start() {
-            setMotorMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-            double[] speedList = vectorMovementSpeedCalculator(leftSlantDist, rightSlantDist);
-            leftSlantSpeed = speedList[0];
-            rightSlantSpeed = speedList[1];
-
-            backLeft.setTargetPosition((int) rightSlantDist);
-            frontLeft.setTargetPosition((int) leftSlantDist);
-            frontRight.setTargetPosition((int) rightSlantDist);
-            backRight.setTargetPosition((int) leftSlantDist);
-
-            setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-            double power = getPowerCurveForPosition(frontRight.getCurrentPosition(), 0, rightSlantDist, speed);
-
-            backLeft.setPower(power * rightSlantSpeed);
-            frontLeft.setPower(power * leftSlantSpeed);
-            frontRight.setPower(power * rightSlantSpeed);
-            backRight.setPower(power * leftSlantSpeed);
-        }
-
-        @Override
-        public boolean updateStatus() {
-            double power = getPowerCurveForPosition(backLeft.getCurrentPosition(), 0, rightSlantDist, speed);
-
-            backLeft.setPower(power * rightSlantSpeed);
-            frontLeft.setPower(power * leftSlantSpeed);
-            frontRight.setPower(power * rightSlantSpeed);
-            backRight.setPower(power * leftSlantSpeed);
-
-            return vectorMoveCompletion(frontRight.getCurrentPosition(), frontLeft.getCurrentPosition(), rightSlantDist, leftSlantDist);
-        }
-
-        /**
-         * Checks if the right and left slants are done with their movement
-         *
-         * @param rightCurrent right slants current position
-         * @param leftCurrent  left slants current position
-         * @param rightTarget  rigt slants target position
-         * @param leftTarget   left slants target position
-         * @return If the left and right slant are at their target positions.
-         */
-        private boolean vectorMoveCompletion(double rightCurrent, double leftCurrent, double rightTarget, double leftTarget) {
-            return rightCurrent >= rightTarget && leftCurrent >= leftTarget;
-        }
-
-        /**
-         * gets the speed for vector movement
-         *
-         * @param rightSlantDist
-         * @param leftSlantDist
-         * @return Array of the speeds needed. Index 0 is the left, Index 1 is the right
-         */
-        private double[] vectorMovementSpeedCalculator(double leftSlantDist, double rightSlantDist) {
-            double[] speed = new double[2];
-            if (rightSlantDist > leftSlantDist) {
-                speed[0] = leftSlantDist / rightSlantDist;
-                speed[1] = 1;
-            } else if (rightSlantDist < leftSlantDist) {
-                speed[0] = 1;
-                speed[1] = rightSlantDist / leftSlantDist;
-            } else {
-                speed[0] = 1;
-                speed[1] = 1;
-            }
-            return speed;
-        }
-    }
-
 }
