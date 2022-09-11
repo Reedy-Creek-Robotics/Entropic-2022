@@ -1,5 +1,5 @@
-Important
 Choose field relative position as opposed to robot relative position
+Important
 
 
 Mechanical
@@ -113,3 +113,31 @@ Autonomous
                         arm.moveToPosition(...)
 
     need routes
+
+
+
+
+
+As we work
+    We want state machines throughout autonomous and Tele op
+
+Once the season starts
+    Reformat our tele op to make it run with the robot class
+
+Top Priority
+    Want to look into roadrunner and how to add data
+        Roadrunner - incorparate hough transform algorithm into roadrunner
+            Making hough transform happen in real time
+
+Test Tele Ops
+    One to
+        drive the robot around
+        Spin a motor
+
+    One to
+        Test the cameras
+
+
+
+Planning session Season Kickoff
+    

@@ -6,66 +6,32 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Robot extends BaseComponent {
 
-    private Arm arm;
-    private DuckSpinner duckSpinner;
     private DriveTrain driveTrain;
-    private Intake intake;
-    private Capper capper;
-    private WebCam webCamRear;
     private WebCam webCamSide;
-    private BarCodePositionDetector barCodePositionDetector;
-    private LedStrip ledStrip;
 
     public Robot(OpMode opMode, boolean initWithCamera) {
         super(opMode);
 
-        this.arm = new Arm(opMode);
-        this.duckSpinner = new DuckSpinner(opMode);
-        this.intake = new Intake(opMode);
-        this.capper = new Capper(opMode);
-        this.webCamRear = new WebCam(opMode, "WebcamRear", false);
         this.webCamSide = new WebCam(opMode, "WebcamFront", false);
-        this.barCodePositionDetector = new BarCodePositionDetector(opMode, webCamRear);
-        this.driveTrain = new DriveTrain(opMode, webCamRear, webCamSide);
-        this.ledStrip = new LedStrip(opMode);
+        this.driveTrain = new DriveTrain(opMode, webCamSide);
 
-        addSubComponents(arm, duckSpinner, driveTrain, intake, capper);
+        addSubComponents(driveTrain);
 
         if (initWithCamera) {
-            addSubComponents(webCamRear, webCamSide, barCodePositionDetector);
+            addSubComponents(webCamSide);
         }
     }
 
-    public Robot(OpMode opMode, int yeah) {
-        super(opMode);
-
-        this.arm = new Arm(opMode);
-        this.duckSpinner = new DuckSpinner(opMode);
-        this.intake = new Intake(opMode);
-        this.capper = new Capper(opMode);
-        this.webCamRear = new WebCam(opMode, "WebcamRear", true);
-        this.webCamSide = new WebCam(opMode, "WebcamFront", false);
-        this.barCodePositionDetector = new BarCodePositionDetector(opMode, webCamRear);
-        this.driveTrain = new DriveTrain(opMode, webCamRear, webCamSide);
-        this.ledStrip = new LedStrip(opMode);
-
-        addSubComponents(arm, duckSpinner, driveTrain, intake, capper,webCamRear, webCamSide, barCodePositionDetector);
-    }
-
+    /**
+     * Inits the front webcam to stream
+     */
     public Robot(OpMode opMode) {
         super(opMode);
 
-        this.arm = new Arm(opMode);
-        this.duckSpinner = new DuckSpinner(opMode);
-        this.intake = new Intake(opMode);
-        this.capper = new Capper(opMode);
-        this.webCamRear = new WebCam(opMode, "WebcamRear", false);
         this.webCamSide = new WebCam(opMode, "WebcamFront", true);
-        this.barCodePositionDetector = new BarCodePositionDetector(opMode, webCamRear);
-        this.driveTrain = new DriveTrain(opMode, webCamRear, webCamSide);
-        this.ledStrip = new LedStrip(opMode);
+        this.driveTrain = new DriveTrain(opMode, webCamSide);
 
-        addSubComponents(arm, duckSpinner, driveTrain, intake, capper,webCamRear, webCamSide, barCodePositionDetector);
+        addSubComponents(driveTrain, webCamSide);
     }
 
     @Override
@@ -102,37 +68,11 @@ public class Robot extends BaseComponent {
         stopCommand();
     }
 
-    public Arm getArm() {
-        return arm;
-    }
-
-    public DuckSpinner getDuckSpinner() {
-        return duckSpinner;
-    }
-
     public DriveTrain getDriveTrain() {
         return driveTrain;
-    }
-
-    public Intake getIntake() {
-        return intake;
-    }
-
-    public Capper getCapper() {
-        return capper;
-    }
-
-    public WebCam getRearWebCam() {
-        return webCamRear;
     }
 
     public WebCam getFrontWebCam() {
         return webCamSide;
     }
-
-    public BarCodePositionDetector getBarCodePositionDetector() {
-        return barCodePositionDetector;
-    }
-
-    public LedStrip getLedStrip(){return ledStrip;}
 }
