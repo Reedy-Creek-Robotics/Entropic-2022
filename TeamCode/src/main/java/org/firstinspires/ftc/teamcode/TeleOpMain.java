@@ -1,3 +1,4 @@
+/*
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -134,12 +135,14 @@ public class TeleOpMain extends OpMode {
         }
 
 
-        /*if(gamepad1.left_trigger != 0 && !flag1) {
+        */
+/*if(gamepad1.left_trigger != 0 && !flag1) {
             intakeWheel.setPower(.5);
             beamBreakTime.reset();
         }else if() {
 
-        }*/
+        }*//*
+
 
 
         //door
@@ -208,3 +211,4 @@ public class TeleOpMain extends OpMode {
         telemetry.update();
     }
 }
+*/
