@@ -35,8 +35,9 @@ public class BasicTest extends OpMode{
         backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         backRight.setDirection((DcMotorSimple.Direction.REVERSE));
 
-        slideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         slideMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor.setTargetPosition(0);
+        slideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         slideMotor.setPower(.3);
     }
 
