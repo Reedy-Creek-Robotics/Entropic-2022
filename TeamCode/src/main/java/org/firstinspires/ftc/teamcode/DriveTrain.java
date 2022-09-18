@@ -111,7 +111,7 @@ public class DriveTrain extends BaseComponent {
         }
 
         // Activate the side tile edge detector immediately
-        tileEdgeDetectorSide.activate();
+        //tileEdgeDetectorSide.activate();
     }
 
     private void initIMU() {

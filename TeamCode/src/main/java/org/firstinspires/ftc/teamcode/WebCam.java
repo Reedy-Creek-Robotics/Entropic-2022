@@ -87,6 +87,10 @@ public class WebCam extends BaseComponent {
             public void onOpened() {
                 camera.startStreaming((int) size.width, (int) size.height, OpenCvCameraRotation.UPRIGHT);
             }
+
+            @Override
+            public void onError(int errorCode) {
+            }
         });
 
         while (!isReady() && !isStopRequested()) {
