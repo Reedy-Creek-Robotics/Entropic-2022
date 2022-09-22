@@ -70,9 +70,9 @@ public class DriveTrain extends BaseComponent {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
-        //tileEdgeDetectorSide = new TileEdgeDetector(opMode, webCamSide);
+        tileEdgeDetectorSide = new TileEdgeDetector(opMode, webCamSide);
         //tileEdgeDetectorRear = new TileEdgeDetector(opMode, webCamRear);
-        //addSubComponents(tileEdgeDetectorSide);
+        addSubComponents(tileEdgeDetectorSide);
         //addSubComponents(tileEdgeDetectorRear);
 
         heading = 90.0;
@@ -111,7 +111,7 @@ public class DriveTrain extends BaseComponent {
         }
 
         // Activate the side tile edge detector immediately
-        //tileEdgeDetectorSide.activate();
+        tileEdgeDetectorSide.activate();
     }
 
     private void initIMU() {
