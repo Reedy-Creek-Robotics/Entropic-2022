@@ -12,13 +12,13 @@ public class Robot extends BaseComponent {
     public Robot(OpMode opMode, boolean initWithCamera) {
         super(opMode);
 
-        //this.webCamSide = new WebCam(opMode, "WebcamFront", false);
+        this.webCamSide = new WebCam(opMode, "WebcamFront", false);
         this.driveTrain = new DriveTrain(opMode, webCamSide);
 
         addSubComponents(driveTrain);
 
         if (initWithCamera) {
-        //    addSubComponents(webCamSide);
+            addSubComponents(webCamSide);
         }
     }
 

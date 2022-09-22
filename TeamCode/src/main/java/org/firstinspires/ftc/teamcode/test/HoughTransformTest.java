@@ -19,7 +19,7 @@ public class HoughTransformTest extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot(this, true);
+        robot = new Robot(this);
         robot.init();
 
         frontLeft = hardwareMap.dcMotor.get("FrontLeft");
