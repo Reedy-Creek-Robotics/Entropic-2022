@@ -14,6 +14,8 @@ public class TeleOpTestBot extends OpMode {
     public void init() {
         arm = hardwareMap.dcMotor.get("arm");
         robot = new Robot(this, false);
+
+        robot.init();
     }
 
     @Override
