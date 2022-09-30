@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.util.DrawUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
@@ -233,6 +234,8 @@ public class TileEdgeDetector extends BaseComponent {
 
         private List<Line> detectLines(Mat input, Mat output) {
 
+            Imgproc.cvtColor(input, output, Imgproc.COLOR_BGR2RGBA);
+
             Imgproc.cvtColor(input, gray, Imgproc.COLOR_BGR2GRAY);
             Imgproc.Canny(gray, edges, 60, 60 * 3, 3, false);
 
@@ -240,7 +243,7 @@ public class TileEdgeDetector extends BaseComponent {
             Imgproc.HoughLines(edges, houghLines, 1, Math.PI / 180, 125);
 
             Imgproc.cvtColor(edges, edgesRgba, Imgproc.COLOR_GRAY2RGBA);
-            edgesRgba.copyTo(output);
+            //edgesRgba.copyTo(output);
 
             List<Line> lines = new ArrayList<>();
             for (int i = 0; i < houghLines.rows(); i++) {
@@ -249,6 +252,9 @@ public class TileEdgeDetector extends BaseComponent {
                 double theta = Math.toDegrees(data[1]);
                 lines.add(new Line(rho, theta));
             }
+
+            // todo: figure out how to save the image to disk?  maybe if a button is pressed?
+            Imgcodecs.imwrite("some-filename.jpg", output);
 
             return lines;
         }

@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@TeleOp
 public class BasicTest extends OpMode{
     //ticks the arm moves at a time
     private static final double ARM_SPEED = 10;
