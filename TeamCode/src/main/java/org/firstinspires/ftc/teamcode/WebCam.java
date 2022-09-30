@@ -6,11 +6,15 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
+
+import java.time.Instant;
+import java.util.Date;
 
 public class WebCam extends BaseComponent {
 
@@ -97,6 +101,15 @@ public class WebCam extends BaseComponent {
         while (!isReady() && !isStopRequested()) {
             sleep(100);
         }
+    }
+
+    public void saveLastFrame() {
+        // todo: save the last frame to disk
+        // todo: figure out how to save the image to disk?  maybe if a button is pressed?
+        String filename = "webcam-frame-" + new Date().toString().replace(' ', '-') + ".jpg";
+        telemetry.addData("WebCam Frame Saved", filename);
+
+        Imgcodecs.imwrite(filename, output);
     }
 
     public int getFrameCount() {
