@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
@@ -16,6 +17,7 @@ public class HoughTransformTest extends OpMode {
     private DcMotor frontRight;
     private DcMotor backLeft;
     private DcMotor backRight;
+    private ElapsedTime webcamLastFrameSave = new ElapsedTime();
 
     @Override
     public void init() {
@@ -35,14 +37,17 @@ public class HoughTransformTest extends OpMode {
 
     @Override
     public void loop() {
+
         double drive = gamepad1.left_stick_y;
         double turn = gamepad1.right_stick_x;
         double strafe = gamepad1.left_stick_x;
 
         //sets the power to the drivetrain
-        frontLeft.setPower(drive - turn - strafe);
-        frontRight.setPower(drive + turn + strafe);
-        backRight.setPower(drive + turn - strafe);
-        backLeft.setPower(drive - turn + strafe);
+        robot.getDriveTrain().drive(drive, turn, strafe);
+
+        if (gamepad1.a && webcamLastFrameSave.seconds() > 1.0) {
+            robot.getFrontWebCam().saveLastFrame();
+            webcamLastFrameSave.reset();
+        }
     }
 }
