@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.test;
 
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -18,12 +20,12 @@ public class HoughTransformTest extends OpMode {
     private DcMotor backLeft;
     private DcMotor backRight;
     private ElapsedTime webcamLastFrameSave = new ElapsedTime();
+    private ElapsedTime waitTime = new ElapsedTime();
 
     @Override
     public void init() {
         robot = new Robot(this);
         robot.init();
-
         frontLeft = hardwareMap.dcMotor.get("FrontLeft");
         frontRight = hardwareMap.dcMotor.get("FrontRight");
         backLeft = hardwareMap.dcMotor.get("BackLeft");
@@ -45,9 +47,22 @@ public class HoughTransformTest extends OpMode {
         //sets the power to the drivetrain
         robot.getDriveTrain().drive(drive, turn, strafe);
 
-        if (gamepad1.a && webcamLastFrameSave.seconds() > 1.0) {
+        if (gamepad1.a && waitTime.seconds() > 1) {
+            waitTime.reset();
+
+            robot.getDriveTrain().moveForward(inches(12),.5);
+            robot.waitForCommandsToFinish(1);
+
             robot.getFrontWebCam().saveLastFrame();
-            webcamLastFrameSave.reset();
+            robot.waitForCommandsToFinish(1);
+
+            robot.getFrontWebCam().saveLastFrame();
+            robot.waitForCommandsToFinish(1);
+
+            robot.getFrontWebCam().saveLastFrame();
+            robot.waitForCommandsToFinish();
+
+
         }
     }
 }
