@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static android.os.Environment.getExternalStorageDirectory;
 
+import android.content.ClipData;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -19,6 +21,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 public class WebCam extends BaseComponent {
@@ -73,7 +76,6 @@ public class WebCam extends BaseComponent {
         this.cameraName = cameraName;
         this.streamOutput = streamOutput;
         this.size = resolution;
-        exposureControl = camera.getExposureControl();
     }
 
     public WebCam(OpMode opMode, String cameraName, boolean streamOutput) {
@@ -107,19 +109,21 @@ public class WebCam extends BaseComponent {
             }
         });
 
-        setExposure(32L);
-
         while (!isReady() && !isStopRequested()) {
             sleep(100);
         }
+
+        exposureControl = camera.getExposureControl();
+        exposureControl.setMode(ExposureControl.Mode.Manual);
+        setExposure(32L);
     }
 
-    public void saveLastFrame() {
+    public synchronized void saveLastFrame() {
         // todo: save the last frame to disk
         // todo: figure out how to save the image to disk?  maybe if a button is pressed?
-        String filename = getExternalStorageDirectory() + "webcam-frame-" + new Date().toString().replace(' ', '-') + ".jpg";
+        String filename = getExternalStorageDirectory() + "/webcam-frame-" + new Date().toString().replace(' ', '-') + this.getExposure() + ".bmp";
         telemetry.addData("WebCam Frame Saved", filename);
-        telemetry.addData("did I write?",Imgcodecs.imwrite(filename, output));
+        telemetry.addData("did I write?", Imgcodecs.imwrite(filename, output));
     }
 
     public int getFrameCount() {
@@ -128,6 +132,10 @@ public class WebCam extends BaseComponent {
 
     public boolean getStreamOutput() {
         return streamOutput;
+    }
+
+    public Long getExposure() {
+        return exposureControl.getExposure(TimeUnit.MILLISECONDS);
     }
 
     public boolean isReady() {
@@ -143,7 +151,6 @@ public class WebCam extends BaseComponent {
      * @param duration how long the exposure is set to in milliseconds
      */
     public void setExposure(Long duration) {
-        exposureControl.setMode(ExposureControl.Mode.Manual);
         exposureControl.setExposure(duration, TimeUnit.MILLISECONDS);
     }
 
@@ -155,29 +162,35 @@ public class WebCam extends BaseComponent {
         @Override
         public Mat processFrame(Mat input) {
 
-            input.copyTo(output);
+            synchronized (WebCam.this) {
 
-            // Make sure it is RGBA, and the size that we expect.
-            assert input.width() == (int) size.width && input.height() == (int) size.height;
-            assert input.channels() == 4 : "Expected RGBA image from webcam";
 
-            // Convert to BGR before handing input frame to processors.
-            Imgproc.cvtColor(input, frame, Imgproc.COLOR_RGBA2BGR);
 
-            assert frame.channels() == 3 : "Expected BGR image after conversion";
+                input.copyTo(output);
 
-            frameCount++;
+                // Make sure it is RGBA, and the size that we expect.
+                assert input.width() == (int) size.width && input.height() == (int) size.height;
+                assert input.channels() == 4 : "Expected RGBA image from webcam";
 
-            // Allow any frame processors to analyze the image and annotate the output.
-            if (frameProcessor != null) {
-                try {
-                    frameProcessor.processFrame(input, output);
-                } catch (Exception e) {
-                    telemetry.addData("Frame Error", ErrorUtil.convertToString(e));
+                // Convert to BGR before handing input frame to processors.
+                Imgproc.cvtColor(input, frame, Imgproc.COLOR_RGBA2BGR);
+
+                assert frame.channels() == 3 : "Expected BGR image after conversion";
+
+                frameCount++;
+
+                // Allow any frame processors to analyze the image and annotate the output.
+                if (frameProcessor != null) {
+                    try {
+                        frameProcessor.processFrame(input, output);
+                    } catch (Exception e) {
+                        telemetry.addData("Frame Error", ErrorUtil.convertToString(e));
+                    }
                 }
-            }
 
-            return output;
+                return output;
+
+            }
         }
     }
 
