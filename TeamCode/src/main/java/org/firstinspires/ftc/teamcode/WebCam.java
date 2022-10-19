@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
+import static android.os.Environment.getExternalStorageDirectory;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -12,9 +15,11 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
+import org.openftc.easyopencv.OpenCvWebcam;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class WebCam extends BaseComponent {
 
@@ -58,7 +63,9 @@ public class WebCam extends BaseComponent {
     /**
      * The OpenCV camera device that we are using.
      */
-    private OpenCvCamera camera;
+    private OpenCvWebcam camera;
+
+    private ExposureControl exposureControl;
 
 
     public WebCam(OpMode opMode, String cameraName, boolean streamOutput, Size resolution) {
@@ -66,6 +73,7 @@ public class WebCam extends BaseComponent {
         this.cameraName = cameraName;
         this.streamOutput = streamOutput;
         this.size = resolution;
+        exposureControl = camera.getExposureControl();
     }
 
     public WebCam(OpMode opMode, String cameraName, boolean streamOutput) {
@@ -76,6 +84,7 @@ public class WebCam extends BaseComponent {
     public void init() {
 
         WebcamName webcamName = hardwareMap.get(WebcamName.class, this.cameraName);
+
         if (streamOutput) {
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                     "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -98,6 +107,8 @@ public class WebCam extends BaseComponent {
             }
         });
 
+        setExposure(32L);
+
         while (!isReady() && !isStopRequested()) {
             sleep(100);
         }
@@ -106,10 +117,9 @@ public class WebCam extends BaseComponent {
     public void saveLastFrame() {
         // todo: save the last frame to disk
         // todo: figure out how to save the image to disk?  maybe if a button is pressed?
-        String filename = "webcam-frame-" + new Date().toString().replace(' ', '-') + ".jpg";
+        String filename = getExternalStorageDirectory() + "webcam-frame-" + new Date().toString().replace(' ', '-') + ".jpg";
         telemetry.addData("WebCam Frame Saved", filename);
-
-        Imgcodecs.imwrite(filename, output);
+        telemetry.addData("did I write?",Imgcodecs.imwrite(filename, output));
     }
 
     public int getFrameCount() {
@@ -126,6 +136,15 @@ public class WebCam extends BaseComponent {
 
     public void setFrameProcessor(FrameProcessor frameProcessor) {
         this.frameProcessor = frameProcessor;
+    }
+
+    /**
+     * Sets the exposure of the camera
+     * @param duration how long the exposure is set to in milliseconds
+     */
+    public void setExposure(Long duration) {
+        exposureControl.setMode(ExposureControl.Mode.Manual);
+        exposureControl.setExposure(duration, TimeUnit.MILLISECONDS);
     }
 
     public void removeFrameProcessor() {
