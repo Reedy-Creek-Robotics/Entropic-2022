@@ -70,6 +70,9 @@ public class WebCam extends BaseComponent {
 
     private ExposureControl exposureControl;
 
+    private boolean usingAprilTag;
+
+    private AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
     public WebCam(OpMode opMode, String cameraName, boolean streamOutput, Size resolution) {
         super(opMode);
@@ -80,6 +83,13 @@ public class WebCam extends BaseComponent {
 
     public WebCam(OpMode opMode, String cameraName, boolean streamOutput) {
         this(opMode,cameraName,streamOutput,HOUGHRESOLUTION);
+        usingAprilTag = false;
+    }
+
+    public WebCam(OpMode opMode, String cameraName, boolean streamOutput, AprilTagDetectionPipeline aprilTagDetectionPipeline) {
+        this(opMode,cameraName,streamOutput,HOUGHRESOLUTION);
+        this.aprilTagDetectionPipeline = aprilTagDetectionPipeline;
+        usingAprilTag = true;
     }
 
     @Override
@@ -95,7 +105,11 @@ public class WebCam extends BaseComponent {
             camera = OpenCvCameraFactory.getInstance().createWebcam(webcamName);
         }
 
-        camera.setPipeline(new CameraPipeline());
+        if(usingAprilTag) {
+            camera.setPipeline(aprilTagDetectionPipeline);
+        }else{
+            camera.setPipeline(new CameraPipeline());
+        }
 
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
