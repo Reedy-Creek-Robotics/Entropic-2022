@@ -34,6 +34,15 @@ public class Robot extends BaseComponent {
         addSubComponents(driveTrain, webCamSide);
     }
 
+    public Robot(OpMode opMode, AprilTagDetectionPipeline aprilTagDetectionPipeline) {
+        super(opMode);
+
+        this.webCamSide = new WebCam(opMode,"WebcamFront",true, aprilTagDetectionPipeline);
+        this.driveTrain = new DriveTrain(opMode,webCamSide);
+
+        addSubComponents(driveTrain,webCamSide);
+    }
+
     @Override
     public void updateStatus() {
         super.updateStatus();
