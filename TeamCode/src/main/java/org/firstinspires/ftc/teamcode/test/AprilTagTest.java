@@ -54,10 +54,11 @@ public class AprilTagTest extends OpMode {
         ArrayList<AprilTagDetection> currentDetections = aprilTagDetectionPipeline.getLatestDetections();
 
         if(currentDetections.size() != 0) {
-            if(currentDetections.get(0).id == ID_TAG_OF_INTEREST) {
-                tagOfInterest = currentDetections.get(0);
-            }
+            tagOfInterest = currentDetections.get(0);
+            telemetry.addData("Tag",tagOfInterest.id);
+        }else {
+            telemetry.addData("No tag",null);
         }
-
+        telemetry.update();
     }
 }
