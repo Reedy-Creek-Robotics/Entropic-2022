@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import static android.os.Environment.getExternalStorageDirectory;
 
-import android.content.ClipData;
-
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -19,14 +17,12 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-import java.time.Instant;
 import java.util.Date;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 public class WebCam extends BaseComponent {
 
-    public static final Size HOUGHRESOLUTION = new Size(640, 360);
+    public static final Size DEFAULT_RESOLUTION = new Size(640, 360);
 
     /**
      * The webcam name from the Rev control configuration.
@@ -70,10 +66,6 @@ public class WebCam extends BaseComponent {
 
     private ExposureControl exposureControl;
 
-    private boolean usingAprilTag;
-
-    private AprilTagDetectionPipeline aprilTagDetectionPipeline;
-
     public WebCam(OpMode opMode, String cameraName, boolean streamOutput, Size resolution) {
         super(opMode);
         this.cameraName = cameraName;
@@ -82,14 +74,7 @@ public class WebCam extends BaseComponent {
     }
 
     public WebCam(OpMode opMode, String cameraName, boolean streamOutput) {
-        this(opMode,cameraName,streamOutput,HOUGHRESOLUTION);
-        usingAprilTag = false;
-    }
-
-    public WebCam(OpMode opMode, String cameraName, boolean streamOutput, AprilTagDetectionPipeline aprilTagDetectionPipeline) {
-        this(opMode,cameraName,streamOutput,HOUGHRESOLUTION);
-        this.aprilTagDetectionPipeline = aprilTagDetectionPipeline;
-        usingAprilTag = true;
+        this(opMode, cameraName, streamOutput, DEFAULT_RESOLUTION);
     }
 
     @Override
@@ -105,11 +90,7 @@ public class WebCam extends BaseComponent {
             camera = OpenCvCameraFactory.getInstance().createWebcam(webcamName);
         }
 
-        if(usingAprilTag) {
-            camera.setPipeline(aprilTagDetectionPipeline);
-        }else{
-            camera.setPipeline(new CameraPipeline());
-        }
+        camera.setPipeline(new CameraPipeline());
 
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
@@ -162,6 +143,7 @@ public class WebCam extends BaseComponent {
 
     /**
      * Sets the exposure of the camera
+     *
      * @param duration how long the exposure is set to in milliseconds
      */
     public void setExposure(Long duration) {
@@ -177,8 +159,6 @@ public class WebCam extends BaseComponent {
         public Mat processFrame(Mat input) {
 
             synchronized (WebCam.this) {
-
-
 
                 input.copyTo(output);
 
@@ -214,8 +194,8 @@ public class WebCam extends BaseComponent {
          * Will be invoked on each frame, giving the processor a chance to analyze the input image
          * and, if desired, update the output image.
          *
-         * @param input   the input frame image, in BGR.
-         * @param output  the output image, in RGBA.
+         * @param input  the input frame image, in BGR.
+         * @param output the output image, in RGBA.
          */
         void processFrame(Mat input, Mat output);
 
