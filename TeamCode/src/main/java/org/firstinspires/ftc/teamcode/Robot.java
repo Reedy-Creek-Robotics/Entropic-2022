@@ -8,30 +8,28 @@ public class Robot extends BaseComponent {
 
     private DriveTrain driveTrain;
     private WebCam webCamSide;
+    private AprilTagDetector aprilTagDetector;
 
     public Robot(OpMode opMode, boolean initWithCamera) {
         super(opMode);
 
         this.webCamSide = new WebCam(opMode, "WebcamFront", false);
         this.driveTrain = new DriveTrain(opMode, webCamSide);
+        this.aprilTagDetector = new AprilTagDetector(opMode, webCamSide);
 
         addSubComponents(driveTrain);
 
         if (initWithCamera) {
             addSubComponents(webCamSide);
+            addSubComponents(aprilTagDetector);
         }
     }
 
     /**
-     * Inits the front webcam to stream
+     * Inits with default settings.
      */
     public Robot(OpMode opMode) {
-        super(opMode);
-
-        this.webCamSide = new WebCam(opMode, "WebcamFront", true);
-        this.driveTrain = new DriveTrain(opMode, webCamSide);
-
-        addSubComponents(driveTrain, webCamSide);
+        this(opMode, true);
     }
 
     @Override
@@ -74,5 +72,9 @@ public class Robot extends BaseComponent {
 
     public WebCam getFrontWebCam() {
         return webCamSide;
+    }
+
+    public AprilTagDetector getAprilTagDetector() {
+        return aprilTagDetector;
     }
 }
