@@ -15,10 +15,6 @@ public class HoughTransformTest extends OpMode {
 
     private Robot robot;
 
-    private DcMotor frontLeft;
-    private DcMotor frontRight;
-    private DcMotor backLeft;
-    private DcMotor backRight;
     private ElapsedTime webcamLastFrameSave = new ElapsedTime();
     private ElapsedTime waitTime = new ElapsedTime();
 
@@ -26,15 +22,6 @@ public class HoughTransformTest extends OpMode {
     public void init() {
         robot = new Robot(this);
         robot.init();
-        frontLeft = hardwareMap.dcMotor.get("FrontLeft");
-        frontRight = hardwareMap.dcMotor.get("FrontRight");
-        backLeft = hardwareMap.dcMotor.get("BackLeft");
-        backRight = hardwareMap.dcMotor.get("BackRight");
-
-        frontLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        backLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        backRight.setDirection((DcMotorSimple.Direction.REVERSE));
     }
 
     @Override
