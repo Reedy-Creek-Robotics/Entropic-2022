@@ -14,7 +14,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.util.PointUtil;
 //import org.opencv.core.Point;
 
 import java.util.Arrays;
@@ -36,7 +35,6 @@ public class DriveTrain extends BaseComponent {
      * The software of the drivetrain
      */
     private TileEdgeDetector tileEdgeDetectorSide;
-    private TileEdgeDetector tileEdgeDetectorRear;
 
     /**
      * The hardware for the drive train
@@ -49,34 +47,15 @@ public class DriveTrain extends BaseComponent {
     private BNO055IMU imu;
 
     /**
-     * Where we think the robot is heading.  (0 to 360)
+     * The total cumulative heading for the robot.  This value can go above 360 or below 0 and will not wrap around.
      */
-    private double heading;
+    private double cumulativeHeading;
 
     /**
      * The last orientation obtained from the IMU.
      */
     private Orientation lastOrientation;
 
-
-    public DriveTrain(OpMode opMode, WebCam webCamRear, WebCam webCamSide) {
-        super(opMode);
-
-        frontLeft = (DcMotorEx) hardwareMap.dcMotor.get("FrontLeft");
-        frontRight = (DcMotorEx) hardwareMap.dcMotor.get("FrontRight");
-        backLeft = (DcMotorEx) hardwareMap.dcMotor.get("BackLeft");
-        backRight = (DcMotorEx) hardwareMap.dcMotor.get("BackRight");
-        motors = Arrays.asList(frontLeft, frontRight, backLeft, backRight);
-
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
-
-        tileEdgeDetectorSide = new TileEdgeDetector(opMode, webCamSide);
-        //tileEdgeDetectorRear = new TileEdgeDetector(opMode, webCamRear);
-        addSubComponents(tileEdgeDetectorSide);
-        //addSubComponents(tileEdgeDetectorRear);
-
-        heading = 90.0;
-    }
 
     public DriveTrain(OpMode opMode, WebCam webCamSide) {
         super(opMode);
@@ -92,7 +71,7 @@ public class DriveTrain extends BaseComponent {
         tileEdgeDetectorSide = new TileEdgeDetector(opMode, webCamSide);
         addSubComponents(tileEdgeDetectorSide);
 
-        heading = 90.0;
+        cumulativeHeading = 90.0;
     }
 
     @Override
@@ -104,7 +83,7 @@ public class DriveTrain extends BaseComponent {
         this.frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         this.frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
         this.backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        this.backRight.setDirection((DcMotorSimple.Direction.FORWARD));
+        this.backRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -139,17 +118,32 @@ public class DriveTrain extends BaseComponent {
         //imu.startAccelerationIntegration(null, null, 5);
     }
 
+    public BNO055IMU getImu() {
+        return imu;
+    }
+
+    /**
+     * @return the actual heading of the robot(0 - 360)
+     */
+    public double getHeading() {
+        double heading = cumulativeHeading % 360;
+        if (heading < 0) {
+            heading += 360;
+        }
+        return heading;
+    }
+
     @SuppressLint("DefaultLocale")
     @Override
     public void updateStatus() {
         // Update the heading based off the IMU
         updateHeading();
 
-        telemetry.addData("Heading", heading);
+        telemetry.addData("Heading", getHeading());
 
         if (tileEdgeDetectorSide.isDetected()) {
             telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
-            telemetry.addData("Distance to Tile", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTile() * 12.0));
+            telemetry.addData("Distance to Tile", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileHorizontal() * 12.0));
         }
 
         // Now allow any commands to run with the updated data
@@ -175,13 +169,7 @@ public class DriveTrain extends BaseComponent {
         }
 
         double deltaAngle = orientation.firstAngle - lastOrientation.firstAngle;
-
-        if (deltaAngle < -180)
-            deltaAngle += 360;
-        else if (deltaAngle > 180)
-            deltaAngle -= 360;
-
-        heading += deltaAngle;
+        cumulativeHeading += deltaAngle;
 
         lastOrientation = orientation;
     }
@@ -221,7 +209,7 @@ public class DriveTrain extends BaseComponent {
     }
 
     public void strafeTime(double time, double speed, StrafeDirection direction) {
-        executeCommand(new StrafeTime(time,speed,direction));
+        executeCommand(new StrafeTime(time, speed, direction));
     }
 
     /**
@@ -254,7 +242,7 @@ public class DriveTrain extends BaseComponent {
     }
 
     public void alignToTileAngle(double targetAngle, double speed) {
-        alignToTileAngle(targetAngle,speed,1);
+        alignToTileAngle(targetAngle, speed, 1);
     }
 
     /**
@@ -262,12 +250,12 @@ public class DriveTrain extends BaseComponent {
      * tile to the right.
      *
      * @param targetDistance the desired distance from the edge of the tile, in feet.
-     * @param speed       the master speed at which we travel
-     * @param time        the time the detector will wait in seconds
+     * @param speed          the master speed at which we travel
+     * @param time           the time the detector will wait in seconds
      */
     public void moveDistanceFromTileEdge(double targetDistance, double speed, double time) {
         if (tileEdgeDetectorSide.waitForDetection(time)) {
-            double initialDistance = tileEdgeDetectorSide.getDistanceToTile();
+            double initialDistance = tileEdgeDetectorSide.getDistanceToTileHorizontal();
             double distance = targetDistance - initialDistance;
 
             // Sanity check - don't try to move more than 6 inches
@@ -280,7 +268,7 @@ public class DriveTrain extends BaseComponent {
     }
 
     public void moveDistanceFromTileEdge(double targetDistance, double speed) {
-        moveDistanceFromTileEdge(targetDistance,speed,1);
+        moveDistanceFromTileEdge(targetDistance, speed, 1);
     }
 
     /**
@@ -364,7 +352,7 @@ public class DriveTrain extends BaseComponent {
             power = 1 / (1 + Math.pow(Math.E, -16 * (2 * xVal - 0.125)));
 
             // While accelerating, gradually increase the min power with time
-            minPower += time.seconds() / 4.0;
+            //minPower += time.seconds() / 4.0;
 
         } else {
             power = 1 / (1 + Math.pow(Math.E, 8 * (2 * xVal - 1.675)));
@@ -566,8 +554,8 @@ public class DriveTrain extends BaseComponent {
         private double speed;
 
         public Rotate(double angle, double speed) {
-            this.initialHeading = heading;
-            this.targetHeading = heading + angle;
+            this.initialHeading = cumulativeHeading;
+            this.targetHeading = cumulativeHeading + angle;
             this.speed = speed;
         }
 
@@ -578,13 +566,14 @@ public class DriveTrain extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            double power = getPowerCurveForPosition(heading, initialHeading, targetHeading, speed);
+            double power = getPowerCurveForPosition(cumulativeHeading, initialHeading, targetHeading, speed);
 
-            if (targetHeading < heading) {
+            //if problems check this
+            if (targetHeading > cumulativeHeading) {
                 power = -power;
             }
 
-            telemetry.addData("Heading", heading);
+            telemetry.addData("Heading", cumulativeHeading);
             telemetry.addData("Initial Heading", initialHeading);
             telemetry.addData("Target Heading", targetHeading);
             telemetry.addData("Motor Power Curve", power);
@@ -594,7 +583,9 @@ public class DriveTrain extends BaseComponent {
             frontRight.setPower(power);
             backRight.setPower(power);
 
-            return Math.abs(heading - targetHeading) < ANGLE_THRESHOLD;
+            return Math.abs(cumulativeHeading - targetHeading) < ANGLE_THRESHOLD;
+
+
         }
 
 
