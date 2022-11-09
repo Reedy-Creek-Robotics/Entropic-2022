@@ -77,6 +77,10 @@ public class HoughTransformTest extends OpMode {
         }
 
 
+        telemetry.addData("IMU angle 1", robot.getDriveTrain().getImu().getAngularOrientation().firstAngle);
+        telemetry.addData("IMU angle 2", robot.getDriveTrain().getImu().getAngularOrientation().secondAngle);
+        telemetry.addData("IMU angle 3", robot.getDriveTrain().getImu().getAngularOrientation().thirdAngle);
+
         telemetry.addData("Exposure(ms):",robot.getFrontWebCam().getExposure());
         telemetry.update();
     }
