@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.util;
 public class DistanceUtil {
 
     /**
-     * Converts inches to feet.
+     * Converts inches to tiles.
      */
     public static double inches(double inches) {
-        return inches / 12.0;
+        return inches / 24.0;
     }
 
 }

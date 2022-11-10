@@ -24,9 +24,9 @@ public class DriveTrain extends BaseComponent {
     // todo: edge detection (can't rely solely on runToPosition)
 
     /**
-     * Diameter of the wheel in feet
+     * Diameter of the wheel in tiles
      */
-    private static final double WHEEL_SIZE = 0.328084;
+    private static final double WHEEL_SIZE = 0.164042;
 
     private static final double TICKS_PER_REVOLUTION = 537.6;
     private static final double STRAFE_CORRECTION = 1.25;
@@ -190,7 +190,7 @@ public class DriveTrain extends BaseComponent {
     /**
      * Moves forward the given distance.
      *
-     * @param distance the distance to move in feet
+     * @param distance the distance to move in tiles
      * @param speed    a factor 0-1 that indicates how fast to move
      */
     public void moveForward(double distance, double speed) {
@@ -200,7 +200,7 @@ public class DriveTrain extends BaseComponent {
     /**
      * Moves forward the given distance
      *
-     * @param distance  the distance to move in feet
+     * @param distance  the distance to move in tiles
      * @param speed     a factor 0-1 that indicates how fast to move
      * @param direction the direction we want to travel
      */
@@ -249,7 +249,7 @@ public class DriveTrain extends BaseComponent {
      * Strafes the robot so that the edge of the right wheel is the requested distance from the edge of the closest
      * tile to the right.
      *
-     * @param targetDistance the desired distance from the edge of the tile, in feet.
+     * @param targetDistance the desired distance from the edge of the tile, in tiles.
      * @param speed          the master speed at which we travel
      * @param time           the time the detector will wait in seconds
      */
@@ -258,7 +258,7 @@ public class DriveTrain extends BaseComponent {
             double initialDistance = tileEdgeDetectorSide.getDistanceToTileHorizontal();
             double distance = targetDistance - initialDistance;
 
-            // Sanity check - don't try to move more than 6 inches
+            // Sanity check - don't try to move more than 10 inches
             double maxDistance = inches(10);
             if (Math.abs(distance) < maxDistance) {
                 StrafeDirection direction = distance < 0.0 ? StrafeDirection.RIGHT : StrafeDirection.LEFT;
@@ -314,13 +314,13 @@ public class DriveTrain extends BaseComponent {
     }
 
     /**
-     * Converts feet traveled into number of ticks moved by
+     * Converts tiles traveled into number of ticks moved by
      *
-     * @param distance how far you want to travel in cm
+     * @param distance how far you want to travel in tiles
      * @return number of ticks to turn
      */
-    private int feetToTicks(double distance) {
-        //in feet
+    private int tilesToTicks(double distance) {
+        //in tiles
         double wheelCircumference = (WHEEL_SIZE * Math.PI);
 
         double wheelRevolutions = distance / wheelCircumference;
@@ -401,7 +401,7 @@ public class DriveTrain extends BaseComponent {
         public void start() {
 
             // Figure out the distance in ticks
-            ticks = feetToTicks(distance);
+            ticks = tilesToTicks(distance);
 
             setMotorMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
