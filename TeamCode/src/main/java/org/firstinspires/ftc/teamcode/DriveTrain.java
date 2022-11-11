@@ -226,10 +226,10 @@ public class DriveTrain extends BaseComponent {
     public void move(double distance, Direction direction, double speed) {
         if (direction == x) {
             executeCommand(new Strafe(distance, speed));
-            currentPosition.x += distance;
+            //currentPosition.x += distance;
         } else {
             executeCommand(new MoveForward(distance, speed));
-            currentPosition.y += distance;
+            //currentPosition.y += distance;
         }
     }
 
