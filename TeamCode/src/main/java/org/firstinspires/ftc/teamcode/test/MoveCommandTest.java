@@ -56,5 +56,7 @@ public class MoveCommandTest extends OpMode {
             }
         }
 
+        robot.updateStatus();
+
     }
 }
