@@ -416,6 +416,19 @@ public class DriveTrain extends BaseComponent {
         return (current - initial) / (target - initial);
     }
 
+    /**
+     *
+     * @param endDistanceTraveled How far the robot will travel by the end of the command
+     * @param priorProgress The completion progress the robot was at last call of this function
+     * @param currentProgress The completion progress the robot is currently at
+     * @param theta Angle the robot is facing in radians
+     */
+    private void updateGlobalPosition(double endDistanceTraveled, double priorProgress, double currentProgress, double theta) {
+        double progressChange = currentProgress - priorProgress;
+        currentPosition.x += progressChange * endDistanceTraveled * Math.sin(theta);
+        currentPosition.y += progressChange * endDistanceTraveled * Math.cos(theta);
+    }
+
     private abstract class BaseCommand implements Command {
 
         @Override
@@ -441,6 +454,11 @@ public class DriveTrain extends BaseComponent {
          */
         private int ticks;
 
+        ////////////////////////////////////////////////
+        //Test Code
+        private double progress;
+        ////////////////////////////////////////////////
+
         public MoveForward(double distance, double speed) {
             this.distance = distance;
             this.speed = speed;
@@ -448,6 +466,11 @@ public class DriveTrain extends BaseComponent {
 
         @Override
         public void start() {
+
+            ////////////////////////////////////////////////
+            //Test Code
+            progress = 0;
+            ////////////////////////////////////////////////
 
             // Figure out the distance in ticks
             ticks = tilesToTicks(distance);
@@ -467,16 +490,19 @@ public class DriveTrain extends BaseComponent {
             // Check if we've reached the correct number of ticks
             int ticksMoved = averageMotorPosition();
 
-            double power = getPowerCurveForPosition(ticksMoved, 0, Math.abs(ticks), speed);
+            ////////////////////////////////////////////////
+            //Test Code
+            double updatedProgress = scaleProgress(Math.abs(ticksMoved), 0, Math.abs(ticks));
+            updateGlobalPosition(distance,progress,updatedProgress,Math.toRadians(getHeading() - 90));
+            progress = updatedProgress;
+            ////////////////////////////////////////////////
 
             telemetry.addData("ticks moved", ticksMoved);
             telemetry.addData("ticks", ticks);
-            telemetry.addData("currentPower", power);
 
-            setMotorPower(power);
-            return ticksMoved >= Math.abs(ticks);
+            setMotorPower(getPowerCurveForPosition(ticksMoved, 0, Math.abs(ticks), speed));
+            return progress >= 1.0;
         }
-
     }
 
     private class Strafe extends BaseCommand {
@@ -493,6 +519,11 @@ public class DriveTrain extends BaseComponent {
 
         private int ticks;
 
+        ////////////////////////////////////////////////
+        //Test Code
+        private double progress;
+        ////////////////////////////////////////////////
+
         // todo check distance multiplied by strafe modifier
         public Strafe(double distance, double speed) {
             this.distance = distance;
@@ -501,6 +532,11 @@ public class DriveTrain extends BaseComponent {
 
         @Override
         public void start() {
+            ////////////////////////////////////////////////
+            //Test Code
+            progress = 0;
+            ////////////////////////////////////////////////
+
             ticks = tilesToTicks(distance);
 
             setMotorMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
@@ -517,7 +553,12 @@ public class DriveTrain extends BaseComponent {
         public boolean updateStatus() {
             int ticksMoved = averageMotorPosition();
 
-            double progress = scaleProgress(Math.abs(ticksMoved), 0, Math.abs(ticks));
+            ////////////////////////////////////////////////
+            //Test Code
+            double updatedProgress = scaleProgress(Math.abs(ticksMoved), 0, Math.abs(ticks));
+            updateGlobalPosition(distance,progress,updatedProgress,Math.toRadians(getHeading()));
+            progress = updatedProgress;
+            ////////////////////////////////////////////////
 
             telemetry.addData("tick moved", ticksMoved);
             telemetry.addData("ticks", ticks);
