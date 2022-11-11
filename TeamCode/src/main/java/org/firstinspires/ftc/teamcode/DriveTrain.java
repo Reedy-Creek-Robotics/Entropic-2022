@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.*;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
 
 import android.annotation.SuppressLint;
@@ -14,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-//import org.opencv.core.Point;
+import org.opencv.core.Point;
 
 import java.util.Arrays;
 import java.util.List;
@@ -56,6 +57,8 @@ public class DriveTrain extends BaseComponent {
      */
     private Orientation lastOrientation;
 
+    protected Point currentPosition;
+
 
     public DriveTrain(OpMode opMode, WebCam webCamSide) {
         super(opMode);
@@ -72,6 +75,10 @@ public class DriveTrain extends BaseComponent {
         addSubComponents(tileEdgeDetectorSide);
 
         cumulativeHeading = 90.0;
+
+        //todo: Decide how we are going to determine starting position
+        //For now starting position is to be assumed 0,0
+        currentPosition = new Point(0, 0);
     }
 
     @Override
@@ -140,6 +147,7 @@ public class DriveTrain extends BaseComponent {
         updateHeading();
 
         telemetry.addData("Heading", getHeading());
+        telemetry.addData("Position", currentPosition);
 
         if (tileEdgeDetectorSide.isDetected()) {
             telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
@@ -181,10 +189,35 @@ public class DriveTrain extends BaseComponent {
      * @param strafe
      */
     public void drive(double drive, double turn, double strafe) {
+        setMotorMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+
         frontLeft.setPower(drive - turn - strafe);
         frontRight.setPower(drive + turn + strafe);
         backRight.setPower(drive + turn - strafe);
         backLeft.setPower(drive - turn + strafe);
+    }
+
+    public enum Direction {
+        x,
+        y
+    }
+
+
+    /**
+     * Moves forward the given distance in the chosen direction at the given speed
+     *
+     * @param distance  Move that many tiles. Backwards and Right are negative Directions.z
+     * @param direction The direction you want to move in
+     * @param speed     The speed you want to move at
+     */
+    public void move(double distance, Direction direction, double speed) {
+        if (direction == x) {
+            executeCommand(new Strafe(distance, speed));
+            currentPosition.x += distance;
+        } else {
+            executeCommand(new MoveForward(distance, speed));
+            currentPosition.y += distance;
+        }
     }
 
     /**
@@ -200,16 +233,15 @@ public class DriveTrain extends BaseComponent {
     /**
      * Moves forward the given distance
      *
-     * @param distance  the distance to move in tiles
-     * @param speed     a factor 0-1 that indicates how fast to move
-     * @param direction the direction we want to travel
+     * @param distance the distance to move in tiles. Positive to the left, Negative to the right
+     * @param speed    a factor 0-1 that indicates how fast to move
      */
-    public void strafe(double distance, double speed, StrafeDirection direction) {
-        executeCommand(new Strafe(distance, speed, direction));
+    public void strafe(double distance, double speed) {
+        executeCommand(new Strafe(distance, speed));
     }
 
-    public void strafeTime(double time, double speed, StrafeDirection direction) {
-        executeCommand(new StrafeTime(time, speed, direction));
+    public void strafeTime(double time, double speed) {
+        executeCommand(new StrafeTime(time, speed));
     }
 
     /**
@@ -261,8 +293,7 @@ public class DriveTrain extends BaseComponent {
             // Sanity check - don't try to move more than 10 inches
             double maxDistance = inches(10);
             if (Math.abs(distance) < maxDistance) {
-                StrafeDirection direction = distance < 0.0 ? StrafeDirection.RIGHT : StrafeDirection.LEFT;
-                strafe(Math.abs(distance), speed, direction);
+                strafe(distance, speed);
             }
         }
     }
@@ -339,11 +370,8 @@ public class DriveTrain extends BaseComponent {
      * @param speed   the master speed, with range 0.0 - 1.0
      */
     private double getPowerCurveForPosition(double current, double initial, double target, double speed) {
-        // Avoid division by zero
-        if (target == initial) return 0.0;
-
         // Scale the position to between 0 - 1
-        double xVal = (current - initial) / (target - initial);
+        double xVal = scaleProgress(current, initial, target);
 
         double minPower = 0.2;
 
@@ -418,7 +446,7 @@ public class DriveTrain extends BaseComponent {
             // Check if we've reached the correct number of ticks
             int ticksMoved = averageMotorPosition();
 
-            double power = getPowerCurveForPosition(ticksMoved, 0, ticks, speed);
+            double power = getPowerCurveForPosition(ticksMoved, 0, Math.abs(ticks), speed);
 
             telemetry.addData("ticks moved", ticksMoved);
             telemetry.addData("ticks", ticks);
@@ -430,20 +458,10 @@ public class DriveTrain extends BaseComponent {
 
     }
 
-    public enum StrafeDirection {
-        RIGHT,
-        LEFT
-    }
-
     private class Strafe extends BaseCommand {
 
         /**
-         * The direction in which to strafe.
-         */
-        private StrafeDirection direction;
-
-        /**
-         * The distance we want to move.
+         * The distance we want to move. Negative direction is to the right, Positive to the left
          */
         private double distance;
 
@@ -455,30 +473,21 @@ public class DriveTrain extends BaseComponent {
         private int ticks;
 
         // todo check distance multiplied by strafe modifier
-        public Strafe(double distance, double speed, StrafeDirection direction) {
-            this.direction = direction;
+        public Strafe(double distance, double speed) {
             this.distance = distance;
             this.speed = speed;
         }
 
         @Override
         public void start() {
-            ticks = feetToTicks(distance);
+            ticks = tilesToTicks(distance);
 
             setMotorMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
-            if (direction == StrafeDirection.LEFT) {
-                frontLeft.setTargetPosition(-ticks);
-                frontRight.setTargetPosition(ticks);
-                backLeft.setTargetPosition(ticks);
-                backRight.setTargetPosition(-ticks);
-
-            } else if (direction == StrafeDirection.RIGHT) {
-                frontLeft.setTargetPosition(ticks);
-                frontRight.setTargetPosition(-ticks);
-                backLeft.setTargetPosition(-ticks);
-                backRight.setTargetPosition(ticks);
-            }
+            frontLeft.setTargetPosition(-ticks);
+            frontRight.setTargetPosition(ticks);
+            backLeft.setTargetPosition(ticks);
+            backRight.setTargetPosition(-ticks);
 
             setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
@@ -490,17 +499,13 @@ public class DriveTrain extends BaseComponent {
             telemetry.addData("tick moved", ticksMoved);
             telemetry.addData("ticks", ticks);
 
-            setMotorPower(getPowerCurveForPosition(ticksMoved, 0, ticks, speed));
-            return ticksMoved >= ticks;
+            setMotorPower(getPowerCurveForPosition(ticksMoved, 0, Math.abs(ticks), speed));
+
+            return progress >= 1.0;
         }
     }
 
     private class StrafeTime extends BaseCommand {
-
-        /**
-         * The direction in which to strafe.
-         */
-        private StrafeDirection direction;
 
         /**
          * The distance we want to move.
@@ -508,13 +513,12 @@ public class DriveTrain extends BaseComponent {
         private double duration;
 
         /**
-         * The speed at which to move.
+         * The speed at which to move.  Negative direction is to the right, Positive to the left
          */
         private double speed;
 
         // todo check distance multiplied by strafe modifier
-        public StrafeTime(double duration, double speed, StrafeDirection direction) {
-            this.direction = direction;
+        public StrafeTime(double duration, double speed) {
             this.duration = duration;
             this.speed = speed;
         }
@@ -523,18 +527,10 @@ public class DriveTrain extends BaseComponent {
         public void start() {
             setMotorMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
-            if (direction == StrafeDirection.LEFT) {
-                frontLeft.setPower(-speed);
-                frontRight.setPower(speed);
-                backLeft.setPower(speed);
-                backRight.setPower(-speed);
-
-            } else if (direction == StrafeDirection.RIGHT) {
-                frontLeft.setPower(speed);
-                frontRight.setPower(-speed);
-                backLeft.setPower(-speed);
-                backRight.setPower(speed);
-            }
+            frontLeft.setPower(-speed);
+            frontRight.setPower(speed);
+            backLeft.setPower(speed);
+            backRight.setPower(-speed);
         }
 
         @Override
@@ -545,9 +541,6 @@ public class DriveTrain extends BaseComponent {
 
 
     private class Rotate extends BaseCommand {
-
-        // The angle threshold in degrees
-        private double ANGLE_THRESHOLD = 1.0;
 
         private double initialHeading;
         private double targetHeading;
@@ -572,6 +565,7 @@ public class DriveTrain extends BaseComponent {
             if (targetHeading > cumulativeHeading) {
                 power = -power;
             }
+            double progress = scaleProgress(cumulativeHeading, initialHeading, targetHeading);
 
             telemetry.addData("Heading", cumulativeHeading);
             telemetry.addData("Initial Heading", initialHeading);
