@@ -29,8 +29,15 @@ public class DriveTrain extends BaseComponent {
      */
     private static final double WHEEL_SIZE = 0.164042;
 
+    /**
+     * The number of encoder ticks that pass in a complete revolution of the motor.
+     */
     private static final double TICKS_PER_REVOLUTION = 537.6;
-    private static final double STRAFE_CORRECTION = 1.25;
+
+    /**
+     * A factor used to fine-tune the robot's tick distance conversion.
+     */
+    private static final double TICK_CORRECTION_FACTOR = 0.98;
 
     /**
      * The software of the drivetrain
@@ -177,6 +184,11 @@ public class DriveTrain extends BaseComponent {
         }
 
         double deltaAngle = orientation.firstAngle - lastOrientation.firstAngle;
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+
         cumulativeHeading += deltaAngle;
 
         lastOrientation = orientation;
@@ -184,6 +196,7 @@ public class DriveTrain extends BaseComponent {
 
     /**
      * Sets the motor powers equal to the controllers inputs.
+     *
      * @param drive
      * @param turn
      * @param strafe
@@ -373,7 +386,7 @@ public class DriveTrain extends BaseComponent {
         // Scale the position to between 0 - 1
         double xVal = scaleProgress(current, initial, target);
 
-        double minPower = 0.2;
+        double minPower = 0.15;
 
         double power;
         if (xVal < 0.25) {
@@ -393,6 +406,14 @@ public class DriveTrain extends BaseComponent {
         }
 
         return power;
+    }
+
+    /**
+     * Scales current progress from an initial value to a target value, returning as a fraction between 0.0 - 1.0.
+     */
+    private double scaleProgress(double current, double initial, double target) {
+        if (target == initial) return 1.0;
+        return (current - initial) / (target - initial);
     }
 
     private abstract class BaseCommand implements Command {
@@ -496,6 +517,8 @@ public class DriveTrain extends BaseComponent {
         public boolean updateStatus() {
             int ticksMoved = averageMotorPosition();
 
+            double progress = scaleProgress(Math.abs(ticksMoved), 0, Math.abs(ticks));
+
             telemetry.addData("tick moved", ticksMoved);
             telemetry.addData("ticks", ticks);
 
@@ -562,7 +585,7 @@ public class DriveTrain extends BaseComponent {
             double power = getPowerCurveForPosition(cumulativeHeading, initialHeading, targetHeading, speed);
 
             //if problems check this
-            if (targetHeading > cumulativeHeading) {
+            if (targetHeading < cumulativeHeading) {
                 power = -power;
             }
             double progress = scaleProgress(cumulativeHeading, initialHeading, targetHeading);
@@ -577,11 +600,8 @@ public class DriveTrain extends BaseComponent {
             frontRight.setPower(power);
             backRight.setPower(power);
 
-            return Math.abs(cumulativeHeading - targetHeading) < ANGLE_THRESHOLD;
-
-
+            return progress >= 1.0;
         }
-
 
     }
 }
