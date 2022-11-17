@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.test;
 
-import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.*;
+import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.X;
+import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.Y;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -36,16 +37,16 @@ public class MoveCommandTest extends OpMode {
 
         if(commandMove.seconds() > .5) {
             if (gamepad1.dpad_up) {
-                robot.getDriveTrain().move(1, y, BASE_SPEED);
+                robot.getDriveTrain().move(1, Y, BASE_SPEED);
                 robot.waitForCommandsToFinish();
             } else if (gamepad1.dpad_left) {
-                robot.getDriveTrain().move(1, x, BASE_SPEED);
+                robot.getDriveTrain().move(1, X, BASE_SPEED);
                 robot.waitForCommandsToFinish();
             } else if (gamepad1.dpad_down) {
-                robot.getDriveTrain().move(-1, y, BASE_SPEED);
+                robot.getDriveTrain().move(-1, Y, BASE_SPEED);
                 robot.waitForCommandsToFinish();
             } else if (gamepad1.dpad_right) {
-                robot.getDriveTrain().move(-1, x, BASE_SPEED);
+                robot.getDriveTrain().move(-1, X, BASE_SPEED);
                 robot.waitForCommandsToFinish();
             }else if(gamepad1.a) {
                 robot.getDriveTrain().rotate(90, BASE_SPEED);

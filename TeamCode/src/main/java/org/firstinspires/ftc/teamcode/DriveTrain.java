@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.*;
+import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.X;
+import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.Y;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
 
 import android.annotation.SuppressLint;
@@ -55,16 +56,34 @@ public class DriveTrain extends BaseComponent {
     private BNO055IMU imu;
 
     /**
-     * The total cumulative heading for the robot.  This value can go above 360 or below 0 and will not wrap around.
+     * The current position for the robot.
      */
-    private double cumulativeHeading;
+    private Point position;
 
     /**
-     * The last orientation obtained from the IMU.
+     * The current heading for the robot.
      */
-    private Orientation lastOrientation;
+    private Heading heading;
 
-    protected Point currentPosition;
+    /**
+     * The current velocity vector in tiles / sec.
+     */
+    private Point velocity;
+
+    /**
+     * The position that the robot is trying to move toward.
+     */
+    private Point targetPosition;
+
+    /**
+     * The heading that the robot is trying to achieve.
+     */
+    private Heading targetHeading;
+
+    /**
+     * The last orientation data obtained from the IMU.
+     */
+    private Orientation previousImuOrientation;
 
 
     public DriveTrain(OpMode opMode, WebCam webCamSide) {
@@ -81,11 +100,10 @@ public class DriveTrain extends BaseComponent {
         tileEdgeDetectorSide = new TileEdgeDetector(opMode, webCamSide);
         addSubComponents(tileEdgeDetectorSide);
 
-        cumulativeHeading = 90.0;
-
         //todo: Decide how we are going to determine starting position
         //For now starting position is to be assumed 0,0
-        currentPosition = new Point(0, 0);
+        position = new Point(0, 0);
+        heading = new Heading(0.0);
     }
 
     @Override
@@ -137,28 +155,38 @@ public class DriveTrain extends BaseComponent {
     }
 
     /**
-     * @return the actual heading of the robot(0 - 360)
+     * Return the heading of the robot as an angle in degrees from (0 - 360).
      */
     public double getHeading() {
-        double heading = cumulativeHeading % 360;
-        if (heading < 0) {
-            heading += 360;
-        }
-        return heading;
+        return heading.getValue();
+    }
+
+    /**
+     * Return the current position of the robot.
+     */
+    public Point getPosition() {
+        return position;
     }
 
     @SuppressLint("DefaultLocale")
     @Override
     public void updateStatus() {
-        // Update the heading based off the IMU
-        updateHeading();
+        // Update the current position and heading based off of sensory data
+        updateCurrentPosition();
+        updateCurrentHeading();
 
-        telemetry.addData("Heading", getHeading());
-        telemetry.addData("Position", currentPosition);
+        telemetry.addData("Heading", String.format("%.2f", heading.getValue()));
+        telemetry.addData("Position", String.format("(%.3f,%.3f)", position.x, position.y));
 
         if (tileEdgeDetectorSide.isDetected()) {
             telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
-            telemetry.addData("Distance to Tile", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileHorizontal() * 12.0));
+            // todo: convert these to tile units instead of inches
+            telemetry.addData("Distance to Tile (horiz)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileHorizontal() * 12.0));
+            telemetry.addData("Distance to Tile (vert)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileVertical() * 12.0));
+        }
+
+        if (targetPosition != null || targetHeading != null) {
+            // todo: move toward target position and heading
         }
 
         // Now allow any commands to run with the updated data
@@ -166,9 +194,20 @@ public class DriveTrain extends BaseComponent {
     }
 
     /**
-     * Updates the heading with the IMU
+     * Updates the current position of the bot.
      */
-    private void updateHeading() {
+    private void updateCurrentPosition() {
+
+        // todo: check the tile edge detector to determine if we have a visual observation we can use
+
+        // todo: otherwise, update the ticks
+
+    }
+
+    /**
+     * Updates the current heading of the bot.
+     */
+    private void updateCurrentHeading() {
 
         // The following code adapted with permission from team SkyStone 2019-2020.
 
@@ -179,19 +218,14 @@ public class DriveTrain extends BaseComponent {
 
         Orientation orientation = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
-        if (lastOrientation == null) {
-            lastOrientation = orientation;
+        if (previousImuOrientation == null) {
+            previousImuOrientation = orientation;
         }
 
-        double deltaAngle = orientation.firstAngle - lastOrientation.firstAngle;
-        if (deltaAngle < -180)
-            deltaAngle += 360;
-        else if (deltaAngle > 180)
-            deltaAngle -= 360;
+        double deltaAngle = orientation.firstAngle - previousImuOrientation.firstAngle;
+        heading = heading.add(deltaAngle);
 
-        cumulativeHeading += deltaAngle;
-
-        lastOrientation = orientation;
+        previousImuOrientation = orientation;
     }
 
     /**
@@ -202,6 +236,9 @@ public class DriveTrain extends BaseComponent {
      * @param strafe
      */
     public void drive(double drive, double turn, double strafe) {
+        // Stop any current command from executing.
+        stopCommand();
+
         setMotorMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
         frontLeft.setPower(drive - turn - strafe);
@@ -211,25 +248,24 @@ public class DriveTrain extends BaseComponent {
     }
 
     public enum Direction {
-        x,
-        y
+        X,
+        Y
     }
 
-
     /**
-     * Moves forward the given distance in the chosen direction at the given speed
+     * Moves the given distance in tiles, in the given direction, at the given speed.
      *
-     * @param distance  Move that many tiles. Backwards and Right are negative Directions.z
+     * @param distance  Move that many tiles. Backwards and Right are negative Directions.
      * @param direction The direction you want to move in
      * @param speed     The speed you want to move at
      */
     public void move(double distance, Direction direction, double speed) {
-        if (direction == x) {
-            executeCommand(new Strafe(distance, speed));
-            //currentPosition.x += distance;
-        } else {
-            executeCommand(new MoveForward(distance, speed));
-            //currentPosition.y += distance;
+        // todo: if current command is "move to target position and rotation", then update that
+        // todo: command with a new position and rotation.
+        if (direction == X) {
+            strafe(distance, speed);
+        } else if (direction == Y) {
+            moveForward(distance, speed);
         }
     }
 
@@ -417,16 +453,15 @@ public class DriveTrain extends BaseComponent {
     }
 
     /**
-     *
      * @param endDistanceTraveled How far the robot will travel by the end of the command
-     * @param priorProgress The completion progress the robot was at last call of this function
-     * @param currentProgress The completion progress the robot is currently at
-     * @param theta Angle the robot is facing in radians
+     * @param priorProgress       The completion progress the robot was at last call of this function
+     * @param currentProgress     The completion progress the robot is currently at
+     * @param theta               Angle the robot is facing in radians
      */
     private void updateGlobalPosition(double endDistanceTraveled, double priorProgress, double currentProgress, double theta) {
         double progressChange = currentProgress - priorProgress;
-        currentPosition.x += progressChange * endDistanceTraveled * Math.sin(theta);
-        currentPosition.y += progressChange * endDistanceTraveled * Math.cos(theta);
+        position.x += progressChange * endDistanceTraveled * Math.sin(theta);
+        position.y += progressChange * endDistanceTraveled * Math.cos(theta);
     }
 
     private abstract class BaseCommand implements Command {
@@ -493,7 +528,7 @@ public class DriveTrain extends BaseComponent {
             ////////////////////////////////////////////////
             //Test Code
             double updatedProgress = scaleProgress(Math.abs(ticksMoved), 0, Math.abs(ticks));
-            updateGlobalPosition(distance,progress,updatedProgress,Math.toRadians(getHeading() - 90));
+            updateGlobalPosition(distance, progress, updatedProgress, Math.toRadians(getHeading() - 90));
             progress = updatedProgress;
             ////////////////////////////////////////////////
 
@@ -556,7 +591,7 @@ public class DriveTrain extends BaseComponent {
             ////////////////////////////////////////////////
             //Test Code
             double updatedProgress = scaleProgress(Math.abs(ticksMoved), 0, Math.abs(ticks));
-            updateGlobalPosition(distance,progress,updatedProgress,Math.toRadians(getHeading()));
+            updateGlobalPosition(distance, progress, updatedProgress, Math.toRadians(getHeading()));
             progress = updatedProgress;
             ////////////////////////////////////////////////
 
@@ -611,8 +646,8 @@ public class DriveTrain extends BaseComponent {
         private double speed;
 
         public Rotate(double angle, double speed) {
-            this.initialHeading = cumulativeHeading;
-            this.targetHeading = cumulativeHeading + angle;
+            this.initialHeading = heading.getValue();
+            this.targetHeading = heading.getValue() + angle;
             this.speed = speed;
         }
 
@@ -623,15 +658,19 @@ public class DriveTrain extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            double power = getPowerCurveForPosition(cumulativeHeading, initialHeading, targetHeading, speed);
+
+            throw new UnsupportedOperationException();
+
+            /*
+            double power = getPowerCurveForPosition(heading.getValue(), initialHeading, targetHeading, speed);
 
             //if problems check this
-            if (targetHeading < cumulativeHeading) {
+            if (targetHeading < heading) {
                 power = -power;
             }
-            double progress = scaleProgress(cumulativeHeading, initialHeading, targetHeading);
+            double progress = scaleProgress(heading, initialHeading, targetHeading);
 
-            telemetry.addData("Heading", cumulativeHeading);
+            telemetry.addData("Heading", heading);
             telemetry.addData("Initial Heading", initialHeading);
             telemetry.addData("Target Heading", targetHeading);
             telemetry.addData("Motor Power Curve", power);
@@ -642,6 +681,7 @@ public class DriveTrain extends BaseComponent {
             backRight.setPower(power);
 
             return progress >= 1.0;
+            */
         }
 
     }
