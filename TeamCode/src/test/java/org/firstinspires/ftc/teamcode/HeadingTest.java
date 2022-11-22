@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.junit.Assert.assertEquals;
 
+import org.firstinspires.ftc.teamcode.util.Heading;
 import org.junit.Test;
 
 public class HeadingTest {
