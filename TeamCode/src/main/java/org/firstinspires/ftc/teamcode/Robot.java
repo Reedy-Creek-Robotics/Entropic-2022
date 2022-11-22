@@ -63,7 +63,7 @@ public class Robot extends BaseComponent {
         while (!isStopRequested()) {
             updateStatus();
         }
-        stopCommand();
+        stopAllCommands();
     }
 
     public DriveTrain getDriveTrain() {
