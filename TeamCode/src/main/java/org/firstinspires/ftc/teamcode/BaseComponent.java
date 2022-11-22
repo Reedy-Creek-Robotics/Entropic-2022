@@ -22,6 +22,7 @@ public abstract class BaseComponent implements Component {
     protected ElapsedTime time;
 
     private Command currentCommand;
+    private List<Command> nextCommands;
 
     private List<Component> subComponents = new ArrayList<>();
 
@@ -31,17 +32,24 @@ public abstract class BaseComponent implements Component {
         this.telemetry = opMode.telemetry;
         this.time = new ElapsedTime();
         this.currentCommand = null;
+        this.nextCommands = new ArrayList<>();
     }
 
+    /**
+     * Executes the given command.  If there's another command in progress, this one will be added to the queue.
+     */
     protected void executeCommand(Command command) {
         this.nextCommands.add(command);
     }
 
-    protected void stopCommand() {
-        if(currentCommand != null) {
+    /**
+     * Stops the current command and removes any additional commands from the queue.
+     */
+    protected void stopAllCommands() {
+        if (currentCommand != null) {
             currentCommand.stop();
-            currentCommand = null;
         }
+        nextCommands.clear();
     }
 
     protected void addSubComponents(Component... subComponents) {
@@ -51,17 +59,25 @@ public abstract class BaseComponent implements Component {
     @Override
     public void init() {
         for (Component subComponent : subComponents) {
-            telemetry.addData("Subcomponent:",subComponent);
+            telemetry.addData("Subcomponent:", subComponent);
             telemetry.update();
             subComponent.init();
         }
-        telemetry.addData("Robot is initialized","");
+        telemetry.addData("Robot is initialized", "");
         telemetry.update();
     }
 
     @Override
     public void updateStatus() {
-        // If there is a current command we are trying to execute, delegate to it to update status
+
+        // If there is not a current command, but there are commands in the queue, start the next one.
+        if (currentCommand == null && !nextCommands.isEmpty()) {
+            currentCommand = nextCommands.remove(0);
+            currentCommand.start();
+            time.reset();
+        }
+
+        // If there is a current command we are trying to execute, delegate to it for update status
         if (currentCommand != null) {
             boolean finished = currentCommand.updateStatus();
 
