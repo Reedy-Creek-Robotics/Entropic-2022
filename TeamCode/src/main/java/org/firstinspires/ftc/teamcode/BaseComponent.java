@@ -34,10 +34,7 @@ public abstract class BaseComponent implements Component {
     }
 
     protected void executeCommand(Command command) {
-        stopCommand();
-        time.reset();
-        currentCommand = command;
-        currentCommand.start();
+        this.nextCommands.add(command);
     }
 
     protected void stopCommand() {
