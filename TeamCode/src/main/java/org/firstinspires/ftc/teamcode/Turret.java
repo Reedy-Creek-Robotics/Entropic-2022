@@ -7,6 +7,7 @@ public class Turret extends BaseComponent{
 
     private static double MAXIMUM = 1.0;
     private static double MINIMUM = 0.0;
+    private static double THRESHOLD = 0.05;
 
     private Servo servo;
 
@@ -15,27 +16,22 @@ public class Turret extends BaseComponent{
         servo = hardwareMap.servo.get("turret");
     }
 
-    @Override
-    public void init() {
-        super.init();
-    }
-
     private class MoveToPosition implements Command {
 
-        private double position;
+        private double desiredPosition;
 
         public MoveToPosition(double position) {
-            this.position = position;
+            this.desiredPosition = position;
         }
 
         @Override
         public void start() {
-            if(position > MAXIMUM)
-                position = MAXIMUM;
-            else if(position < MINIMUM)
-                position = MINIMUM;
+            if(desiredPosition > MAXIMUM)
+                desiredPosition = MAXIMUM;
+            else if(desiredPosition < MINIMUM)
+                desiredPosition = MINIMUM;
 
-            servo.setPosition(position);
+            servo.setPosition(desiredPosition);
             servo.getController().pwmEnable();
         }
 
@@ -47,7 +43,7 @@ public class Turret extends BaseComponent{
 
         @Override
         public boolean updateStatus() {
-            //Do nothing
+            return Math.abs(servo.getPosition() - desiredPosition) < THRESHOLD;
         }
     }
 }

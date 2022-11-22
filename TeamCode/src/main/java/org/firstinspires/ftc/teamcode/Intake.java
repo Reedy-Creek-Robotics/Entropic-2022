@@ -11,11 +11,6 @@ public class Intake extends BaseComponent{
         intakeServo = hardwareMap.crservo.get("intakeWheel");
     }
 
-    @Override
-    public void init() {
-        super.init();
-    }
-
     /**
      * @param power of the servo
      */
@@ -63,15 +58,5 @@ public class Intake extends BaseComponent{
             time.reset();
             intakeServo.setPower(power);
         }
-    }
-
-    @Override
-    public void updateStatus() {
-        super.updateStatus();
-    }
-
-    @Override
-    public boolean isBusy() {
-        return super.isBusy();
     }
 }
