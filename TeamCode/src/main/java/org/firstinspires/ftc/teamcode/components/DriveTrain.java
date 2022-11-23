@@ -1,7 +1,7 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.X;
-import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.Y;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
 
 import android.annotation.SuppressLint;
@@ -16,6 +16,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.BaseComponent;
+import org.firstinspires.ftc.teamcode.Command;
+import org.firstinspires.ftc.teamcode.TileEdgeDetector;
+import org.firstinspires.ftc.teamcode.WebCam;
 import org.firstinspires.ftc.teamcode.util.Heading;
 import org.opencv.core.Point;
 

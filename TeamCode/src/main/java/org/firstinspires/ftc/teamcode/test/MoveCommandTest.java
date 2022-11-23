@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.test;
 
-import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.X;
-import static org.firstinspires.ftc.teamcode.DriveTrain.Direction.Y;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
