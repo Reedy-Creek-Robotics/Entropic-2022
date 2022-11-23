@@ -1,7 +1,10 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
+import org.firstinspires.ftc.teamcode.AprilTagDetectionFrameProcessor;
+import org.firstinspires.ftc.teamcode.components.BaseComponent;
+import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.openftc.apriltag.AprilTagDetection;
 
 import java.util.List;

@@ -3,7 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.components.AprilTagDetector;
+import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
+import org.firstinspires.ftc.teamcode.components.WebCam;
 
 
 public class Robot extends BaseComponent {
