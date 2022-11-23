@@ -24,6 +24,33 @@ public class HeadingTest {
     }
 
     @Test
+    public void alignToRightAngle() {
+
+        assertEquals(0.0, new Heading(0).alignToRightAngle().getValue(), E);
+        assertEquals(0.0, new Heading(1).alignToRightAngle().getValue(), E);
+        assertEquals(0.0, new Heading(-1).alignToRightAngle().getValue(), E);
+        assertEquals(0.0, new Heading(-44).alignToRightAngle().getValue(), E);
+        assertEquals(0.0, new Heading(44).alignToRightAngle().getValue(), E);
+
+        assertEquals(90.0, new Heading(45).alignToRightAngle().getValue(), E);
+        assertEquals(90.0, new Heading(90).alignToRightAngle().getValue(), E);
+        assertEquals(90.0, new Heading(134).alignToRightAngle().getValue(), E);
+
+        assertEquals(180.0, new Heading(135).alignToRightAngle().getValue(), E);
+        assertEquals(180.0, new Heading(180).alignToRightAngle().getValue(), E);
+        assertEquals(180.0, new Heading(224).alignToRightAngle().getValue(), E);
+
+        assertEquals(270, new Heading(225).alignToRightAngle().getValue(), E);
+        assertEquals(270, new Heading(270).alignToRightAngle().getValue(), E);
+        assertEquals(270, new Heading(314).alignToRightAngle().getValue(), E);
+
+        assertEquals(0.0, new Heading(315).alignToRightAngle().getValue(), E);
+        assertEquals(0.0, new Heading(359).alignToRightAngle().getValue(), E);
+        assertEquals(0.0, new Heading(360).alignToRightAngle().getValue(), E);
+
+    }
+
+    @Test
     public void add() {
 
         assertEquals(0.0, new Heading(0).add(0.0).getValue(), E);
