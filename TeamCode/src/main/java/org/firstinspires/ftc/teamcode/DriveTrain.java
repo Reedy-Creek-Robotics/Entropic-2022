@@ -16,6 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.util.Heading;
 import org.opencv.core.Point;
 
 import java.util.Arrays;
@@ -71,16 +72,6 @@ public class DriveTrain extends BaseComponent {
     private Point velocity;
 
     /**
-     * The position that the robot is trying to move toward.
-     */
-    private Point targetPosition;
-
-    /**
-     * The heading that the robot is trying to achieve.
-     */
-    private Heading targetHeading;
-
-    /**
      * The last orientation data obtained from the IMU.
      */
     private Orientation previousImuOrientation;
@@ -104,6 +95,7 @@ public class DriveTrain extends BaseComponent {
         //For now starting position is to be assumed 0,0
         position = new Point(0, 0);
         heading = new Heading(0.0);
+        velocity = new Point(0, 0);
     }
 
     @Override
@@ -174,6 +166,7 @@ public class DriveTrain extends BaseComponent {
         // Update the current position and heading based off of sensory data
         updateCurrentPosition();
         updateCurrentHeading();
+        updateCurrentVelocity();
 
         telemetry.addData("Heading", String.format("%.2f", heading.getValue()));
         telemetry.addData("Position", String.format("(%.3f,%.3f)", position.x, position.y));
@@ -183,10 +176,6 @@ public class DriveTrain extends BaseComponent {
             // todo: convert these to tile units instead of inches
             telemetry.addData("Distance to Tile (horiz)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileHorizontal() * 12.0));
             telemetry.addData("Distance to Tile (vert)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileVertical() * 12.0));
-        }
-
-        if (targetPosition != null || targetHeading != null) {
-            // todo: move toward target position and heading
         }
 
         // Now allow any commands to run with the updated data
@@ -229,6 +218,15 @@ public class DriveTrain extends BaseComponent {
     }
 
     /**
+     * Updates the current velocity of the bot.
+     */
+    private void updateCurrentVelocity() {
+
+        // todo: implement this
+
+    }
+
+    /**
      * Sets the motor powers equal to the controllers inputs.
      *
      * @param drive
@@ -237,7 +235,7 @@ public class DriveTrain extends BaseComponent {
      */
     public void drive(double drive, double turn, double strafe) {
         // Stop any current command from executing.
-        stopCommand();
+        stopAllCommands();
 
         setMotorMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -267,6 +265,13 @@ public class DriveTrain extends BaseComponent {
         } else if (direction == Y) {
             moveForward(distance, speed);
         }
+    }
+
+    /**
+     * Moves the robot to the target position and target heading, at the given speed.
+     */
+    public void moveToPosition(Point targetPosition, Heading targetHeading, double speed) {
+        executeCommand(new MoveToPosition());
     }
 
     /**
@@ -470,6 +475,60 @@ public class DriveTrain extends BaseComponent {
         public void stop() {
             stopMotors();
         }
+    }
+
+    private class MoveAlignedToTileCenter extends BaseCommand {
+
+        // input of X, Y, with some number of tiles
+
+        public double ANGLE_THRESHOLD = 5;
+
+        /**
+         * The position that the robot is trying to move toward.
+         */
+        private Point targetPosition;
+
+        /**
+         * The heading that the robot is trying to achieve.
+         */
+        private Heading targetHeading;
+
+        public MoveAlignedToTileCenter(Point targetPosition, Heading targetHeading) {
+            this.targetPosition = targetPosition;
+            this.targetHeading = targetHeading;
+        }
+
+        @Override
+        public void start() {
+            Point displacement = new Point(targetPosition.x - position.x, targetPosition.y - position.y);
+            if(heading.getValue() > 180) {
+                displacement = new Point(-displacement.x,-displacement.y);
+            }
+
+            //Align to tile
+
+            if(Math.round(heading.getValue() / 90) % 2 == 0) {
+                //horizontal()
+            }else if(Math.round(heading.getValue() / 90) % 2 == 1){
+                //vertical()
+            }
+
+        }
+
+        @Override
+        public boolean updateStatus() {
+            return false;
+        }
+
+        // todo: implement
+    }
+
+    private class RotateAlignedToTile extends BaseCommand {
+
+        // input of number of 90 degree turns, as an integer
+        // if you say 3, you want to rotate 270 degrees in the CCW direction
+
+        // todo: implement
     }
 
     private class MoveForward extends BaseCommand {
