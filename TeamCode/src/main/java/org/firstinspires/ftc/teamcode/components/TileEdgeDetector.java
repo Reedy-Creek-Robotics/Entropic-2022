@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
 
