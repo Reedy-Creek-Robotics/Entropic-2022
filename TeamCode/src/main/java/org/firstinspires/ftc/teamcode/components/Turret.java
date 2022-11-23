@@ -1,9 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 
-public class Turret extends BaseComponent{
+import org.firstinspires.ftc.teamcode.BaseComponent;
+import org.firstinspires.ftc.teamcode.Command;
+
+public class Turret extends BaseComponent {
 
     private static double MAXIMUM = 1.0;
     private static double MINIMUM = 0.0;

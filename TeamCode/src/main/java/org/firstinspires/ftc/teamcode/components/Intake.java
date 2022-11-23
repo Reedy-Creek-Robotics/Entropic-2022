@@ -1,9 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-public class Intake extends BaseComponent{
+import org.firstinspires.ftc.teamcode.BaseComponent;
+import org.firstinspires.ftc.teamcode.Command;
+
+public class Intake extends BaseComponent {
     private CRServo intakeServo;
 
     public Intake(OpMode opMode) {

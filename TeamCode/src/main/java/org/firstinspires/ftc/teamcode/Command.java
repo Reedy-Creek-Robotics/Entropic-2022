@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 /**
  * Represents a command that has been issued to the drive train.
  */
-interface Command {
+public interface Command {
 
     /**
      * Starts the command
