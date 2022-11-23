@@ -20,11 +20,30 @@ public class Heading {
         return value;
     }
 
+    public double toRadians() {
+        return Math.toRadians(value);
+    }
+
     /**
      * Adds the given delta in degrees to this heading, returning a new Heading instance.
      */
     public Heading add(double delta) {
         return new Heading(value + delta);
+    }
+
+    public Heading add(Heading other) {
+        return add(other.getValue());
+    }
+
+    /**
+     * Returns a new heading that is aligned to the closest right angle to this heading.
+     */
+    public Heading alignToRightAngle() {
+        return new Heading(Math.round(value / 90.0) * 90.0);
+    }
+
+    public Heading minus(Heading other) {
+        return new Heading(value - other.value);
     }
 
     /**

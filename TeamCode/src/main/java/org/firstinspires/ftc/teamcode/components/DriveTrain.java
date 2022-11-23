@@ -18,7 +18,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Command;
 import org.firstinspires.ftc.teamcode.util.Heading;
-import org.opencv.core.Point;
+import org.firstinspires.ftc.teamcode.util.Position;
+import org.firstinspires.ftc.teamcode.util.Vector2;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,11 +39,6 @@ public class DriveTrain extends BaseComponent {
     private static final double TICKS_PER_REVOLUTION = 537.6;
 
     /**
-     * A factor used to fine-tune the robot's tick distance conversion.
-     */
-    private static final double TICK_CORRECTION_FACTOR = 0.98;
-
-    /**
      * The software of the drivetrain
      */
     private TileEdgeDetector tileEdgeDetectorSide;
@@ -60,7 +56,7 @@ public class DriveTrain extends BaseComponent {
     /**
      * The current position for the robot.
      */
-    private Point position;
+    private Position position;
 
     /**
      * The current heading for the robot.
@@ -70,7 +66,7 @@ public class DriveTrain extends BaseComponent {
     /**
      * The current velocity vector in tiles / sec.
      */
-    private Point velocity;
+    private Vector2 velocity;
 
     /**
      * The last orientation data obtained from the IMU.
@@ -93,10 +89,11 @@ public class DriveTrain extends BaseComponent {
         addSubComponents(tileEdgeDetectorSide);
 
         //todo: Decide how we are going to determine starting position
-        //For now starting position is to be assumed 0,0
-        position = new Point(0, 0);
+
+        // For now starting position is to be assumed the origin (0, 0)
+        position = new Position(0, 0);
         heading = new Heading(0.0);
-        velocity = new Point(0, 0);
+        velocity = new Vector2(0, 0);
     }
 
     @Override
@@ -157,7 +154,7 @@ public class DriveTrain extends BaseComponent {
     /**
      * Return the current position of the robot.
      */
-    public Point getPosition() {
+    public Position getPosition() {
         return position;
     }
 
@@ -170,7 +167,7 @@ public class DriveTrain extends BaseComponent {
         updateCurrentVelocity();
 
         telemetry.addData("Heading", String.format("%.2f", heading.getValue()));
-        telemetry.addData("Position", String.format("(%.3f,%.3f)", position.x, position.y));
+        telemetry.addData("Position", String.format("(%.3f,%.3f)", position.getX(), position.getY()));
 
         if (tileEdgeDetectorSide.isDetected()) {
             telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
@@ -188,9 +185,9 @@ public class DriveTrain extends BaseComponent {
      */
     private void updateCurrentPosition() {
 
-        // todo: check the tile edge detector to determine if we have a visual observation we can use
+        // todo: use the ticks moved by each wheel, and the current heading of the robot, to estimate the new position
 
-        // todo: otherwise, update the ticks
+        // todo: override this with a visual observation from hough code, if there is one
 
     }
 
@@ -216,6 +213,8 @@ public class DriveTrain extends BaseComponent {
         heading = heading.add(deltaAngle);
 
         previousImuOrientation = orientation;
+
+        // todo: override this with a visual observation from hough code, if there is one
     }
 
     /**
@@ -229,10 +228,6 @@ public class DriveTrain extends BaseComponent {
 
     /**
      * Sets the motor powers equal to the controllers inputs.
-     *
-     * @param drive
-     * @param turn
-     * @param strafe
      */
     public void drive(double drive, double turn, double strafe) {
         // Stop any current command from executing.
@@ -258,21 +253,10 @@ public class DriveTrain extends BaseComponent {
      * @param direction The direction you want to move in
      * @param speed     The speed you want to move at
      */
-    public void move(double distance, Direction direction, double speed) {
+    public void moveAlignedToTileCenter(double distance, Direction direction, double speed) {
         // todo: if current command is "move to target position and rotation", then update that
         // todo: command with a new position and rotation.
-        if (direction == X) {
-            strafe(distance, speed);
-        } else if (direction == Y) {
-            moveForward(distance, speed);
-        }
-    }
-
-    /**
-     * Moves the robot to the target position and target heading, at the given speed.
-     */
-    public void moveToPosition(Point targetPosition, Heading targetHeading, double speed) {
-        executeCommand(new MoveToPosition());
+        executeCommand(new MoveAlignedToTileCenter(direction, distance, speed));
     }
 
     /**
@@ -466,8 +450,7 @@ public class DriveTrain extends BaseComponent {
      */
     private void updateGlobalPosition(double endDistanceTraveled, double priorProgress, double currentProgress, double theta) {
         double progressChange = currentProgress - priorProgress;
-        position.x += progressChange * endDistanceTraveled * Math.sin(theta);
-        position.y += progressChange * endDistanceTraveled * Math.cos(theta);
+        position = position.move(progressChange * endDistanceTraveled, new Heading(theta));
     }
 
     private abstract class BaseCommand implements Command {
@@ -478,50 +461,101 @@ public class DriveTrain extends BaseComponent {
         }
     }
 
+    /**
+     * This command will move in a path along the center line of a tile row or column.
+     * <p>
+     * If the robot is not aligned to the tile's center, this will also attempt to correct that by moving to tile
+     * center along the path of movement.
+     * <p>
+     * If the robot's heading is not aligned to a 90 degree tile boundary, this will also attempt to correct that
+     * by making the smallest rotation possible.
+     */
     private class MoveAlignedToTileCenter extends BaseCommand {
 
-        // input of X, Y, with some number of tiles
-
-        public double ANGLE_THRESHOLD = 5;
+        /**
+         * The direction in which the robot should move.
+         */
+        private Direction direction;
 
         /**
-         * The position that the robot is trying to move toward.
+         * The distance, in tiles, that the robot should move.
          */
-        private Point targetPosition;
+        private double distance;
+
+        /**
+         * The speed at which to move (0 - 1).
+         */
+        private double speed;
+
+        /**
+         * The position that the robot is trying to achieve.
+         */
+        private Position targetPosition;
 
         /**
          * The heading that the robot is trying to achieve.
          */
         private Heading targetHeading;
 
-        public MoveAlignedToTileCenter(Point targetPosition, Heading targetHeading) {
-            this.targetPosition = targetPosition;
-            this.targetHeading = targetHeading;
+        public MoveAlignedToTileCenter(Direction direction, double distance, double speed) {
+            this.direction = direction;
+            this.distance = distance;
+            this.speed = speed;
         }
 
         @Override
         public void start() {
-            Point displacement = new Point(targetPosition.x - position.x, targetPosition.y - position.y);
-            if(heading.getValue() > 180) {
-                displacement = new Point(-displacement.x,-displacement.y);
-            }
 
-            //Align to tile
+            // Calculate the new desired heading by rounding to the nearest tile edge.
+            targetHeading = heading.alignToRightAngle();
 
-            if(Math.round(heading.getValue() / 90) % 2 == 0) {
-                //horizontal()
-            }else if(Math.round(heading.getValue() / 90) % 2 == 1){
-                //vertical()
+            // Calculate the new target position, aligned to the tile middle.
+            if (direction == X) {
+                targetPosition = new Position(position.getX() + distance, position.getY());
+            } else if (direction == Y) {
+                targetPosition = new Position(position.getX(), position.getY() + distance);
             }
+            targetPosition = targetPosition.alignToTileMiddle();
 
         }
 
         @Override
         public boolean updateStatus() {
+
+
+            // todo: set motor power to move us in the correct direction
+
+            // mecanum formulas
+            // https://seamonsters-2605.github.io/archive/mecanum/
+
+            // front-left, back-right power = sin(angle+1/4π) * magnitude + turn
+            // front-right, back-left power = sin(angle−1/4π) * magnitude + turn
+
+            // angle is the desired offset from current heading [-PI/2, PI/2]
+            // magnitude is the speed to move [0, 1]
+            // turn is a value from [-1, 1]
+
+            Vector2 offset = targetPosition.offset(position);
+
+            Heading directionToMove = offset.toHeading();
+            Heading directionToMoveRelativeToRobot = directionToMove.minus(heading);
+
+            Heading moveAngle = directionToMoveRelativeToRobot.add(90);
+            double angle = moveAngle.toRadians();
+
+            double power = speed * 0.5; // todo: add in some kind of ramping from getPowerCurve...
+
+            double turn = 0.0;  // todo: add some kind of correction if we are off heading...
+
+            double powerFLBR = Math.sin(angle + Math.PI / 4.0) * power + turn;
+            double powerFRBL = Math.sin(angle - Math.PI / 4.0) * power + turn;
+
+            // todo: set the motor power
+
+            // todo: return true if we are done moving
+
             return false;
         }
-
-        // todo: implement
     }
 
     private class RotateAlignedToTile extends BaseCommand {
@@ -529,7 +563,16 @@ public class DriveTrain extends BaseComponent {
         // input of number of 90 degree turns, as an integer
         // if you say 3, you want to rotate 270 degrees in the CCW direction
 
-        // todo: implement
+
+        @Override
+        public void start() {
+
+        }
+
+        @Override
+        public boolean updateStatus() {
+            return false;
+        }
     }
 
     private class MoveForward extends BaseCommand {

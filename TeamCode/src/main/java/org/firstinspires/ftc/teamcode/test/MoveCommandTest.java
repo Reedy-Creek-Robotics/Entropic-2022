@@ -37,16 +37,16 @@ public class MoveCommandTest extends OpMode {
 
         if(commandMove.seconds() > .5) {
             if (gamepad1.dpad_up) {
-                robot.getDriveTrain().move(1, Y, BASE_SPEED);
+                robot.getDriveTrain().moveAlignedToTileCenter(1, Y, BASE_SPEED);
                 robot.waitForCommandsToFinish();
             } else if (gamepad1.dpad_left) {
-                robot.getDriveTrain().move(1, X, BASE_SPEED);
+                robot.getDriveTrain().moveAlignedToTileCenter(1, X, BASE_SPEED);
                 robot.waitForCommandsToFinish();
             } else if (gamepad1.dpad_down) {
-                robot.getDriveTrain().move(-1, Y, BASE_SPEED);
+                robot.getDriveTrain().moveAlignedToTileCenter(-1, Y, BASE_SPEED);
                 robot.waitForCommandsToFinish();
             } else if (gamepad1.dpad_right) {
-                robot.getDriveTrain().move(-1, X, BASE_SPEED);
+                robot.getDriveTrain().moveAlignedToTileCenter(-1, X, BASE_SPEED);
                 robot.waitForCommandsToFinish();
             }else if(gamepad1.a) {
                 robot.getDriveTrain().rotate(90, BASE_SPEED);
