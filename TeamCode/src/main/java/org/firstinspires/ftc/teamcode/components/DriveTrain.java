@@ -497,6 +497,11 @@ public class DriveTrain extends BaseComponent {
          */
         private Heading targetHeading;
 
+        /**
+         * The starting position of the robot
+         */
+        private Position startingPosition;
+
         public MoveAlignedToTileCenter(Direction direction, double distance, double speed) {
             this.direction = direction;
             this.distance = distance;
@@ -517,6 +522,7 @@ public class DriveTrain extends BaseComponent {
             }
             targetPosition = targetPosition.alignToTileMiddle();
 
+            startingPosition = position;
         }
 
         @Override
@@ -535,11 +541,16 @@ public class DriveTrain extends BaseComponent {
             // magnitude is the speed to move [0, 1]
             // turn is a value from [-1, 1]
 
+            //gets the angle between the current position and the target position
             Vector2 offset = targetPosition.offset(position);
 
+            //the direction the robot wants to move relative to the field
             Heading directionToMove = offset.toHeading();
+
+            //direction the robot needs to move before zeroing it out relative to the robot
             Heading directionToMoveRelativeToRobot = directionToMove.minus(heading);
 
+            //The angle the robot wants to move at relative to itself
             Heading moveAngle = directionToMoveRelativeToRobot.add(90);
             double angle = moveAngle.toRadians();
 
@@ -550,11 +561,15 @@ public class DriveTrain extends BaseComponent {
             double powerFLBR = Math.sin(angle + Math.PI / 4.0) * power + turn;
             double powerFRBL = Math.sin(angle - Math.PI / 4.0) * power + turn;
 
-            // todo: set the motor power
+            //Sets the front left back right x
+            frontLeft.setPower(powerFLBR);
+            backRight.setPower(powerFLBR);
+            //sets the front right back left x
+            frontRight.setPower(powerFRBL);
+            backLeft.setPower(powerFRBL);
 
-            // todo: return true if we are done moving
-
-            return false;
+            double distanceMoved = position.distance(startingPosition);
+            return distanceMoved >= startingPosition.distance(targetPosition);
         }
     }
 
