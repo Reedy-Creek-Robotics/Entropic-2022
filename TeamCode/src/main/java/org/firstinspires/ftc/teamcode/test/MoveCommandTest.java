@@ -53,7 +53,6 @@ public class MoveCommandTest extends OpMode {
                 robot.waitForCommandsToFinish();
             }else if(gamepad1.b) {
                 robot.getDriveTrain().rotate(-90, BASE_SPEED);
-                robot.waitForCommandsToFinish();
             }
         }
 

@@ -25,4 +25,15 @@ public class Vector2 {
         }
     }
 
+    public Vector2 add(Vector2 other) {
+        return new Vector2(
+                x + other.x,
+                y + other.y
+        );
+    }
+
+    public Vector2 multiply(double scalar) {
+        return new Vector2(x * scalar, y * scalar);
+    }
+
 }

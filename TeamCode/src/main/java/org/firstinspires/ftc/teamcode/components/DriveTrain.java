@@ -73,6 +73,11 @@ public class DriveTrain extends BaseComponent {
      */
     private Orientation previousImuOrientation;
 
+    /**
+     * The last known ticks for the motors.
+     */
+    private MotorTicks previousMotorTicks;
+
 
     public DriveTrain(OpMode opMode, WebCam webCamSide) {
         super(opMode);
@@ -185,10 +190,57 @@ public class DriveTrain extends BaseComponent {
      */
     private void updateCurrentPosition() {
 
-        // todo: use the ticks moved by each wheel, and the current heading of the robot, to estimate the new position
+        // Determine the number of ticks moved by each wheel.
+        MotorTicks ticks = getCurrentMotorTicks();
+
+        telemetry.addData("Motor Ticks", ticks.toString());
+
+        if (previousMotorTicks != null) {
+            telemetry.addData("Previous Motor Ticks", previousMotorTicks.toString());
+
+            // If we have a previous tick count, calculate how far the robot has moved based on the delta in ticks,
+            // and add that to the current position.
+
+            // todo: include more documentation about how, including u and v definition
+
+            int deltaBackLeft = ticks.backLeft - previousMotorTicks.backLeft;
+            int deltaBackRight = ticks.backRight - previousMotorTicks.backRight;
+            int deltaFrontLeft = ticks.frontLeft - previousMotorTicks.frontLeft;
+            int deltaFrontRight = ticks.frontRight - previousMotorTicks.frontRight;
+
+            double du = (deltaBackRight + deltaFrontLeft) / 2.0;
+            double dv = (deltaBackLeft + deltaFrontRight) / 2.0;
+
+            double length = 1.0 / Math.sqrt(2);
+            Vector2 u = new Vector2(length, length);
+            Vector2 v = new Vector2(-length, length);
+
+            Vector2 deltaPositionInTicks = u.multiply(du).add(v.multiply(dv)).multiply(0.5);
+
+            Vector2 deltaPosition = new Vector2(
+                    ticksToTiles(deltaPositionInTicks.getX()),
+                    ticksToTiles(deltaPositionInTicks.getY())
+            );
+
+            // todo: take into account the robot's heading
+
+            position = position.add(deltaPosition);
+        }
+
+        // Remember the current motor ticks for the next loop iteration
+        previousMotorTicks = ticks;
 
         // todo: override this with a visual observation from hough code, if there is one
 
+    }
+
+    private MotorTicks getCurrentMotorTicks() {
+        return new MotorTicks(
+                backLeft.getCurrentPosition(),
+                backRight.getCurrentPosition(),
+                frontLeft.getCurrentPosition(),
+                frontRight.getCurrentPosition()
+        );
     }
 
     /**
@@ -233,7 +285,7 @@ public class DriveTrain extends BaseComponent {
         // Stop any current command from executing.
         stopAllCommands();
 
-        setMotorMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
         frontLeft.setPower(drive - turn - strafe);
         frontRight.setPower(drive + turn + strafe);
@@ -277,10 +329,6 @@ public class DriveTrain extends BaseComponent {
      */
     public void strafe(double distance, double speed) {
         executeCommand(new Strafe(distance, speed));
-    }
-
-    public void strafeTime(double time, double speed) {
-        executeCommand(new StrafeTime(time, speed));
     }
 
     /**
@@ -370,6 +418,12 @@ public class DriveTrain extends BaseComponent {
         for (DcMotorEx motor : motors) {
             motor.setMode(mode);
         }
+
+        // Also, if the encoders are being reset, forget the previous motor ticks, in order to keep the robot from
+        // thinking it has jumped through space and time when updating the position in the next loop.
+        if (mode == DcMotor.RunMode.RUN_WITHOUT_ENCODER || mode == DcMotor.RunMode.STOP_AND_RESET_ENCODER) {
+            previousMotorTicks = null;
+        }
     }
 
     /**
@@ -387,16 +441,26 @@ public class DriveTrain extends BaseComponent {
      * Converts tiles traveled into number of ticks moved by
      *
      * @param distance how far you want to travel in tiles
-     * @return number of ticks to turn
+     * @return number of ticks to move
      */
     private int tilesToTicks(double distance) {
-        //in tiles
         double wheelCircumference = (WHEEL_SIZE * Math.PI);
-
         double wheelRevolutions = distance / wheelCircumference;
 
-        //turns wheelRevolutions into degrees, then divides by DEGREES_PER_TICK
         return (int) Math.round(wheelRevolutions * TICKS_PER_REVOLUTION);
+    }
+
+    /**
+     * Converts ticks moved by the motor into the number of tiles traveled.
+     *
+     * @param ticks the number of ticks that were moved by the motor
+     * @return the distance in tiles that the robot moved
+     */
+    private double ticksToTiles(double ticks) {
+        double wheelCircumference = (WHEEL_SIZE * Math.PI);
+        double wheelRevolutions = ticks / TICKS_PER_REVOLUTION;
+
+        return wheelRevolutions * wheelCircumference;
     }
 
     /**
@@ -440,17 +504,6 @@ public class DriveTrain extends BaseComponent {
     private double scaleProgress(double current, double initial, double target) {
         if (target == initial) return 1.0;
         return (current - initial) / (target - initial);
-    }
-
-    /**
-     * @param endDistanceTraveled How far the robot will travel by the end of the command
-     * @param priorProgress       The completion progress the robot was at last call of this function
-     * @param currentProgress     The completion progress the robot is currently at
-     * @param theta               Angle the robot is facing in radians
-     */
-    private void updateGlobalPosition(double endDistanceTraveled, double priorProgress, double currentProgress, double theta) {
-        double progressChange = currentProgress - priorProgress;
-        position = position.move(progressChange * endDistanceTraveled, new Heading(theta));
     }
 
     private abstract class BaseCommand implements Command {
@@ -643,13 +696,6 @@ public class DriveTrain extends BaseComponent {
             // Check if we've reached the correct number of ticks
             int ticksMoved = averageMotorPosition();
 
-            ////////////////////////////////////////////////
-            //Test Code
-            double updatedProgress = scaleProgress(Math.abs(ticksMoved), 0, Math.abs(ticks));
-            updateGlobalPosition(distance, progress, updatedProgress, Math.toRadians(getHeading() - 90));
-            progress = updatedProgress;
-            ////////////////////////////////////////////////
-
             telemetry.addData("ticks moved", ticksMoved);
             telemetry.addData("ticks", ticks);
 
@@ -706,13 +752,6 @@ public class DriveTrain extends BaseComponent {
         public boolean updateStatus() {
             int ticksMoved = averageMotorPosition();
 
-            ////////////////////////////////////////////////
-            //Test Code
-            double updatedProgress = scaleProgress(Math.abs(ticksMoved), 0, Math.abs(ticks));
-            updateGlobalPosition(distance, progress, updatedProgress, Math.toRadians(getHeading()));
-            progress = updatedProgress;
-            ////////////////////////////////////////////////
-
             telemetry.addData("tick moved", ticksMoved);
             telemetry.addData("ticks", ticks);
 
@@ -721,41 +760,6 @@ public class DriveTrain extends BaseComponent {
             return progress >= 1.0;
         }
     }
-
-    private class StrafeTime extends BaseCommand {
-
-        /**
-         * The distance we want to move.
-         */
-        private double duration;
-
-        /**
-         * The speed at which to move.  Negative direction is to the right, Positive to the left
-         */
-        private double speed;
-
-        // todo check distance multiplied by strafe modifier
-        public StrafeTime(double duration, double speed) {
-            this.duration = duration;
-            this.speed = speed;
-        }
-
-        @Override
-        public void start() {
-            setMotorMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-
-            frontLeft.setPower(-speed);
-            frontRight.setPower(speed);
-            backLeft.setPower(speed);
-            backRight.setPower(-speed);
-        }
-
-        @Override
-        public boolean updateStatus() {
-            return time.seconds() >= duration;
-        }
-    }
-
 
     private class Rotate extends BaseCommand {
 
@@ -771,7 +775,7 @@ public class DriveTrain extends BaseComponent {
 
         @Override
         public void start() {
-            setMotorMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+            setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
 
         @Override
@@ -803,4 +807,26 @@ public class DriveTrain extends BaseComponent {
         }
 
     }
+
+    private static class MotorTicks {
+        int backLeft;
+        int backRight;
+        int frontLeft;
+        int frontRight;
+
+        public MotorTicks(int backLeft, int backRight, int frontLeft, int frontRight) {
+            this.backLeft = backLeft;
+            this.backRight = backRight;
+            this.frontLeft = frontLeft;
+            this.frontRight = frontRight;
+        }
+
+        public String toString() {
+            return String.format(
+                    "BL %d\tBR %d\tFL %d\tFR%d",
+                    backLeft, backRight, frontLeft, frontRight
+            );
+        }
+    }
+
 }

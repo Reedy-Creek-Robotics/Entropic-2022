@@ -10,11 +10,6 @@ public class Position {
         this.y = y;
     }
 
-    public Position(Point point) {
-        this.x = point.x;
-        this.y = point.y;
-    }
-
     public double getX() {
         return x;
     }
@@ -31,6 +26,13 @@ public class Position {
         return new Position(
                 x + Math.cos(headingInRadians) * distance,
                 y + Math.sin(headingInRadians) * distance
+        );
+    }
+
+    public Position add(Vector2 vector) {
+        return new Position(
+                x + vector.getX(),
+                y + vector.getY()
         );
     }
 
