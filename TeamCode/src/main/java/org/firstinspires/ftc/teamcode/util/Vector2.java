@@ -32,6 +32,14 @@ public class Vector2 {
         );
     }
 
+    public Vector2 rotate(double angle) {
+        double theta = Math.toRadians(angle);
+        return new Vector2(
+                x * Math.cos(theta) - y * Math.sin(theta),
+                y * Math.cos(theta) + x * Math.sin(theta)
+        );
+    }
+
     public Vector2 multiply(double scalar) {
         return new Vector2(x * scalar, y * scalar);
     }

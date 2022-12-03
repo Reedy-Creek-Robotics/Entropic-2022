@@ -47,11 +47,20 @@ public abstract class BaseComponent implements Component {
     /**
      * Stops the current command and removes any additional commands from the queue.
      */
-    protected void stopAllCommands() {
+    public void stopAllCommands() {
         if (currentCommand != null) {
             currentCommand.stop();
         }
+        currentCommand = null;
         nextCommands.clear();
+    }
+
+    protected Command getCurrentCommand() {
+        return currentCommand;
+    }
+
+    protected List<Command> getNextCommands() {
+        return nextCommands;
     }
 
     protected void addSubComponents(Component... subComponents) {
