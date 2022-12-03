@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.components;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.ticksToTiles;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToTicks;
 
 import android.annotation.SuppressLint;
 
@@ -18,25 +20,16 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.Command;
 import org.firstinspires.ftc.teamcode.util.Heading;
+import org.firstinspires.ftc.teamcode.util.MecanumUtil;
 import org.firstinspires.ftc.teamcode.util.Position;
 import org.firstinspires.ftc.teamcode.util.Vector2;
 
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressLint("DefaultLocale")
 public class DriveTrain extends BaseComponent {
 
-    // todo: edge detection (can't rely solely on runToPosition)
-
-    /**
-     * Diameter of the wheel in tiles
-     */
-    private static final double WHEEL_SIZE = 0.164042;
-
-    /**
-     * The number of encoder ticks that pass in a complete revolution of the motor.
-     */
-    private static final double TICKS_PER_REVOLUTION = 537.6;
 
     /**
      * The software of the drivetrain
@@ -96,8 +89,8 @@ public class DriveTrain extends BaseComponent {
         //todo: Decide how we are going to determine starting position
 
         // For now starting position is to be assumed the origin (0, 0)
-        position = new Position(0, 0);
-        heading = new Heading(0.0);
+        position = new Position(.5, .5);
+        heading = new Heading(90);
         velocity = new Vector2(0, 0);
     }
 
@@ -163,7 +156,6 @@ public class DriveTrain extends BaseComponent {
         return position;
     }
 
-    @SuppressLint("DefaultLocale")
     @Override
     public void updateStatus() {
         // Update the current position and heading based off of sensory data
@@ -173,6 +165,7 @@ public class DriveTrain extends BaseComponent {
 
         telemetry.addData("Heading", String.format("%.2f", heading.getValue()));
         telemetry.addData("Position", String.format("(%.3f,%.3f)", position.getX(), position.getY()));
+        telemetry.addData("Position in inches", String.format("(%.3f,%.3f)", position.getX() * (189.0/8), position.getY() * (189.0/8)));//@todo get proper tile values
 
         if (tileEdgeDetectorSide.isDetected()) {
             telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
@@ -180,6 +173,9 @@ public class DriveTrain extends BaseComponent {
             telemetry.addData("Distance to Tile (horiz)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileHorizontal() * 12.0));
             telemetry.addData("Distance to Tile (vert)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileVertical() * 12.0));
         }
+
+        telemetry.addData("Current Command", getCurrentCommand());
+        telemetry.addData("Next Commands", getNextCommands());
 
         // Now allow any commands to run with the updated data
         super.updateStatus();
@@ -196,35 +192,24 @@ public class DriveTrain extends BaseComponent {
         telemetry.addData("Motor Ticks", ticks.toString());
 
         if (previousMotorTicks != null) {
-            telemetry.addData("Previous Motor Ticks", previousMotorTicks.toString());
 
             // If we have a previous tick count, calculate how far the robot has moved based on the delta in ticks,
             // and add that to the current position.
-
-            // todo: include more documentation about how, including u and v definition
 
             int deltaBackLeft = ticks.backLeft - previousMotorTicks.backLeft;
             int deltaBackRight = ticks.backRight - previousMotorTicks.backRight;
             int deltaFrontLeft = ticks.frontLeft - previousMotorTicks.frontLeft;
             int deltaFrontRight = ticks.frontRight - previousMotorTicks.frontRight;
 
-            double du = (deltaBackRight + deltaFrontLeft) / 2.0;
-            double dv = (deltaBackLeft + deltaFrontRight) / 2.0;
-
-            double length = 1.0 / Math.sqrt(2);
-            Vector2 u = new Vector2(length, length);
-            Vector2 v = new Vector2(-length, length);
-
-            Vector2 deltaPositionInTicks = u.multiply(du).add(v.multiply(dv)).multiply(0.5);
-
-            Vector2 deltaPosition = new Vector2(
-                    ticksToTiles(deltaPositionInTicks.getX()),
-                    ticksToTiles(deltaPositionInTicks.getY())
+            Vector2 deltaPositionRelativeToField = MecanumUtil.offsetFromWheelDelta(
+                    deltaBackLeft,
+                    deltaBackRight,
+                    deltaFrontLeft,
+                    deltaFrontRight,
+                    heading
             );
 
-            // todo: take into account the robot's heading
-
-            position = position.add(deltaPosition);
+            position = position.add(deltaPositionRelativeToField);
         }
 
         // Remember the current motor ticks for the next loop iteration
@@ -232,6 +217,10 @@ public class DriveTrain extends BaseComponent {
 
         // todo: override this with a visual observation from hough code, if there is one
 
+    }
+
+    public void resetPosition() {
+        position = new Position(.5, .5);
     }
 
     private MotorTicks getCurrentMotorTicks() {
@@ -282,8 +271,17 @@ public class DriveTrain extends BaseComponent {
      * Sets the motor powers equal to the controllers inputs.
      */
     public void drive(double drive, double turn, double strafe) {
+        drive(drive, turn, strafe, 1.0);
+    }
+
+    public void drive(double drive, double turn, double strafe, double speed) {
+
         // Stop any current command from executing.
         stopAllCommands();
+
+        drive *= speed;
+        turn *= speed;
+        strafe *= speed;
 
         setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
@@ -438,32 +436,6 @@ public class DriveTrain extends BaseComponent {
     }
 
     /**
-     * Converts tiles traveled into number of ticks moved by
-     *
-     * @param distance how far you want to travel in tiles
-     * @return number of ticks to move
-     */
-    private int tilesToTicks(double distance) {
-        double wheelCircumference = (WHEEL_SIZE * Math.PI);
-        double wheelRevolutions = distance / wheelCircumference;
-
-        return (int) Math.round(wheelRevolutions * TICKS_PER_REVOLUTION);
-    }
-
-    /**
-     * Converts ticks moved by the motor into the number of tiles traveled.
-     *
-     * @param ticks the number of ticks that were moved by the motor
-     * @return the distance in tiles that the robot moved
-     */
-    private double ticksToTiles(double ticks) {
-        double wheelCircumference = (WHEEL_SIZE * Math.PI);
-        double wheelRevolutions = ticks / TICKS_PER_REVOLUTION;
-
-        return wheelRevolutions * wheelCircumference;
-    }
-
-    /**
      * Calculates a smooth power curve between any two positions (in ticks, degrees, inches, etc),
      * based on the current position, the initial position, and the target position.
      *
@@ -512,6 +484,11 @@ public class DriveTrain extends BaseComponent {
         public void stop() {
             stopMotors();
         }
+
+        public String toString() {
+            return getClass().getSimpleName();
+        }
+
     }
 
     /**
@@ -576,6 +553,9 @@ public class DriveTrain extends BaseComponent {
             targetPosition = targetPosition.alignToTileMiddle();
 
             startingPosition = position;
+
+            setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+
         }
 
         @Override
@@ -604,8 +584,7 @@ public class DriveTrain extends BaseComponent {
             Heading directionToMoveRelativeToRobot = directionToMove.minus(heading);
 
             //The angle the robot wants to move at relative to itself
-            Heading moveAngle = directionToMoveRelativeToRobot.add(90);
-            double angle = moveAngle.toRadians();
+            double angle = directionToMoveRelativeToRobot.toRadians();
 
             double power = speed * 0.5; // todo: add in some kind of ramping from getPowerCurve...
 
