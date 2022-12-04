@@ -29,11 +29,30 @@ public class Vector2Test {
         assertVectorEquals(new Vector2(Math.sqrt(2), 0.0), new Vector2(1.0, 1.0).rotate(-45));
         assertVectorEquals(new Vector2(0.0, Math.sqrt(2)), new Vector2(1.0, 1.0).rotate(45));
 
-        assertVectorEquals(new Vector2(0.0, Math.sqrt(2)), new Vector2(1.0, 0).rotate(30));
-        assertVectorEquals(new Vector2(0.0, Math.sqrt(2)), new Vector2(0, 1.0).rotate(30));
-        assertVectorEquals(new Vector2(0.0, Math.sqrt(2)), new Vector2(1.0, 1.0).rotate(30));
-        assertVectorEquals(new Vector2(0.0, Math.sqrt(2)), new Vector2(1.0, 1.0).rotate(30));
+    }
 
+    @Test
+    public void toHeading() {
+        assertEquals(0.0, new Vector2(1.0, 0.0).toHeading().getValue(), E);
+        assertEquals(90.0, new Vector2(0.0, 1.0).toHeading().getValue(), E);
+        assertEquals(180.0, new Vector2(-1.0, 0.0).toHeading().getValue(), E);
+        assertEquals(270.0, new Vector2(0.0, -1.0).toHeading().getValue(), E);
+    }
+
+    @Test
+    public void magnitude() {
+        assertEquals(0.0, new Vector2(0.0, 0.0).magnitude(), E);
+        assertEquals(1.0, new Vector2(1.0, 0.0).magnitude(), E);
+        assertEquals(Math.sqrt(2), new Vector2(1.0, 1.0).magnitude(), E);
+        assertEquals(Math.sqrt(2), new Vector2(-1.0, 1.0).magnitude(), E);
+    }
+
+    @Test
+    public void withMagnitude() {
+        assertVectorEquals(
+                new Vector2(Math.sqrt(2) / 2, Math.sqrt(2) / 2),
+                new Vector2(1.0, 1.0).withMagnitude(1.0)
+        );
     }
 
     private void assertVectorEquals(Vector2 expected, Vector2 actual) {

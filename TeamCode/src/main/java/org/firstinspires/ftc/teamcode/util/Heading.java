@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import android.annotation.SuppressLint;
+
 public class Heading {
 
     /**
@@ -43,7 +45,11 @@ public class Heading {
     }
 
     public Heading minus(Heading other) {
-        return new Heading(value - other.value);
+        return minus(other.getValue());
+    }
+
+    public Heading minus(double angle) {
+        return new Heading(value - angle);
     }
 
     /**
@@ -66,6 +72,11 @@ public class Heading {
             result += 360;
         }
         return result;
+    }
+
+    @SuppressLint("DefaultLocale")
+    public String toString() {
+        return String.format("%.2f deg", value);
     }
 
 }

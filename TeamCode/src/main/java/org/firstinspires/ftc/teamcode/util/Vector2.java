@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import android.annotation.SuppressLint;
+
 public class Vector2 {
     private double x, y;
 
@@ -17,12 +19,7 @@ public class Vector2 {
     }
 
     public Heading toHeading() {
-        double epsilon = 1e-5;
-        if (Math.abs(x) < epsilon) {
-            return y > 0 ? new Heading(90) : new Heading(-90);
-        } else {
-            return new Heading(Math.toDegrees(Math.atan(y / x)));
-        }
+        return new Heading(Math.toDegrees(Math.atan2(y, x)));
     }
 
     public Vector2 add(Vector2 other) {
@@ -40,8 +37,22 @@ public class Vector2 {
         );
     }
 
+    public double magnitude() {
+        return Math.sqrt(x * x + y * y);
+    }
+
+    public Vector2 withMagnitude(double magnitude) {
+        double scalar = magnitude / this.magnitude();
+        return multiply(scalar);
+    }
+
     public Vector2 multiply(double scalar) {
         return new Vector2(x * scalar, y * scalar);
+    }
+
+    @SuppressLint("DefaultLocale")
+    public String toString() {
+        return String.format("(%.3f, %.3f)", x, y);
     }
 
 }

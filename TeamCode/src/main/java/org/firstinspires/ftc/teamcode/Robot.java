@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.components.AprilTagDetector;
 import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
 import org.firstinspires.ftc.teamcode.components.WebCam;
+import org.firstinspires.ftc.teamcode.util.TelemetryUtil;
 
 
 public class Robot extends BaseComponent {
@@ -28,6 +29,8 @@ public class Robot extends BaseComponent {
             addSubComponents(webCamSide);
             addSubComponents(aprilTagDetector);
         }
+
+        TelemetryUtil.telemetry = opMode.telemetry;
     }
 
     /**
