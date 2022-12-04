@@ -115,7 +115,7 @@ public abstract class BaseComponent implements Component {
         }
 
         // We are busy if we have a command we are trying to execute and that command is still busy.
-        return currentCommand != null;
+        return currentCommand != null || !nextCommands.isEmpty();
     }
 
     protected boolean isStopRequested() {

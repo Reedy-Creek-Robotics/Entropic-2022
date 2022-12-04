@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import android.annotation.SuppressLint;
+
 import org.opencv.core.Point;
 
 public class Position {
@@ -62,6 +64,11 @@ public class Position {
                 Math.round(x - 0.5) + 0.5,
                 Math.round(y - 0.5) + 0.5
         );
+    }
+
+    @SuppressLint("DefaultLocale")
+    public String toString() {
+        return String.format("(%.3f, %.3f)", x, y);
     }
 
 }

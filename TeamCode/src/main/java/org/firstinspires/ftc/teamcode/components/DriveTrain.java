@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.components;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.ticksToTiles;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToTicks;
 
 import android.annotation.SuppressLint;
@@ -163,9 +162,8 @@ public class DriveTrain extends BaseComponent {
         updateCurrentHeading();
         updateCurrentVelocity();
 
-        telemetry.addData("Heading", String.format("%.2f", heading.getValue()));
-        telemetry.addData("Position", String.format("(%.3f,%.3f)", position.getX(), position.getY()));
-        telemetry.addData("Position in inches", String.format("(%.3f,%.3f)", position.getX() * (189.0/8), position.getY() * (189.0/8)));//@todo get proper tile values
+        telemetry.addData("Heading", heading);
+        telemetry.addData("Position", position);
 
         if (tileEdgeDetectorSide.isDetected()) {
             telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
@@ -201,7 +199,7 @@ public class DriveTrain extends BaseComponent {
             int deltaFrontLeft = ticks.frontLeft - previousMotorTicks.frontLeft;
             int deltaFrontRight = ticks.frontRight - previousMotorTicks.frontRight;
 
-            Vector2 deltaPositionRelativeToField = MecanumUtil.offsetFromWheelDelta(
+            Vector2 deltaPositionRelativeToField = MecanumUtil.calculatePositionOffsetFromWheelRotations(
                     deltaBackLeft,
                     deltaBackRight,
                     deltaFrontLeft,
@@ -220,7 +218,8 @@ public class DriveTrain extends BaseComponent {
     }
 
     public void resetPosition() {
-        position = new Position(.5, .5);
+        position = new Position(0.5, 0.5);
+        heading = new Heading(90);
     }
 
     private MotorTicks getCurrentMotorTicks() {
@@ -561,44 +560,21 @@ public class DriveTrain extends BaseComponent {
         @Override
         public boolean updateStatus() {
 
+            MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
+                    position, heading,
+                    targetPosition, targetHeading,
+                    speed
+            );
 
-            // todo: set motor power to move us in the correct direction
+            telemetry.addData("startingPosition", startingPosition);
+            telemetry.addData("targetPosition", targetPosition);
+            telemetry.addData("targetHeading", targetHeading);
+            telemetry.addData("motorPowers", powers);
 
-            // mecanum formulas
-            // https://seamonsters-2605.github.io/archive/mecanum/
-
-            // front-left, back-right power = sin(angle+1/4π) * magnitude + turn
-            // front-right, back-left power = sin(angle−1/4π) * magnitude + turn
-
-            // angle is the desired offset from current heading [-PI/2, PI/2]
-            // magnitude is the speed to move [0, 1]
-            // turn is a value from [-1, 1]
-
-            //gets the angle between the current position and the target position
-            Vector2 offset = targetPosition.offset(position);
-
-            //the direction the robot wants to move relative to the field
-            Heading directionToMove = offset.toHeading();
-
-            //direction the robot needs to move before zeroing it out relative to the robot
-            Heading directionToMoveRelativeToRobot = directionToMove.minus(heading);
-
-            //The angle the robot wants to move at relative to itself
-            double angle = directionToMoveRelativeToRobot.toRadians();
-
-            double power = speed * 0.5; // todo: add in some kind of ramping from getPowerCurve...
-
-            double turn = 0.0;  // todo: add some kind of correction if we are off heading...
-
-            double powerFLBR = Math.sin(angle + Math.PI / 4.0) * power + turn;
-            double powerFRBL = Math.sin(angle - Math.PI / 4.0) * power + turn;
-
-            //Sets the front left back right x
-            frontLeft.setPower(powerFLBR);
-            backRight.setPower(powerFLBR);
-            //sets the front right back left x
-            frontRight.setPower(powerFRBL);
-            backLeft.setPower(powerFRBL);
+            frontLeft.setPower(powers.frontLeft);
+            backRight.setPower(powers.backRight);
+            frontRight.setPower(powers.frontRight);
+            backLeft.setPower(powers.backLeft);
 
             double distanceMoved = position.distance(startingPosition);
             return distanceMoved >= startingPosition.distance(targetPosition);
