@@ -69,40 +69,45 @@ public class MecanumUtil {
         // The angle the robot wants to move at relative to itself
         double angle = directionToMoveRelativeToRobot.toRadians();
 
-        double power = speed; // todo: add in some kind of ramping from getPowerCurve...
-
-        // Calculate how far off we are from the target heading.
-        double turn = targetHeading.delta(heading) / 50.0;
-
-        if (telemetry != null) {
-            telemetry.addData("Offset to Move", offset);
-            telemetry.addData("Angle", directionToMoveRelativeToRobot);
-            telemetry.addData("Sin FLBR", Math.sin(angle + Math.PI / 4.0));
-            telemetry.addData("Sin FRBL", Math.sin(angle - Math.PI / 4.0));
-        }
-
         Vector2 powerVector = new Vector2(
                 Math.sin(angle + Math.PI / 4.0),  // FL, BR
                 Math.sin(angle - Math.PI / 4.0)   // FR, BL
+        ).withMagnitude(1.0);
+
+        // Calculate how far off we are from the target heading.
+        // Positive turn value means turning left, negative means turning right.
+        double turn = targetHeading.delta(heading) / 10.0;
+        if (turn >= .25) {
+            turn = .25;
+        } else if (turn <= -.25) {
+            turn = -.25;
+        }
+
+        // Add in turn.  For examples, to turn left, give less power to the left wheels and more to the right.
+        MotorPowers motorPowers = new MotorPowers(
+                powerVector.getY() - turn,
+                powerVector.getX() + turn,
+                powerVector.getX() - turn,
+                powerVector.getY() + turn
         );
 
-        // Add in turn, but keep the overall magnitude the same
-        //Vector2 powerVectorWithTurn = powerVector.add(new Vector2(turn, turn));
-        //Vector2 powerVectorWithTurnAndMagnitude = powerVectorWithTurn.withMagnitude(powerVector.magnitude());
+        // Add in power ramping and desired speed by scaling the motor powers to the desired overall magnitude.
+        double power = speed; // todo: add in some kind of ramping from getPowerCurve...
 
-        // Add in power ramping and desired speed
-        //Vector2 finalPower = powerVectorWithTurnAndMagnitude.multiply(power);
-        Vector2 finalPower = powerVector.multiply(power);
-
-        double powerFLBR = finalPower.getX();
-        double powerFRBL = finalPower.getY();
-
-        return new MotorPowers(
-                powerFRBL,
-                powerFLBR,
-                powerFLBR,
-                powerFRBL
+        motorPowers = MotorPowers.fromVectorN(
+                motorPowers.toVectorN().withMagnitude(power)
         );
+
+        // Telemetry for debugging
+        if (telemetry != null) {
+            telemetry.addData("Turn", turn);
+            //telemetry.addData("Offset to Move", offset);
+            //telemetry.addData("Angle", directionToMoveRelativeToRobot);
+            //telemetry.addData("Sin FLBR", Math.sin(angle + Math.PI / 4.0));
+            //telemetry.addData("Sin FRBL", Math.sin(angle - Math.PI / 4.0));
+        }
+
+        return motorPowers;
     }
 
     public static class MotorPowers {
@@ -116,6 +121,24 @@ public class MecanumUtil {
             this.backRight = backRight;
             this.frontLeft = frontLeft;
             this.frontRight = frontRight;
+        }
+
+        public VectorN toVectorN() {
+            return new VectorN(
+                    backLeft,
+                    backRight,
+                    frontLeft,
+                    frontRight
+            );
+        }
+
+        public static MotorPowers fromVectorN(VectorN vector) {
+            return new MotorPowers(
+                    vector.get(0),
+                    vector.get(1),
+                    vector.get(2),
+                    vector.get(3)
+            );
         }
 
         @SuppressLint("DefaultLocale")

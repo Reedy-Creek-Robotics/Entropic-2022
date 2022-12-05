@@ -56,6 +56,7 @@ public class MoveCommandTest extends OpMode {
         //sets the power to the drivetrain
         if (deadZoneCheck(Arrays.asList(drive, turn, strafe)) || !robot.getDriveTrain().isBusy())
             robot.getDriveTrain().drive(drive, turn, strafe, limiter);
+            //robot.getDriveTrain().attemptDriverRelative(drive,turn,strafe,limiter,90);
 
         if (lastButtonTime.seconds() > 0.25) {
             boolean buttonPress = true;

@@ -219,7 +219,6 @@ public class DriveTrain extends BaseComponent {
 
     public void resetPosition() {
         position = new Position(0.5, 0.5);
-        heading = new Heading(90);
     }
 
     private MotorTicks getCurrentMotorTicks() {
@@ -288,6 +287,33 @@ public class DriveTrain extends BaseComponent {
         frontRight.setPower(drive + turn + strafe);
         backRight.setPower(drive + turn - strafe);
         backLeft.setPower(drive - turn + strafe);
+    }
+
+    public void attemptDriverRelative(double drive, double turn, double strafe, double speed, double driverHeading) {
+        Vector2 joyStickPosition = new Vector2(strafe,drive);
+
+        Heading joyStickHeading = joyStickPosition.toHeading();
+
+        Heading directionRobotWillMove = joyStickHeading.add(heading);
+
+        //The direction the robot wants to go relative to itself
+        double angle = Math.toRadians(directionRobotWillMove.delta(joyStickHeading));
+
+        Vector2 powerVector = new Vector2(
+                Math.sin(angle + Math.PI / 4.0),  // FL, BR
+                Math.sin(angle - Math.PI / 4.0)   // FR, BL
+        );
+
+        Vector2 finalPower = powerVector.multiply(speed);
+
+        double powerFLBR = finalPower.getX();
+        double powerFRBL = finalPower.getY();
+
+        frontLeft.setPower(powerFLBR);
+        backRight.setPower(powerFLBR);
+
+        frontRight.setPower(powerFRBL);
+        backLeft.setPower(powerFRBL);
     }
 
     public enum Direction {
