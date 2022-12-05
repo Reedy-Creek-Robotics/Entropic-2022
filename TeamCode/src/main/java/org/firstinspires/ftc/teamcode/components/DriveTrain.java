@@ -744,13 +744,13 @@ public class DriveTrain extends BaseComponent {
 
     private class Rotate extends BaseCommand {
 
-        private double initialHeading;
-        private double targetHeading;
+        private Heading initialHeading;
+        private Heading targetHeading;
         private double speed;
 
         public Rotate(double angle, double speed) {
-            this.initialHeading = heading.getValue();
-            this.targetHeading = heading.getValue() + angle;
+            this.initialHeading = heading;
+            this.targetHeading = heading.add(angle);
             this.speed = speed;
         }
 
@@ -762,16 +762,13 @@ public class DriveTrain extends BaseComponent {
         @Override
         public boolean updateStatus() {
 
-            throw new UnsupportedOperationException();
-
-            /*
-            double power = getPowerCurveForPosition(heading.getValue(), initialHeading, targetHeading, speed);
+            double power = getPowerCurveForPosition(heading.getValue(), initialHeading.getValue(), targetHeading.getValue(), speed);
 
             //if problems check this
-            if (targetHeading < heading) {
+            if (targetHeading.delta(heading) < 0) {
                 power = -power;
             }
-            double progress = scaleProgress(heading, initialHeading, targetHeading);
+            double progress = scaleProgress(heading.getValue(), initialHeading.getValue(), targetHeading.getValue());
 
             telemetry.addData("Heading", heading);
             telemetry.addData("Initial Heading", initialHeading);
@@ -784,7 +781,6 @@ public class DriveTrain extends BaseComponent {
             backRight.setPower(power);
 
             return progress >= 1.0;
-            */
         }
 
     }
