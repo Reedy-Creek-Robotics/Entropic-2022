@@ -83,7 +83,7 @@ public class MecanumUtil {
             turn = -.25;
         }
 
-        // Add in turn.  For examples, to turn left, give less power to the left wheels and more to the right.
+        // Add in turn.  For example, to turn left, give less power to the left wheels and more to the right.
         MotorPowers motorPowers = new MotorPowers(
                 powerVector.getY() - turn,
                 powerVector.getX() + turn,
@@ -95,7 +95,7 @@ public class MecanumUtil {
         double power = speed; // todo: add in some kind of ramping from getPowerCurve...
 
         motorPowers = MotorPowers.fromVectorN(
-                motorPowers.toVectorN().withMagnitude(power)
+                motorPowers.toVectorN().withMaxComponent(power)
         );
 
         // Telemetry for debugging

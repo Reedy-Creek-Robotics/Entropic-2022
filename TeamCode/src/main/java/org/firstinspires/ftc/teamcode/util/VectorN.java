@@ -12,6 +12,10 @@ public class VectorN {
         return values[index];
     }
 
+    public int size() {
+        return values.length;
+    }
+
     public double magnitude() {
         double sum = 0.0;
         for (double value : values) {
@@ -31,6 +35,23 @@ public class VectorN {
     public VectorN withMagnitude(double magnitude) {
         double scalar = magnitude / this.magnitude();
         return multiply(scalar);
+    }
+
+    /**
+     * Scales the vector such that it's largest component value has the given absolute value maxAbsComponentValue.
+     */
+    public VectorN withMaxComponent(double maxAbsComponentValue) {
+        double existingMax = Double.MIN_VALUE;
+        for (double value : values) {
+            double abs = Math.abs(value);
+            if (abs > existingMax) {
+                existingMax = abs;
+            }
+        }
+
+        double scale = maxAbsComponentValue / existingMax;
+
+        return multiply(scale);
     }
 
 }
