@@ -3,6 +3,12 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.components.AprilTagDetector;
+import org.firstinspires.ftc.teamcode.components.BaseComponent;
+import org.firstinspires.ftc.teamcode.components.DriveTrain;
+import org.firstinspires.ftc.teamcode.components.WebCam;
+import org.firstinspires.ftc.teamcode.util.TelemetryUtil;
+
 
 public class Robot extends BaseComponent {
 
@@ -13,7 +19,7 @@ public class Robot extends BaseComponent {
     public Robot(OpMode opMode, boolean initWithCamera) {
         super(opMode);
 
-        this.webCamSide = new WebCam(opMode, "WebcamFront", false);
+        this.webCamSide = new WebCam(opMode, "WebcamFront", initWithCamera);
         this.driveTrain = new DriveTrain(opMode, webCamSide);
         this.aprilTagDetector = new AprilTagDetector(opMode, webCamSide);
 
@@ -23,6 +29,8 @@ public class Robot extends BaseComponent {
             addSubComponents(webCamSide);
             addSubComponents(aprilTagDetector);
         }
+
+        TelemetryUtil.telemetry = opMode.telemetry;
     }
 
     /**
@@ -63,7 +71,7 @@ public class Robot extends BaseComponent {
         while (!isStopRequested()) {
             updateStatus();
         }
-        stopCommand();
+        stopAllCommands();
     }
 
     public DriveTrain getDriveTrain() {

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.Command;
+import org.firstinspires.ftc.teamcode.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +24,7 @@ public abstract class BaseComponent implements Component {
     protected ElapsedTime time;
 
     private Command currentCommand;
+    private List<Command> nextCommands;
 
     private List<Component> subComponents = new ArrayList<>();
 
@@ -31,20 +34,33 @@ public abstract class BaseComponent implements Component {
         this.telemetry = opMode.telemetry;
         this.time = new ElapsedTime();
         this.currentCommand = null;
+        this.nextCommands = new ArrayList<>();
     }
 
+    /**
+     * Executes the given command.  If there's another command in progress, this one will be added to the queue.
+     */
     protected void executeCommand(Command command) {
-        stopCommand();
-        time.reset();
-        currentCommand = command;
-        currentCommand.start();
+        this.nextCommands.add(command);
     }
 
-    protected void stopCommand() {
-        if(currentCommand != null) {
+    /**
+     * Stops the current command and removes any additional commands from the queue.
+     */
+    public void stopAllCommands() {
+        if (currentCommand != null) {
             currentCommand.stop();
-            currentCommand = null;
         }
+        currentCommand = null;
+        nextCommands.clear();
+    }
+
+    protected Command getCurrentCommand() {
+        return currentCommand;
+    }
+
+    protected List<Command> getNextCommands() {
+        return nextCommands;
     }
 
     protected void addSubComponents(Component... subComponents) {
@@ -54,17 +70,25 @@ public abstract class BaseComponent implements Component {
     @Override
     public void init() {
         for (Component subComponent : subComponents) {
-            telemetry.addData("Subcomponent:",subComponent);
+            telemetry.addData("Subcomponent:", subComponent);
             telemetry.update();
             subComponent.init();
         }
-        telemetry.addData("Robot is initialized","");
+        telemetry.addData("Robot is initialized", "");
         telemetry.update();
     }
 
     @Override
     public void updateStatus() {
-        // If there is a current command we are trying to execute, delegate to it to update status
+
+        // If there is not a current command, but there are commands in the queue, start the next one.
+        if (currentCommand == null && !nextCommands.isEmpty()) {
+            currentCommand = nextCommands.remove(0);
+            currentCommand.start();
+            time.reset();
+        }
+
+        // If there is a current command we are trying to execute, delegate to it for update status
         if (currentCommand != null) {
             boolean finished = currentCommand.updateStatus();
 
@@ -91,7 +115,7 @@ public abstract class BaseComponent implements Component {
         }
 
         // We are busy if we have a command we are trying to execute and that command is still busy.
-        return currentCommand != null;
+        return currentCommand != null || !nextCommands.isEmpty();
     }
 
     protected boolean isStopRequested() {

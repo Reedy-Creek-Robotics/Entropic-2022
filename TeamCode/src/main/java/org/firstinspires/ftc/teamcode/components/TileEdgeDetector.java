@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
 
@@ -48,6 +48,11 @@ public class TileEdgeDetector extends BaseComponent {
      */
     private static final int THETA_ALIGNED_TO_TILE = 90;
 
+    /**
+     * The theta at which we consider the robot to be aligned with the tile edge horizontally.
+     */
+    private static final int THETA_ALIGNED_TO_TILE_VERTICAL = 180;
+
 
     /**
      * The webcam to use for observations
@@ -62,7 +67,12 @@ public class TileEdgeDetector extends BaseComponent {
     /**
      * The observed distance to the next tile edge that is in front of the robot (in feet)
      */
-    private double distanceToTile;
+    private double distanceToTileHorizontal;
+
+    /**
+     * Observed distance to the next tile edge in the horizontal direction. (in feet)
+     */
+    private double distanceToTileVertical;
 
     /**
      * The time since the observed frame
@@ -101,7 +111,8 @@ public class TileEdgeDetector extends BaseComponent {
 
     public void reset() {
         observationTime = null;
-        distanceToTile = Double.NaN;
+        distanceToTileHorizontal = Double.NaN;
+        distanceToTileHorizontal = Double.NaN;
         angleToTile = Double.NaN;
     }
 
@@ -115,8 +126,15 @@ public class TileEdgeDetector extends BaseComponent {
     /**
      * Returns the distance to the closest tile edge to the right of the robot, in feet.
      */
-    public double getDistanceToTile() {
-        return distanceToTile;
+    public double getDistanceToTileHorizontal() {
+        return distanceToTileHorizontal;
+    }
+
+    /**
+     * Returns the distance to the closest tile edge in the vertical direction, in feet.
+     */
+    public double getDistanceToTileVertical() {
+        return distanceToTileVertical;
     }
 
     /**
@@ -169,13 +187,13 @@ public class TileEdgeDetector extends BaseComponent {
                 Line line = lines.get(0);
                 drawOutputLine(output, line, Color.GREEN.toRGBA());
 
-                distanceToTile = convertRhoToTileDistance(line.rho);
+                distanceToTileHorizontal = convertRhoToTileDistance(line.rho);
                 angleToTile = convertThetaToTileAngle(line.theta);
 
                 // Print out rho, theta, and count for the detected line.
                 DrawUtil.drawText(
                         output,
-                        String.format("(<%.2f, %.2f in) [%d]", angleToTile, distanceToTile * 12.0, line.count),
+                        String.format("(<%.2f, %.2f in) [%d]", angleToTile, distanceToTileHorizontal * 12.0, line.count),
                         new Point(100, 50),
                         Color.GREEN.toRGBA()
                 );
