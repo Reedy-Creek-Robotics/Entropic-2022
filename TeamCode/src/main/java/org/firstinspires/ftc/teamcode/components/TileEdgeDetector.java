@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 
 import android.annotation.SuppressLint;
 
@@ -213,7 +213,7 @@ public class TileEdgeDetector extends BaseComponent {
         private double convertRhoToTileDistance(double rho) {
             double pixelsFromBottom = IMAGE_HEIGHT - rho;
             double pixelsFromWheelEdge = pixelsFromBottom - VERTICAL_PIXELS_WHEEL_EDGE_POSITION;
-            return inches(pixelsFromWheelEdge / VERTICAL_PIXELS_PER_INCH);
+            return inchesToTiles(pixelsFromWheelEdge / VERTICAL_PIXELS_PER_INCH);
         }
 
         private double convertThetaToTileAngle(double theta) {

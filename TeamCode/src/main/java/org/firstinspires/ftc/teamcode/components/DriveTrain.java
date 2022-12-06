@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToTicks;
 
 import android.annotation.SuppressLint;
@@ -401,7 +401,7 @@ public class DriveTrain extends BaseComponent {
             double distance = targetDistance - initialDistance;
 
             // Sanity check - don't try to move more than 10 inches
-            double maxDistance = inches(10);
+            double maxDistance = inchesToTiles(10);
             if (Math.abs(distance) < maxDistance) {
                 strafe(distance, speed);
             }
