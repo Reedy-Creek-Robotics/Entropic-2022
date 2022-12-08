@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -47,7 +48,7 @@ public class MecanumUtilTest {
     @Test
     public void calculateWheelPowerForTargetPosition_moveForward() {
         MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
-                new Position(0.5, 0.5), new Heading(90),
+                new Position(0.5, 0.5), new Heading(90), new Vector2(0, 0),
                 new Position(0.5, 1.5), new Heading(90),
                 0.5
         );
@@ -66,7 +67,7 @@ public class MecanumUtilTest {
     @Test
     public void calculateWheelPowerForTargetPosition_moveBackward() {
         MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
-                new Position(0.5, 1.5), new Heading(90),
+                new Position(0.5, 1.5), new Heading(90), new Vector2(0, 0),
                 new Position(0.5, 0.5), new Heading(90),
                 0.5
         );
@@ -85,7 +86,7 @@ public class MecanumUtilTest {
     @Test
     public void calculateWheelPowerForTargetPosition_strafeRight() {
         MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
-                new Position(0.5, 0.5), new Heading(90),
+                new Position(0.5, 0.5), new Heading(90), new Vector2(0, 0),
                 new Position(1.5, 0.5), new Heading(90),
                 0.5
         );

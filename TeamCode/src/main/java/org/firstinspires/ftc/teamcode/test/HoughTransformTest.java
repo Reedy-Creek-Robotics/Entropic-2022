@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.test;
 
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inches;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -35,7 +35,7 @@ public class HoughTransformTest extends OpMode {
         if (gamepad1.a && waitTime.seconds() > 1) {
             waitTime.reset();
 
-            robot.getDriveTrain().moveForward(inches(12),.5);
+            robot.getDriveTrain().moveForward(inchesToTiles(12),.5);
             robot.waitForCommandsToFinish(.2);
 
             robot.getFrontWebCam().saveLastFrame();

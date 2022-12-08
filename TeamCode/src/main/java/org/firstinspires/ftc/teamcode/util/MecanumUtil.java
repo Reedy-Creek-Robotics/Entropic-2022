@@ -43,9 +43,10 @@ public class MecanumUtil {
     public static MotorPowers calculateWheelPowerForTargetPosition(
             Position position,
             Heading heading,
+            Vector2 velocity,
             Position targetPosition,
             Heading targetHeading,
-            double speed
+            double speedFactor
     ) {
         // Mecanum formulas
         // https://seamonsters-2605.github.io/archive/mecanum/
@@ -83,7 +84,7 @@ public class MecanumUtil {
             turn = -.25;
         }
 
-        // Add in turn.  For examples, to turn left, give less power to the left wheels and more to the right.
+        // Add in turn.  For example, to turn left, give less power to the left wheels and more to the right.
         MotorPowers motorPowers = new MotorPowers(
                 powerVector.getY() - turn,
                 powerVector.getX() + turn,
@@ -91,11 +92,14 @@ public class MecanumUtil {
                 powerVector.getY() + turn
         );
 
-        // Add in power ramping and desired speed by scaling the motor powers to the desired overall magnitude.
-        double power = speed; // todo: add in some kind of ramping from getPowerCurve...
+        // Add in power ramping and desired speed by scaling the motor powers to the desired overall max component.
+        // In other words, scale so that the motor getting the most power has its absolute value equal
+        // to the power and ramping
+        double rampingFactor = RampUtil.calculateRampingFactor(position, targetPosition, velocity, speedFactor);
+        double power = rampingFactor * speedFactor;
 
         motorPowers = MotorPowers.fromVectorN(
-                motorPowers.toVectorN().withMagnitude(power)
+                motorPowers.toVectorN().withMaxComponent(power)
         );
 
         // Telemetry for debugging
