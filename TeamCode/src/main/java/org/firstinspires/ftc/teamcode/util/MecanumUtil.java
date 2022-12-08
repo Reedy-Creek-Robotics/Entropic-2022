@@ -100,7 +100,7 @@ public class MecanumUtil {
 
         // Telemetry for debugging
         if (telemetry != null) {
-            telemetry.addData("Turn", turn);
+            //telemetry.addData("Turn", turn);
             //telemetry.addData("Offset to Move", offset);
             //telemetry.addData("Angle", directionToMoveRelativeToRobot);
             //telemetry.addData("Sin FLBR", Math.sin(angle + Math.PI / 4.0));

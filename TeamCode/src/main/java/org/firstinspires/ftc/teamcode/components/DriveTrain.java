@@ -17,7 +17,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.Command;
 import org.firstinspires.ftc.teamcode.util.Heading;
 import org.firstinspires.ftc.teamcode.util.MecanumUtil;
 import org.firstinspires.ftc.teamcode.util.Position;
@@ -166,10 +165,10 @@ public class DriveTrain extends BaseComponent {
         telemetry.addData("Position", position);
 
         if (tileEdgeDetectorSide.isDetected()) {
-            telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
+            //telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
             // todo: convert these to tile units instead of inches
-            telemetry.addData("Distance to Tile (horiz)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileHorizontal() * 12.0));
-            telemetry.addData("Distance to Tile (vert)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileVertical() * 12.0));
+            //telemetry.addData("Distance to Tile (horiz)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileHorizontal() * 12.0));
+            //telemetry.addData("Distance to Tile (vert)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileVertical() * 12.0));
         }
 
         telemetry.addData("Current Command", getCurrentCommand());
@@ -187,7 +186,7 @@ public class DriveTrain extends BaseComponent {
         // Determine the number of ticks moved by each wheel.
         MotorTicks ticks = getCurrentMotorTicks();
 
-        telemetry.addData("Motor Ticks", ticks.toString());
+        //telemetry.addData("Motor Ticks", ticks.toString());
 
         if (previousMotorTicks != null) {
 
@@ -332,6 +331,13 @@ public class DriveTrain extends BaseComponent {
         // todo: if current command is "move to target position and rotation", then update that
         // todo: command with a new position and rotation.
         executeCommand(new MoveAlignedToTileCenter(direction, distance, speed));
+    }
+
+    /**
+     * Centers the robot within the current tile.
+     */
+    public void centerInCurrentTile(double speed) {
+        moveAlignedToTileCenter(0.0, Direction.X, speed);
     }
 
     /**
@@ -525,7 +531,7 @@ public class DriveTrain extends BaseComponent {
      * If the robot's heading is not aligned to a 90 degree tile boundary, this will also attempt to correct that
      * by making the smallest rotation possible.
      */
-    private class MoveAlignedToTileCenter extends BaseCommand {
+    private class MoveAlignedToTileCenter extends BaseCommand implements CombinableCommand {
 
         /**
          * The direction in which the robot should move.
@@ -592,10 +598,10 @@ public class DriveTrain extends BaseComponent {
                     speed
             );
 
-            telemetry.addData("startingPosition", startingPosition);
-            telemetry.addData("targetPosition", targetPosition);
-            telemetry.addData("targetHeading", targetHeading);
-            telemetry.addData("motorPowers", powers);
+            //telemetry.addData("startingPosition", startingPosition);
+            //telemetry.addData("targetPosition", targetPosition);
+            //telemetry.addData("targetHeading", targetHeading);
+            //telemetry.addData("motorPowers", powers);
 
             frontLeft.setPower(powers.frontLeft);
             backRight.setPower(powers.backRight);
@@ -604,6 +610,36 @@ public class DriveTrain extends BaseComponent {
 
             double distanceMoved = position.distance(startingPosition);
             return distanceMoved >= startingPosition.distance(targetPosition);
+        }
+
+        @Override
+        public Command combineWith(Command other) {
+            if (other instanceof MoveAlignedToTileCenter) {
+
+                // If the other move command is the same direction as this one, it can be combined with this one.
+                MoveAlignedToTileCenter otherMoveCommand = (MoveAlignedToTileCenter) other;
+                if (direction == otherMoveCommand.direction) {
+
+                    // If this command has already been started, and a targetPosition calculated, calculate the
+                    // remaining distance to the target.  Otherwise, the command has not yet been started but is in
+                    // the queue, so just use the full requested distance to move.
+                    double remainingDistance = targetPosition != null ?
+                            position.distance(targetPosition) :
+                            distance;
+
+                    return new MoveAlignedToTileCenter(
+                            direction,
+                            remainingDistance + otherMoveCommand.distance,
+                            speed
+                    );
+                }
+            }
+
+            return null;
+        }
+
+        public String toString() {
+            return String.format("Move Tile (%s %.1f)", direction, distance);
         }
     }
 
@@ -744,13 +780,13 @@ public class DriveTrain extends BaseComponent {
 
     private class Rotate extends BaseCommand {
 
-        private double initialHeading;
-        private double targetHeading;
+        private Heading initialHeading;
+        private Heading targetHeading;
         private double speed;
 
         public Rotate(double angle, double speed) {
-            this.initialHeading = heading.getValue();
-            this.targetHeading = heading.getValue() + angle;
+            this.initialHeading = heading;
+            this.targetHeading = heading.add(angle);
             this.speed = speed;
         }
 
@@ -762,16 +798,13 @@ public class DriveTrain extends BaseComponent {
         @Override
         public boolean updateStatus() {
 
-            throw new UnsupportedOperationException();
-
-            /*
-            double power = getPowerCurveForPosition(heading.getValue(), initialHeading, targetHeading, speed);
+            double power = getPowerCurveForPosition(heading.getValue(), initialHeading.getValue(), targetHeading.getValue(), speed);
 
             //if problems check this
-            if (targetHeading < heading) {
+            if (targetHeading.delta(heading) < 0) {
                 power = -power;
             }
-            double progress = scaleProgress(heading, initialHeading, targetHeading);
+            double progress = scaleProgress(heading.getValue(), initialHeading.getValue(), targetHeading.getValue());
 
             telemetry.addData("Heading", heading);
             telemetry.addData("Initial Heading", initialHeading);
@@ -784,7 +817,6 @@ public class DriveTrain extends BaseComponent {
             backRight.setPower(power);
 
             return progress >= 1.0;
-            */
         }
 
     }

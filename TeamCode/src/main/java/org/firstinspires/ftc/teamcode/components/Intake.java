@@ -3,14 +3,12 @@ package org.firstinspires.ftc.teamcode.components;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-import org.firstinspires.ftc.teamcode.Command;
-
 public class Intake extends BaseComponent {
     private CRServo intakeServo;
 
     public Intake(OpMode opMode) {
         super(opMode);
-        intakeServo = hardwareMap.crservo.get("intakeWheel");
+        intakeServo = hardwareMap.crservo.get("IntakeWheel");
     }
 
     /**
@@ -28,13 +26,9 @@ public class Intake extends BaseComponent {
     }
 
     private abstract class BaseCommand implements Command {
-        //time in seconds
-        double timeToSpin;
-
         double power;
 
-        public BaseCommand(double timeToSpin, double power) {
-            this.timeToSpin = timeToSpin;
+        public BaseCommand(double power) {
             this.power = power;
         }
 
@@ -45,14 +39,14 @@ public class Intake extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            return time.seconds() > timeToSpin;
+            return true;
         }
     }
 
     private class IntakeCone extends BaseCommand {
 
         public IntakeCone(double power) {
-            super(.5,power);
+            super(power);
         }
 
         @Override

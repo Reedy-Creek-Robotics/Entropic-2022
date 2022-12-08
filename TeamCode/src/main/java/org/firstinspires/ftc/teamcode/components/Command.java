@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
 /**
  * Represents a command that has been issued to the drive train.

@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.Command;
-import org.firstinspires.ftc.teamcode.Component;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +39,19 @@ public abstract class BaseComponent implements Component {
      * Executes the given command.  If there's another command in progress, this one will be added to the queue.
      */
     protected void executeCommand(Command command) {
+
+        // Check if the command can be combined with the last command in the queue.
+        Command lastCommandInQueue = getLastCommandInQueue();
+        if (lastCommandInQueue instanceof CombinableCommand) {
+            Command combined = ((CombinableCommand) lastCommandInQueue).combineWith(command);
+            if (combined != null) {
+                // The command was successfully combined with the last one in the queue, so replace the last one in
+                // the queue with this new combination.
+                replaceLastCommandInQueue(combined);
+                return;
+            }
+        }
+
         this.nextCommands.add(command);
     }
 
@@ -61,6 +72,25 @@ public abstract class BaseComponent implements Component {
 
     protected List<Command> getNextCommands() {
         return nextCommands;
+    }
+
+    private Command getLastCommandInQueue() {
+        return nextCommands.isEmpty() ?
+                currentCommand :
+                nextCommands.get(nextCommands.size() - 1);
+    }
+
+    private void replaceLastCommandInQueue(Command command) {
+        if (nextCommands.isEmpty()) {
+            // The command queue is empty so the current command is the one being replaced.  Discard the current
+            // command and add the new one to the front of the queue.  The next time updateStatus is called, the new
+            // command will be started.
+            currentCommand = null;
+            nextCommands.add(0, command);
+        } else {
+            // The command is in the queue and hasn't been started yet.  Just replace it with the other command.
+            nextCommands.set(nextCommands.size() - 1, command);
+        }
     }
 
     protected void addSubComponents(Component... subComponents) {

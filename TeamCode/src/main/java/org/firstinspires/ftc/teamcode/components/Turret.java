@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.components;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.Command;
-
 public class Turret extends BaseComponent {
 
     private static double MAXIMUM = 1.0;
@@ -15,7 +13,11 @@ public class Turret extends BaseComponent {
 
     public Turret(OpMode opMode) {
         super(opMode);
-        servo = hardwareMap.servo.get("turret");
+        servo = hardwareMap.servo.get("Turret");
+    }
+
+    public void moveToPosition(double position) {
+        executeCommand(new MoveToPosition(position));
     }
 
     private class MoveToPosition implements Command {

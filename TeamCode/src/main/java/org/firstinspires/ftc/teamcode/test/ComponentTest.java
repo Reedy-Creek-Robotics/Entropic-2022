@@ -2,35 +2,49 @@ package org.firstinspires.ftc.teamcode.test;
 
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
-
-import android.annotation.SuppressLint;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.Position.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.components.LinearSlide;
 
 import java.util.Arrays;
 import java.util.List;
 
 @TeleOp
-public class MoveCommandTest extends OpMode {
-    public static double BASE_SPEED = 1;
-
+public class ComponentTest extends OpMode {
     public Robot robot;
 
-    private ElapsedTime lastButtonTime;
+    //button input for gamepad 1
+    private ElapsedTime lastButtonTime1;
+
+    //button input for gamepad 2
+    private ElapsedTime lastButtonTime2;
 
     public double limiter;
 
+    public List<LinearSlide.Position> positions;
+    public int currentPosition;
+
+    public double turretLocation;
+
     @Override
     public void init() {
-        robot = new Robot(this);
+        robot = new Robot(this, true);
         robot.init();
 
         limiter = .3;
-        lastButtonTime = new ElapsedTime();
+        lastButtonTime1 = new ElapsedTime();
+        lastButtonTime2 = new ElapsedTime();
+
+        positions = Arrays.asList(INTAKE, TRAVEL, GROUND_LEVEL, SMALL_POLE, MEDIUM_POLE, TOP_POLE);
+        currentPosition = 0;
+
+        turretLocation = 0;
+
     }
 
     private boolean deadZoneCheck(List<Double> values) {
@@ -42,22 +56,27 @@ public class MoveCommandTest extends OpMode {
         return false;
     }
 
-    @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
-
         double drive = -gamepad1.left_stick_y;
         double strafe = -gamepad1.left_stick_x;
         double turn = -gamepad1.right_stick_x;
 
-        //telemetry.addData("left stick", String.format("%.3f, %.3f", gamepad1.left_stick_x, gamepad1.left_stick_y));
-        //telemetry.addData("right stick", String.format("%.3f, %.3f", gamepad1.right_stick_x, gamepad1.right_stick_y));
-
         //sets the power to the drivetrain
-        if (deadZoneCheck(Arrays.asList(drive, turn, strafe)) || !robot.getDriveTrain().isBusy())
+        if (deadZoneCheck(Arrays.asList(drive, turn, strafe)) || !robot.getDriveTrain().isBusy()) {
             robot.getDriveTrain().drive(drive, turn, strafe, limiter);
+        }
 
-        if (lastButtonTime.seconds() > 0.25) {
+        if (deadZoneCheck(Arrays.asList((double) gamepad2.left_stick_y))) {
+            turretLocation += -gamepad2.left_stick_y * .05;
+            if (turretLocation < 0) {
+                turretLocation = 0;
+            } else if (turretLocation > 1) {
+                turretLocation = 1;
+            }
+        }
+
+        if (lastButtonTime1.seconds() > 0.25) {
             boolean buttonPress = true;
             if (gamepad1.dpad_up) {
                 robot.getDriveTrain().moveAlignedToTileCenter(1, Y, limiter);
@@ -73,25 +92,41 @@ public class MoveCommandTest extends OpMode {
                 robot.getDriveTrain().rotate(90, limiter);
             } else if (gamepad1.b) {
                 robot.getDriveTrain().stopAllCommands();
-            } else if(gamepad1.a) {
-                robot.getDriveTrain().centerInCurrentTile(limiter);
             } else if (gamepad1.start) {
                 robot.getDriveTrain().resetPosition();
-            } else if(gamepad1.left_bumper) {
+            } else if (gamepad1.left_bumper) {
                 limiter -= 0.05;
-            } else if(gamepad1.right_bumper) {
+            } else if (gamepad1.right_bumper) {
                 limiter += 0.05;
-            }
-            else {
+            } else {
                 buttonPress = false;
             }
             if (buttonPress) {
-                lastButtonTime.reset();
+                lastButtonTime1.reset();
             }
         }
 
-        telemetry.addData("Limiter",limiter);
-        robot.updateStatus();
+        if (lastButtonTime2.seconds() > .25) {
+            boolean buttonPress = true;
+            if (gamepad2.a) {
+                currentPosition = (1 + currentPosition) % positions.size();
+            } else if (gamepad2.right_bumper) {
+                //robot.getIntake().intake(.5);
+            } else if (gamepad2.left_bumper) {
+                //robot.getIntake().intake(-.5);
+            } else {
+                buttonPress = false;
+            }
+            if (buttonPress) {
+                lastButtonTime2.reset();
+            }
+        }
 
+        robot.getSlide().moveToPosition(positions.get(currentPosition));
+        robot.getTurret().moveToPosition(turretLocation);
+
+        telemetry.addData("Slide Position", positions.get(currentPosition));
+        telemetry.addData("Limiter", limiter);
+        robot.updateStatus();
     }
 }
