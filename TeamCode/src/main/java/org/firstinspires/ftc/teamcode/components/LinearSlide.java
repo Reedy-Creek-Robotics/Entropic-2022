@@ -18,6 +18,7 @@ public class LinearSlide extends BaseComponent {
         MEDIUM_POLE(0),
         SMALL_POLE(0),
         GROUND_LEVEL(0),
+        TRAVEL(0),
         INTAKE(0)
         ;
         private int ticks;
@@ -31,7 +32,7 @@ public class LinearSlide extends BaseComponent {
 
     public LinearSlide(OpMode opMode) {
         super(opMode);
-        motor = (DcMotorEx) hardwareMap.dcMotor.get("slide");
+        motor = (DcMotorEx) hardwareMap.dcMotor.get("Slide");
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         position = Position.INTAKE;
     }

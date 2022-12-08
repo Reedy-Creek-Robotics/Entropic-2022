@@ -15,7 +15,11 @@ public class Turret extends BaseComponent {
 
     public Turret(OpMode opMode) {
         super(opMode);
-        servo = hardwareMap.servo.get("turret");
+        servo = hardwareMap.servo.get("Turret");
+    }
+
+    public void moveToPosition(double position) {
+        executeCommand(new MoveToPosition(position));
     }
 
     private class MoveToPosition implements Command {
