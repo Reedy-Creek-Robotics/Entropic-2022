@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode.components;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.Command;
-
 public class Turret extends BaseComponent {
 
     private static double MAXIMUM = 1.0;
