@@ -3,8 +3,8 @@ package org.firstinspires.ftc.teamcode.test;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.AprilTagDetectionFrameProcessor;
-import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.components.AprilTagDetector;
+import org.firstinspires.ftc.teamcode.components.Robot;
 import org.openftc.apriltag.AprilTagDetection;
 
 import java.util.List;
@@ -12,8 +12,6 @@ import java.util.List;
 @TeleOp
 public class AprilTagTest extends OpMode {
     private Robot robot;
-
-    AprilTagDetectionFrameProcessor aprilTagDetectionPipeline;
 
     @Override
     public void init() {

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.opencv.core.Point;
+import org.firstinspires.ftc.teamcode.components.Robot;
 
 
 public abstract class AutoMain extends LinearOpMode {
