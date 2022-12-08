@@ -73,6 +73,8 @@ public class MoveCommandTest extends OpMode {
                 robot.getDriveTrain().rotate(90, limiter);
             } else if (gamepad1.b) {
                 robot.getDriveTrain().stopAllCommands();
+            } else if(gamepad1.a) {
+                robot.getDriveTrain().centerInCurrentTile(limiter);
             } else if (gamepad1.start) {
                 robot.getDriveTrain().resetPosition();
             } else if(gamepad1.left_bumper) {
