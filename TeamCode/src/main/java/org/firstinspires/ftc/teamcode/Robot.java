@@ -6,6 +6,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.components.AprilTagDetector;
 import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
+import org.firstinspires.ftc.teamcode.components.Intake;
+import org.firstinspires.ftc.teamcode.components.LinearSlide;
+import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.firstinspires.ftc.teamcode.util.TelemetryUtil;
 
@@ -16,6 +19,10 @@ public class Robot extends BaseComponent {
     private WebCam webCamSide;
     private AprilTagDetector aprilTagDetector;
 
+    private Turret turret;
+    private Intake intake;
+    private LinearSlide slide;
+
     public Robot(OpMode opMode, boolean initWithCamera) {
         super(opMode);
 
@@ -23,7 +30,11 @@ public class Robot extends BaseComponent {
         this.driveTrain = new DriveTrain(opMode, webCamSide);
         this.aprilTagDetector = new AprilTagDetector(opMode, webCamSide);
 
-        addSubComponents(driveTrain);
+        //this.turret = new Turret(opMode);
+        //this.slide = new LinearSlide(opMode);
+        //this.intake = new Intake(opMode);
+
+        addSubComponents(driveTrain);  //, turret, slide, intake);
 
         if (initWithCamera) {
             addSubComponents(webCamSide);
@@ -76,6 +87,18 @@ public class Robot extends BaseComponent {
 
     public DriveTrain getDriveTrain() {
         return driveTrain;
+    }
+
+    public LinearSlide getSlide() {
+        return slide;
+    }
+
+    public Turret getTurret() {
+        return turret;
+    }
+
+    public Intake getIntake() {
+        return intake;
     }
 
     public WebCam getFrontWebCam() {
