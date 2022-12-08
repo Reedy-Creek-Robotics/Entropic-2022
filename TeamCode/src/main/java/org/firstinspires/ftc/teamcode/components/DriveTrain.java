@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -61,14 +62,24 @@ public class DriveTrain extends BaseComponent {
     private Vector2 velocity;
 
     /**
-     * The last orientation data obtained from the IMU.
+     * The previous iteration's position.
+     */
+    private Position previousPosition;
+
+    /**
+     * The previous iteration's orientation data obtained from the IMU.
      */
     private Orientation previousImuOrientation;
 
     /**
-     * The last known ticks for the motors.
+     * The previous iteration's tick counts for the motors.
      */
     private MotorTicks previousMotorTicks;
+
+    /**
+     * The time of the previous update iteration.
+     */
+    private ElapsedTime previousUpdateTime;
 
 
     public DriveTrain(OpMode opMode, WebCam webCamSide) {
@@ -110,6 +121,8 @@ public class DriveTrain extends BaseComponent {
 
         // Activate the side tile edge detector immediately
         tileEdgeDetectorSide.activate();
+
+        previousUpdateTime = new ElapsedTime();
     }
 
     private void initIMU() {
@@ -162,8 +175,11 @@ public class DriveTrain extends BaseComponent {
         updateCurrentHeading();
         updateCurrentVelocity();
 
+        previousUpdateTime.reset();
+
         telemetry.addData("Heading", heading);
         telemetry.addData("Position", position);
+        telemetry.addData("Velocity", velocity);
 
         if (tileEdgeDetectorSide.isDetected()) {
             telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
@@ -219,6 +235,7 @@ public class DriveTrain extends BaseComponent {
 
     public void resetPosition() {
         position = new Position(0.5, 0.5);
+        previousPosition = null;
     }
 
     private MotorTicks getCurrentMotorTicks() {
@@ -261,8 +278,15 @@ public class DriveTrain extends BaseComponent {
      */
     private void updateCurrentVelocity() {
 
-        // todo: implement this
+        if (previousPosition != null) {
 
+            Vector2 delta = position.offset(previousPosition);
+            double elapsed = previousUpdateTime.seconds();
+
+            velocity = delta.multiply(1 / elapsed);
+        }
+
+        previousPosition = position;
     }
 
     /**
@@ -587,7 +611,7 @@ public class DriveTrain extends BaseComponent {
         public boolean updateStatus() {
 
             MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
-                    position, heading,
+                    position, heading, velocity,
                     targetPosition, targetHeading,
                     speed
             );
