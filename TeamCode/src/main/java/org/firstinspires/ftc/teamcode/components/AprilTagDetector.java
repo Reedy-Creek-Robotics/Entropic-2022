@@ -1,9 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
-import org.firstinspires.ftc.teamcode.components.BaseComponent;
-import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -40,8 +36,8 @@ public class AprilTagDetector extends BaseComponent {
     private double cy = 221.506;
     private FrameProcessor frameProcessor;
 
-    public AprilTagDetector(OpMode opMode, WebCam webCam) {
-        super(opMode);
+    public AprilTagDetector(RobotContext context, WebCam webCam) {
+        super(context);
         this.webCam = webCam;
     }
 

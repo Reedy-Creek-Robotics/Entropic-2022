@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 
 public class Intake extends BaseComponent {
     private CRServo intakeServo;
 
-    public Intake(OpMode opMode) {
-        super(opMode);
+    public Intake(RobotContext context) {
+        super(context);
         intakeServo = hardwareMap.crservo.get("IntakeWheel");
     }
 
@@ -51,7 +50,6 @@ public class Intake extends BaseComponent {
 
         @Override
         public void start() {
-            time.reset();
             intakeServo.setPower(power);
         }
     }

@@ -8,7 +8,6 @@ import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToTicks;
 import android.annotation.SuppressLint;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -81,8 +80,8 @@ public class DriveTrain extends BaseComponent {
     private ElapsedTime previousUpdateTime;
 
 
-    public DriveTrain(OpMode opMode, WebCam webCamSide) {
-        super(opMode);
+    public DriveTrain(RobotContext context, WebCam webCamSide) {
+        super(context);
 
         frontLeft = (DcMotorEx) hardwareMap.dcMotor.get("FrontLeft");
         frontRight = (DcMotorEx) hardwareMap.dcMotor.get("FrontRight");
@@ -92,7 +91,7 @@ public class DriveTrain extends BaseComponent {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
-        tileEdgeDetectorSide = new TileEdgeDetector(opMode, webCamSide);
+        tileEdgeDetectorSide = new TileEdgeDetector(context, webCamSide);
         addSubComponents(tileEdgeDetectorSide);
 
         //todo: Decide how we are going to determine starting position

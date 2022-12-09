@@ -4,7 +4,6 @@ import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 
 import android.annotation.SuppressLint;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.Color;
@@ -79,8 +78,8 @@ public class TileEdgeDetector extends BaseComponent {
      */
     private ElapsedTime observationTime;
 
-    public TileEdgeDetector(OpMode opMode, WebCam webCam) {
-        super(opMode);
+    public TileEdgeDetector(RobotContext context, WebCam webCam) {
+        super(context);
         this.webCam = webCam;
         reset();
     }

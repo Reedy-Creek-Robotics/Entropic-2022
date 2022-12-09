@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Turret extends BaseComponent {
@@ -11,8 +10,8 @@ public class Turret extends BaseComponent {
 
     private Servo servo;
 
-    public Turret(OpMode opMode) {
-        super(opMode);
+    public Turret(RobotContext context) {
+        super(context);
         servo = hardwareMap.servo.get("Turret");
     }
 

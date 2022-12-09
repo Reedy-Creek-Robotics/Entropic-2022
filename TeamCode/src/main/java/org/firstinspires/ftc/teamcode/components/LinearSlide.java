@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -28,8 +27,8 @@ public class LinearSlide extends BaseComponent {
 
     private DcMotorEx motor;
 
-    public LinearSlide(OpMode opMode) {
-        super(opMode);
+    public LinearSlide(RobotContext context) {
+        super(context);
         motor = (DcMotorEx) hardwareMap.dcMotor.get("Slide");
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         position = Position.INTAKE;

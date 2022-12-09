@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static android.os.Environment.getExternalStorageDirectory;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
@@ -66,15 +64,15 @@ public class WebCam extends BaseComponent {
 
     private ExposureControl exposureControl;
 
-    public WebCam(OpMode opMode, String cameraName, boolean streamOutput, Size resolution) {
-        super(opMode);
+    public WebCam(RobotContext context, String cameraName, boolean streamOutput, Size resolution) {
+        super(context);
         this.cameraName = cameraName;
         this.streamOutput = streamOutput;
         this.size = resolution;
     }
 
-    public WebCam(OpMode opMode, String cameraName, boolean streamOutput) {
-        this(opMode, cameraName, streamOutput, DEFAULT_RESOLUTION);
+    public WebCam(RobotContext context, String cameraName, boolean streamOutput) {
+        this(context, cameraName, streamOutput, DEFAULT_RESOLUTION);
     }
 
     @Override

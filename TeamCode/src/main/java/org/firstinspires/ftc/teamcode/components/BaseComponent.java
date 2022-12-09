@@ -15,22 +15,25 @@ public abstract class BaseComponent implements Component {
 
     private OpMode opMode;
 
+    protected RobotContext context;
+
     protected HardwareMap hardwareMap;
 
     protected Telemetry telemetry;
 
-    protected ElapsedTime time;
+    protected ElapsedTime commandTime;
 
     private Command currentCommand;
     private List<Command> nextCommands;
 
     private List<Component> subComponents = new ArrayList<>();
 
-    public BaseComponent(OpMode opMode) {
-        this.opMode = opMode;
+    public BaseComponent(RobotContext context) {
+        this.context = context;
+        this.opMode = context.getOpMode();
         this.hardwareMap = opMode.hardwareMap;
         this.telemetry = opMode.telemetry;
-        this.time = new ElapsedTime();
+        this.commandTime = new ElapsedTime();
         this.currentCommand = null;
         this.nextCommands = new ArrayList<>();
     }
@@ -115,7 +118,7 @@ public abstract class BaseComponent implements Component {
         if (currentCommand == null && !nextCommands.isEmpty()) {
             currentCommand = nextCommands.remove(0);
             currentCommand.start();
-            time.reset();
+            commandTime.reset();
         }
 
         // If there is a current command we are trying to execute, delegate to it for update status
