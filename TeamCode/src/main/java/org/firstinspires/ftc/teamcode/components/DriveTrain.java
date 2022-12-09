@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.components;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToTicks;
 
 import android.annotation.SuppressLint;
 
@@ -214,6 +213,7 @@ public class DriveTrain extends BaseComponent {
             int deltaFrontRight = ticks.frontRight - previousMotorTicks.frontRight;
 
             Vector2 deltaPositionRelativeToField = MecanumUtil.calculatePositionOffsetFromWheelRotations(
+                    robotDescriptor,
                     deltaBackLeft,
                     deltaBackRight,
                     deltaFrontLeft,
@@ -616,6 +616,7 @@ public class DriveTrain extends BaseComponent {
         public boolean updateStatus() {
 
             MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
+                    robotDescriptor,
                     position, heading, velocity,
                     targetPosition, targetHeading,
                     speed
@@ -719,7 +720,7 @@ public class DriveTrain extends BaseComponent {
             ////////////////////////////////////////////////
 
             // Figure out the distance in ticks
-            ticks = tilesToTicks(distance);
+            ticks = MecanumUtil.tilesToTicks(robotDescriptor, distance);
 
             setMotorMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -776,7 +777,7 @@ public class DriveTrain extends BaseComponent {
             progress = 0;
             ////////////////////////////////////////////////
 
-            ticks = tilesToTicks(distance);
+            ticks = MecanumUtil.tilesToTicks(robotDescriptor, distance);
 
             setMotorMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
 

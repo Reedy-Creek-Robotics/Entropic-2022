@@ -1,15 +1,46 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.teamcode.util.TelemetryUtil.telemetry;
-
 import android.annotation.SuppressLint;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
+
 public class MecanumUtil {
+
+    /**
+     * Converts tiles traveled into number of ticks moved by
+     *
+     * @param distance how far you want to travel in tiles
+     * @return number of ticks to move
+     */
+    public static int tilesToTicks(RobotDescriptor robotDescriptor, double distance) {
+        double wheelSizeInTiles = DistanceUtil.toTiles(robotDescriptor.wheelSizeInMm, DistanceUnit.MM);
+        double wheelCircumference = wheelSizeInTiles * Math.PI;
+        double wheelRevolutions = distance / wheelCircumference;
+
+        double ticksPerRevolution = robotDescriptor.wheelMotorEncoderTicksPerRevolution;
+        return (int) Math.round(wheelRevolutions * ticksPerRevolution);
+    }
+
+    /**
+     * Converts ticks moved by the motor into the number of tiles traveled.
+     *
+     * @param ticks the number of ticks that were moved by the motor
+     * @return the distance in tiles that the robot moved
+     */
+    public static double ticksToTiles(RobotDescriptor robotDescriptor, double ticks) {
+        double wheelSizeInTiles = DistanceUtil.toTiles(robotDescriptor.wheelSizeInMm, DistanceUnit.MM);
+        double wheelCircumference = wheelSizeInTiles * Math.PI;
+        double wheelRevolutions = ticks / robotDescriptor.wheelMotorEncoderTicksPerRevolution;
+
+        return wheelRevolutions * wheelCircumference;
+    }
 
     /**
      * Calculates the offset in field position for a mecanum wheel robot, given the ticks rotation for each wheel.
      */
     public static Vector2 calculatePositionOffsetFromWheelRotations(
+            RobotDescriptor robotDescriptor,
             int deltaBackLeft,
             int deltaBackRight,
             int deltaFrontLeft,
@@ -26,8 +57,8 @@ public class MecanumUtil {
         Vector2 deltaPositionInTicks = u.multiply(du).add(v.multiply(dv)).multiply(0.5);
 
         Vector2 deltaPositionInTiles = new Vector2(
-                DistanceUtil.ticksToTiles(deltaPositionInTicks.getX()),
-                DistanceUtil.ticksToTiles(deltaPositionInTicks.getY())
+                ticksToTiles(robotDescriptor, deltaPositionInTicks.getX()),
+                ticksToTiles(robotDescriptor, deltaPositionInTicks.getY())
         );
 
         Vector2 deltaPositionRelativeToRobot = deltaPositionInTiles.rotate(-90);
@@ -41,6 +72,7 @@ public class MecanumUtil {
      * Calculates the power to apply to each mecanum wheel in order to progress toward the target position and heading.
      */
     public static MotorPowers calculateWheelPowerForTargetPosition(
+            RobotDescriptor robotDescriptor,
             Position position,
             Heading heading,
             Vector2 velocity,
@@ -101,15 +133,6 @@ public class MecanumUtil {
         motorPowers = MotorPowers.fromVectorN(
                 motorPowers.toVectorN().withMaxComponent(power)
         );
-
-        // Telemetry for debugging
-        if (telemetry != null) {
-            //telemetry.addData("Turn", turn);
-            //telemetry.addData("Offset to Move", offset);
-            //telemetry.addData("Angle", directionToMoveRelativeToRobot);
-            //telemetry.addData("Sin FLBR", Math.sin(angle + Math.PI / 4.0));
-            //telemetry.addData("Sin FRBL", Math.sin(angle - Math.PI / 4.0));
-        }
 
         return motorPowers;
     }
