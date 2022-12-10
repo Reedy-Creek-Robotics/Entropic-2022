@@ -648,7 +648,7 @@ public class DriveTrain extends BaseComponent {
                     // remaining distance to the target.  Otherwise, the command has not yet been started but is in
                     // the queue, so just use the full requested distance to move.
                     double remainingDistance = targetPosition != null ?
-                            position.distance(targetPosition) :
+                            position.distance(targetPosition) * Math.signum(distance) :
                             distance;
 
                     return new MoveAlignedToTileCenter(
