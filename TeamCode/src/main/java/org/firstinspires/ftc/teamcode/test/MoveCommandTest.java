@@ -9,10 +9,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
-
-import java.util.Arrays;
-import java.util.List;
 
 @TeleOp
 public class MoveCommandTest extends OpMode {
@@ -33,8 +31,8 @@ public class MoveCommandTest extends OpMode {
         lastButtonTime = new ElapsedTime();
     }
 
-    private boolean deadZoneCheck(List<Double> values) {
-        for (Double value : values) {
+    private boolean deadZoneCheck(double... values) {
+        for (double value : values) {
             if (Math.abs(value) > .1) {
                 return true;
             }
@@ -50,12 +48,23 @@ public class MoveCommandTest extends OpMode {
         double strafe = -gamepad1.left_stick_x;
         double turn = -gamepad1.right_stick_x;
 
+        RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
+
         //telemetry.addData("left stick", String.format("%.3f, %.3f", gamepad1.left_stick_x, gamepad1.left_stick_y));
         //telemetry.addData("right stick", String.format("%.3f, %.3f", gamepad1.right_stick_x, gamepad1.right_stick_y));
 
-        //sets the power to the drivetrain
-        if (deadZoneCheck(Arrays.asList(drive, turn, strafe)) || !robot.getDriveTrain().isBusy())
-            robot.getDriveTrain().drive(drive, turn, strafe, limiter);
+        if (deadZoneCheck(gamepad1.left_trigger)) {
+            if (deadZoneCheck(gamepad1.left_stick_y)) {
+                robotDescriptor.rampingUpMaximumSpeedToMotorPowerRatio += gamepad1.left_stick_y / 4;
+            } else if (deadZoneCheck(gamepad1.right_stick_y)) {
+                robotDescriptor.rampingDownMaximumMotorPowerToDistanceRemainingRatio += gamepad1.right_stick_y / 4;
+            }
+
+        } else {
+            //sets the power to the drivetrain
+            if (deadZoneCheck(drive, turn, strafe) || !robot.getDriveTrain().isBusy())
+                robot.getDriveTrain().drive(drive, turn, strafe, limiter);
+        }
 
         if (lastButtonTime.seconds() > 0.25) {
             boolean buttonPress = true;
@@ -73,24 +82,26 @@ public class MoveCommandTest extends OpMode {
                 robot.getDriveTrain().rotate(90, limiter);
             } else if (gamepad1.b) {
                 robot.getDriveTrain().stopAllCommands();
-            } else if(gamepad1.a) {
+            } else if (gamepad1.a) {
                 robot.getDriveTrain().centerInCurrentTile(limiter);
             } else if (gamepad1.start) {
                 robot.getDriveTrain().resetPosition();
-            } else if(gamepad1.left_bumper) {
+            } else if (gamepad1.left_bumper) {
                 limiter -= 0.05;
-            } else if(gamepad1.right_bumper) {
+            } else if (gamepad1.right_bumper) {
                 limiter += 0.05;
-            }
-            else {
+            } else {
                 buttonPress = false;
             }
+
             if (buttonPress) {
                 lastButtonTime.reset();
             }
         }
 
-        telemetry.addData("Limiter",limiter);
+        telemetry.addData("Limiter", limiter);
+        //telemetry.addData("Ramp Up Ratio", robotDescriptor.rampingUpMaximumSpeedToMotorPowerRatio);
+        //telemetry.addData("Ramp Down Ratio", robotDescriptor.rampingDownMaximumMotorPowerToDistanceRemainingRatio);
         robot.updateStatus();
 
     }
