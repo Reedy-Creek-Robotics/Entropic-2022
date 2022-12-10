@@ -106,12 +106,10 @@ public abstract class BaseComponent implements Component {
     @Override
     public void init() {
         for (Component subComponent : subComponents) {
-            telemetry.addData("Subcomponent:", subComponent);
-            telemetry.update();
+            //telemetry.log().add("Init SubComponent: " + subComponent);
+            //telemetry.update();
             subComponent.init();
         }
-        telemetry.addData("Robot is initialized", "");
-        telemetry.update();
     }
 
     @Override

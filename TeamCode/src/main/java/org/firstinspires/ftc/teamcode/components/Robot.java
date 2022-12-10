@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -15,6 +17,9 @@ public class Robot extends BaseComponent {
     private Turret turret;
     private Intake intake;
     private LinearSlide slide;
+
+    private int updateCount;
+    private ElapsedTime initTime;
 
     public Robot(OpMode opMode, boolean initWithCamera) {
         super(createRobotContext(opMode));
@@ -42,6 +47,10 @@ public class Robot extends BaseComponent {
         );
     }
 
+    public RobotContext getRobotContext() {
+        return context;
+    }
+
     /**
      * Inits with default settings.
      */
@@ -50,8 +59,23 @@ public class Robot extends BaseComponent {
     }
 
     @Override
+    public void init() {
+        super.init();
+
+        //telemetry.log().add("Robot is initialized");
+        //telemetry.update();
+
+        initTime = new ElapsedTime();
+    }
+
+    @SuppressLint("DefaultLocale")
+    @Override
     public void updateStatus() {
         super.updateStatus();
+
+        updateCount++;
+        double updatesPerSecond = updateCount / initTime.seconds();
+        telemetry.addData("Updates / sec", String.format("%.1f", updatesPerSecond));
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();
