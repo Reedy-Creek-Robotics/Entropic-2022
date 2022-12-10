@@ -18,6 +18,7 @@ public class RampUtil {
         // Start with full power
         double power = 1.0;
 
+        /*
         // Speed in tiles per second is the magnitude of the veloctiy vector.
         double speed = velocity.magnitude();
 
@@ -35,6 +36,7 @@ public class RampUtil {
         if (powerToDistanceRemainingRatio < robotDescriptor.rampingDownMaximumMotorPowerToDistanceRemainingRatio) {
             power = power / robotDescriptor.rampingDownMaximumMotorPowerToDistanceRemainingRatio;
         }
+        */
 
         // Now include the overall speed factor.
         power = power * speedFactor;
