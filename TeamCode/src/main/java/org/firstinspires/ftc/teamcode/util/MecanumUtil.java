@@ -127,8 +127,9 @@ public class MecanumUtil {
         // Add in power ramping and desired speed by scaling the motor powers to the desired overall max component.
         // In other words, scale so that the motor getting the most power has its absolute value equal
         // to the power and ramping
-        double rampingFactor = RampUtil.calculateRampingFactor(position, targetPosition, velocity, speedFactor);
-        double power = rampingFactor * speedFactor;
+        double power = RampUtil.calculateRampingFactor(
+                robotDescriptor, position, targetPosition, velocity, speedFactor
+        );
 
         motorPowers = MotorPowers.fromVectorN(
                 motorPowers.toVectorN().withMaxComponent(power)
