@@ -117,6 +117,168 @@ public class RobotFieldConversionUtilTest {
         );
     }
 
+    @Test
+    public void convertToFieldSpace() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                0,.5,.5,
+                new Position(0,1), new Position(1,1),
+                new Position(0,0), new Position(1,0)
+        );
+
+        FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+
+        assertFieldSpaceCoordinate(
+                new FieldSpaceCoordinates(
+                    new Heading(90), new Position(.5,.5)
+                ),
+                result
+        );
+    }
+
+    @Test
+    public void convertToFieldSpace_Heading30() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                30,.5,.5,
+                new Position(0,1), new Position(1,1),
+                new Position(0,0), new Position(1,0)
+        );
+
+        FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+
+        assertFieldSpaceCoordinate(
+                new FieldSpaceCoordinates(
+                        new Heading(120), new Position(.5,.5)
+                ),
+                result
+        );
+    }
+
+    @Test
+    public void convertToFieldSpace_Heading330() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                -30,.5,.5,
+                new Position(0,1), new Position(1,1),
+                new Position(0,0), new Position(1,0)
+        );
+
+        FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+
+        assertFieldSpaceCoordinate(
+                new FieldSpaceCoordinates(
+                        new Heading(60), new Position(.5,.5)
+                ),
+                result
+        );
+    }
+
+    @Test
+    public void convertToFieldSpace_Rotated270() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                0,.5,.5,
+                new Position(0,1), new Position(0,0),
+                new Position(1,1), new Position(1,0)
+        );
+
+        FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+
+        assertFieldSpaceCoordinate(
+                new FieldSpaceCoordinates(
+                        new Heading(270), new Position(.5,.5)
+                ),
+                result
+        );
+    }
+
+    @Test
+    public void convertToFieldSpace_OffsetFrontAndRight1() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                0,0,0,
+                new Position(0,1), new Position(1,1),
+                new Position(0,0), new Position(1,0)
+        );
+
+        FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+
+        assertFieldSpaceCoordinate(
+                new FieldSpaceCoordinates(
+                        new Heading(90), new Position(1,1)
+                ),
+                result
+        );
+    }
+
+    @Test
+    public void convertToFieldSpace_OffsetRight2() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                30,.5,.2,
+                new Position(0,1), new Position(1,1),
+                new Position(0,0), new Position(1,0)
+        );
+
+        FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+
+        assertFieldSpaceCoordinate(
+                new FieldSpaceCoordinates(
+                        new Heading(120), new Position(.8,.5)
+                ),
+                result
+        );
+    }
+
+    @Test
+    public void convertToFieldSpace_Rotated270_OffsetRight_Heading30() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                30,.5,.2,
+                new Position(0,1), new Position(0,0),
+                new Position(1,1), new Position(1,0)
+        );
+
+        FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+
+        assertFieldSpaceCoordinate(
+                new FieldSpaceCoordinates(
+                        new Heading(300), new Position(.8,.5)
+                ),
+                result
+        );
+    }
+
+    @Test
+    public void convertToFieldSpace_Rotated180_Heading30() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                30,.5,.5,
+                new Position(0,0), new Position(0,1),
+                new Position(1,0), new Position(1,1)
+        );
+
+        FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+
+        assertFieldSpaceCoordinate(
+                new FieldSpaceCoordinates(
+                        new Heading(210), new Position(.5,.5)
+                ),
+                result
+        );
+    }
+
+    @Test
+    public void convertToFieldSpace_Rotated0_Heading30() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                30,.5,.5,
+                new Position(1,1), new Position(0,1),
+                new Position(1,0), new Position(0,0)
+        );
+
+        FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+
+        assertFieldSpaceCoordinate(
+                new FieldSpaceCoordinates(
+                        new Heading(30), new Position(.5,.5)
+                ),
+                result
+        );
+    }
+
     private void assertRobotSpaceCoordinates(RobotSpaceCoordinates expected, RobotSpaceCoordinates actual) {
         assertPosition(expected.frontLeftTileVertex, actual.frontLeftTileVertex);
         assertPosition(expected.frontRightTileVertex, actual.frontRightTileVertex);
@@ -128,9 +290,18 @@ public class RobotFieldConversionUtilTest {
         assertEquals(expected.offsetFront, actual.offsetFront, E);
     }
 
+    private void assertFieldSpaceCoordinate(FieldSpaceCoordinates expected, FieldSpaceCoordinates actual) {
+        assertPosition(expected.position, actual.position);
+        assertHeading(expected.heading, actual.heading);
+    }
+
     private void assertPosition(Position expected, Position actual) {
         assertEquals(expected.getX(), actual.getX(), E);
         assertEquals(expected.getY(), actual.getY(), E);
+    }
+
+    private void assertHeading(Heading expected, Heading actual) {
+        assertEquals(expected.getValue(), actual.getValue(), E);
     }
 
 }
