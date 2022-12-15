@@ -20,6 +20,9 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.util.Heading;
+import org.firstinspires.ftc.teamcode.util.Position;
+import org.firstinspires.ftc.teamcode.util.Vector2;
 
 @TeleOp
 public class MoveCommandTest extends OpMode {

@@ -346,6 +346,24 @@ public class DriveTrain extends BaseComponent {
     /**
      * Moves the given distance in tiles, in the given direction, at the given speed.
      *
+     * @param distance  Move that many tiles in the x and y direction. Backwards and Right are negative Directions.
+     * @param heading   The end heading the robot should be oriented at.
+     * @param speed     The speed you want to move at
+     */
+    public void moveTargetDistance(Vector2 distance, Heading heading, double speed) {
+        // todo: if current command is "move to target position and rotation", then update that
+        // todo: command with a new position and rotation.
+        executeCommand(new MoveTargetDistance(distance, heading, speed));
+    }
+
+    public void moveToTargetPosition(Position targetPosition, Heading heading, double speed) {
+        executeCommand(new MoveTargetDistance(targetPosition.offset(position),heading,speed));
+    }
+
+
+    /**
+     * Moves the given distance in tiles, in the given direction, at the given speed.
+     *
      * @param distance  Move that many tiles. Backwards and Right are negative Directions.
      * @param direction The direction you want to move in
      * @param speed     The speed you want to move at
@@ -545,6 +563,111 @@ public class DriveTrain extends BaseComponent {
 
     }
 
+    /*
+    private abstract class GeneralMoveCommand extends BaseCommand implements CombinableCommand {
+
+
+
+        @Override
+        public boolean updateStatus() {
+            MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
+                    robotDescriptor,
+                    position, heading, velocity,
+                    targetPosition, targetHeading,
+                    speed
+            );
+
+            //telemetry.addData("startingPosition", startingPosition);
+            //telemetry.addData("targetPosition", targetPosition);
+            //telemetry.addData("targetHeading", targetHeading);
+            //telemetry.addData("motorPowers", powers);
+
+            frontLeft.setPower(powers.frontLeft);
+            backRight.setPower(powers.backRight);
+            frontRight.setPower(powers.frontRight);
+            backLeft.setPower(powers.backLeft);
+
+            double distanceMoved = position.distance(startingPosition);
+            return distanceMoved >= startingPosition.distance(targetPosition) && heading.delta(targetHeading) <= 2;
+        }
+    }
+
+     */
+
+
+
+    private class MoveTargetDistance extends BaseCommand implements CombinableCommand {
+
+        /**
+         * The distance the robot should move in the x and y direction
+         */
+        private Vector2 distance;
+
+        /**
+         * The speed at which to move (0 - 1).
+         */
+        private double speed;
+
+        /**
+         * The position that the robot is trying to achieve.
+         */
+        private Position targetPosition;
+
+        /**
+         * The heading that the robot is trying to achieve.
+         */
+        private Heading targetHeading;
+
+        /**
+         * The starting position of the robot
+         */
+        private Position startingPosition;
+
+        public MoveTargetDistance(Vector2 distance, Heading targetHeading, double speed) {
+            this.distance = distance;
+            this.speed = speed;
+            this.targetHeading = targetHeading;
+        }
+
+        @Override
+        public void start() {
+            targetPosition = position.add(distance);
+
+            startingPosition = position;
+
+            setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        }
+
+        @Override
+        public boolean updateStatus() {
+            MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
+                    robotDescriptor,
+                    position, heading, velocity,
+                    targetPosition, targetHeading,
+                    speed
+            );
+
+            //telemetry.addData("startingPosition", startingPosition);
+            //telemetry.addData("targetPosition", targetPosition);
+            //telemetry.addData("targetHeading", targetHeading);
+            //telemetry.addData("motorPowers", powers);
+
+            frontLeft.setPower(powers.frontLeft);
+            backRight.setPower(powers.backRight);
+            frontRight.setPower(powers.frontRight);
+            backLeft.setPower(powers.backLeft);
+
+            double distanceMoved = position.distance(startingPosition);
+            return distanceMoved >= startingPosition.distance(targetPosition) && heading.delta(targetHeading) <= 2;
+        }
+
+        @Override
+        public Command combineWith(Command other) {
+            //@todo make this
+            return null;
+        }
+    }
+
     /**
      * This command will move in a path along the center line of a tile row or column.
      * <p>
@@ -554,7 +677,7 @@ public class DriveTrain extends BaseComponent {
      * If the robot's heading is not aligned to a 90 degree tile boundary, this will also attempt to correct that
      * by making the smallest rotation possible.
      */
-    private class MoveAlignedToTileCenter extends BaseCommand implements CombinableCommand {
+    private class MoveAlignedToTileCenter extends MoveTargetDistance implements CombinableCommand {
 
         /**
          * The direction in which the robot should move.
@@ -632,8 +755,10 @@ public class DriveTrain extends BaseComponent {
             frontRight.setPower(powers.frontRight);
             backLeft.setPower(powers.backLeft);
 
+            telemetry.addData("Theta to target heading", heading.delta(targetHeading));
+
             double distanceMoved = position.distance(startingPosition);
-            return distanceMoved >= startingPosition.distance(targetPosition);
+            return distanceMoved >= startingPosition.distance(targetPosition) && heading.delta(targetHeading) <= 2;
         }
 
         @Override
