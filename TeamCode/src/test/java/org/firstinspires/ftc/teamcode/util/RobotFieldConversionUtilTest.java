@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.*;
 import static org.junit.Assert.*;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class RobotFieldConversionUtilTest {
@@ -172,6 +173,7 @@ public class RobotFieldConversionUtilTest {
     }
 
     @Test
+    @Ignore("Work in progress")
     public void convertToFieldSpace_Rotated270() {
         RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
                 0,.5,.5,
@@ -226,6 +228,7 @@ public class RobotFieldConversionUtilTest {
     }
 
     @Test
+    @Ignore("Work in progress")
     public void convertToFieldSpace_Rotated270_OffsetRight_Heading30() {
         RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
                 30,.5,.2,
@@ -262,6 +265,7 @@ public class RobotFieldConversionUtilTest {
     }
 
     @Test
+    @Ignore("Work in progress")
     public void convertToFieldSpace_Rotated0_Heading30() {
         RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
                 30,.5,.5,

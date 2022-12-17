@@ -62,8 +62,8 @@ public class Robot extends BaseComponent {
     public void init() {
         super.init();
 
-        //telemetry.log().add("Robot is initialized");
-        //telemetry.update();
+        telemetry.log().add("Robot is initialized");
+        telemetry.update();
 
         initTime = new ElapsedTime();
     }

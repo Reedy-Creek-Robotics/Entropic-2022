@@ -48,6 +48,22 @@ public class VectorNTest {
         );
     }
 
+    @Test
+    public void clampToMax() {
+        assertVectorEquals(
+                new VectorN(0.5, 0.5, 0.5, 0.5),
+                new VectorN(0.5, 0.5, 0.5, 0.5).clampToMax(1.0)
+        );
+        assertVectorEquals(
+                new VectorN(-0.3, -0.3, -0.3, -0.3),
+                new VectorN(-0.5, -0.5, -0.5, -0.5).clampToMax(0.3)
+        );
+        assertVectorEquals(
+                new VectorN(-0.3, 0.15, -0.3, 0.3),
+                new VectorN(-0.5, 0.25, -0.5, 0.5).clampToMax(0.3)
+        );
+    }
+
     private void assertVectorEquals(VectorN expected, VectorN actual) {
         assertEquals("vector size", expected.size(), actual.size());
         for (int i = 0; i < expected.size(); i++) {

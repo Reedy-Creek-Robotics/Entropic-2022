@@ -142,7 +142,6 @@ public class MecanumUtil {
      * Calculates the power to apply to each mecanum wheel in order to progress toward the target position and heading.
      */
     public static MotorPowers calculateWheelPowerForDriverRelative(
-            RobotDescriptor robotDescriptor,
             double drive,
             double strafe,
             double turn,
@@ -165,7 +164,7 @@ public class MecanumUtil {
         Heading directionToMove = joyStickPosition.toHeading();
 
         // Direction the robot needs to move before zeroing it out relative to the robot
-        Heading directionToMoveRelativeToRobot = heading.minus(directionToMove);//.minus(90));
+        Heading directionToMoveRelativeToRobot = heading.minus(directionToMove);
 
         // The angle the robot wants to move at relative to itself
         double angle = directionToMoveRelativeToRobot.toRadians();
@@ -184,7 +183,9 @@ public class MecanumUtil {
         );
 
         motorPowers = MotorPowers.fromVectorN(
-                motorPowers.toVectorN().withMaxComponent(speedFactor)
+                motorPowers.toVectorN()
+                        .multiply(speedFactor)
+                        .clampToMax(1.0)
         );
 
         return motorPowers;

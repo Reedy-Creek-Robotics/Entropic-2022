@@ -313,7 +313,13 @@ public class DriveTrain extends BaseComponent {
 
     public void driverRelative(double drive, double turn, double strafe, double speed) {
 
-        MecanumUtil.MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDriverRelative(robotDescriptor,drive,strafe,turn,heading,speed);
+        MecanumUtil.MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDriverRelative(
+                drive,
+                strafe,
+                turn,
+                heading,
+                speed
+        );
 
         frontLeft.setPower(motorPowers.frontLeft);
         frontRight.setPower(motorPowers.frontRight);
@@ -329,20 +335,24 @@ public class DriveTrain extends BaseComponent {
     /**
      * Moves the given distance in tiles, in the given direction, at the given speed.
      *
-     * @param distance  Move that many tiles in the x and y direction. Backwards and Right are negative Directions.
-     * @param heading   The end heading the robot should be oriented at.
-     * @param speed     The speed you want to move at
+     * @param distance      Move that many tiles in the x and y direction. Backwards and Right are negative Directions.
+     * @param targetHeading The end heading the robot should be oriented at.
+     * @param speed         The speed you want to move at
      */
-    public void moveTargetDistance(Vector2 distance, Heading heading, double speed) {
-        // todo: if current command is "move to target position and rotation", then update that
-        // todo: command with a new position and rotation.
-        executeCommand(new MoveTargetDistance(distance, heading, speed));
+    public void moveTargetDistance(Vector2 distance, Heading targetHeading, double speed) {
+        executeCommand(new MoveTargetDistance(distance, targetHeading, speed));
     }
 
-    public void moveToTargetPosition(Position targetPosition, Heading heading, double speed) {
-        executeCommand(new MoveToTargetPosition(targetPosition,heading,speed));
+    /**
+     * Moves to the given target position and heading
+     *
+     * @param targetPosition The target position at which the robot should end.
+     * @param targetHeading  The end heading the robot should be oriented at.
+     * @param speed          The speed you want to move at.
+     */
+    public void moveToTargetPosition(Position targetPosition, Heading targetHeading, double speed) {
+        executeCommand(new MoveToTargetPosition(targetPosition, targetHeading, speed));
     }
-
 
     /**
      * Moves the given distance in tiles, in the given direction, at the given speed.
@@ -352,9 +362,17 @@ public class DriveTrain extends BaseComponent {
      * @param speed     The speed you want to move at
      */
     public void moveAlignedToTileCenter(double distance, Direction direction, double speed) {
-        // todo: if current command is "move to target position and rotation", then update that
-        // todo: command with a new position and rotation.
         executeCommand(new MoveAlignedToTileCenter(direction, distance, speed));
+    }
+
+    /**
+     * Rotates the given number of degrees, attempting to end aligned to the nearest tile edge.
+     *
+     * @param rotation the number of degrees to rotate
+     * @param speed    The speed you want to move at
+     */
+    public void rotateAlignedToTile(double rotation, double speed) {
+        executeCommand(new RotateAlignedToTile(rotation, speed));
     }
 
     /**
@@ -546,12 +564,7 @@ public class DriveTrain extends BaseComponent {
 
     }
 
-    private class MoveTargetDistance extends BaseCommand implements CombinableCommand {
-
-        /**
-         * The distance the robot should move in the x and y direction
-         */
-        private Vector2 distance;
+    private abstract class BaseMoveCommand extends BaseCommand {
 
         /**
          * The speed at which to move (0 - 1).
@@ -569,25 +582,48 @@ public class DriveTrain extends BaseComponent {
         private Heading targetHeading;
 
         /**
-         * The starting position of the robot
+         * The starting position of the robot.
          */
         private Position startingPosition;
 
-        public MoveTargetDistance(double speed) {
+        /**
+         * The starting heading.
+         */
+        private Heading startingHeading;
+
+        public BaseMoveCommand(double speed) {
             this.speed = speed;
         }
 
-        public MoveTargetDistance(Vector2 distance, Heading targetHeading, double speed) {
-            this.distance = distance;
-            this.speed = speed;
-            this.targetHeading = targetHeading;
+        /**
+         * Called on command start, the child class should calculate and return the target position.
+         */
+        protected abstract Position calculateTargetPosition();
+
+        /**
+         * Called on command start, the child class should calculate and return the target heading.
+         */
+        protected abstract Heading calculateTargetHeading();
+
+        public double getSpeed() {
+            return speed;
+        }
+
+        public Position getTargetPosition() {
+            return targetPosition;
+        }
+
+        public Heading getTargetHeading() {
+            return targetHeading;
         }
 
         @Override
         public void start() {
-            targetPosition = position.add(distance);
+            targetPosition = calculateTargetPosition();
+            targetHeading = calculateTargetHeading();
 
             startingPosition = position;
+            startingHeading = heading;
 
             setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         }
@@ -612,39 +648,64 @@ public class DriveTrain extends BaseComponent {
             backLeft.setPower(powers.backLeft);
 
             double distanceMoved = position.distance(startingPosition);
-            return distanceMoved >= startingPosition.distance(targetPosition) && heading.delta(targetHeading) <= 2;
-        }
+            double headingMoved = Math.abs(heading.delta(startingHeading));
 
-        @Override
-        public Command combineWith(Command other) {
-            if (other instanceof MoveTargetDistance) {
-
-                // If the other move command is the same direction as this one, it can be combined with this one.
-                MoveTargetDistance otherMoveCommand = (MoveTargetDistance) other;
-
-                if(this.targetHeading.equals(((MoveTargetDistance) other).targetHeading)) {
-                    // If this command has already been started, and a targetPosition calculated, calculate the
-                    // remaining distance to the target.  Otherwise, the command has not yet been started but is in
-                    // the queue, so just use the full requested distance to move.
-                    Vector2 remainingDistance = targetPosition != null ?
-                            targetPosition.offset(position) :
-                            distance;
-
-                    return new MoveTargetDistance(
-                            remainingDistance,
-                            targetHeading,
-                            speed
-                    );
-                }
-            }
-
-            return null;
+            // Finish the command when the target position is reached and we are within a threshold of the target heading.
+            return distanceMoved >= startingPosition.distance(targetPosition) &&
+                    headingMoved >= Math.abs(startingHeading.delta(targetHeading));
         }
     }
 
-    private class MoveToTargetPosition extends MoveTargetDistance {
-        MoveToTargetPosition(Position targetPosition, Heading heading, double speed) {
-            super(targetPosition.offset(position), heading, speed);
+    /**
+     * Moves the robot by the given offset and to the given heading.
+     */
+    private class MoveTargetDistance extends BaseMoveCommand {
+
+        private Vector2 offsetToMove;
+
+        private Heading targetHeading;
+
+        public MoveTargetDistance(Vector2 offsetToMove, Heading targetHeading, double speed) {
+            super(speed);
+            this.offsetToMove = offsetToMove;
+            this.targetHeading = targetHeading;
+        }
+
+        @Override
+        protected Position calculateTargetPosition() {
+            return position.add(offsetToMove);
+        }
+
+        @Override
+        protected Heading calculateTargetHeading() {
+            return heading;
+        }
+
+    }
+
+    /**
+     * Moves the robot to the given target position and heading.
+     */
+    private class MoveToTargetPosition extends BaseMoveCommand {
+
+        private Position targetPosition;
+
+        private Heading targetHeading;
+
+        public MoveToTargetPosition(Position targetPosition, Heading targetHeading, double speed) {
+            super(speed);
+            this.targetPosition = targetPosition;
+            this.targetHeading = targetHeading;
+        }
+
+        @Override
+        protected Position calculateTargetPosition() {
+            return targetPosition;
+        }
+
+        @Override
+        protected Heading calculateTargetHeading() {
+            return targetHeading;
         }
     }
 
@@ -657,7 +718,7 @@ public class DriveTrain extends BaseComponent {
      * If the robot's heading is not aligned to a 90 degree tile boundary, this will also attempt to correct that
      * by making the smallest rotation possible.
      */
-    private class MoveAlignedToTileCenter extends MoveTargetDistance implements CombinableCommand {
+    private class MoveAlignedToTileCenter extends BaseMoveCommand implements CombinableCommand {
 
         /**
          * The direction in which the robot should move.
@@ -669,26 +730,6 @@ public class DriveTrain extends BaseComponent {
          */
         private double distance;
 
-        /**
-         * The speed at which to move (0 - 1).
-         */
-        private double speed;
-
-        /**
-         * The position that the robot is trying to achieve.
-         */
-        private Position targetPosition;
-
-        /**
-         * The heading that the robot is trying to achieve.
-         */
-        private Heading targetHeading;
-
-        /**
-         * The starting position of the robot
-         */
-        private Position startingPosition;
-
         public MoveAlignedToTileCenter(Direction direction, double distance, double speed) {
             super(speed);
             this.direction = direction;
@@ -696,23 +737,22 @@ public class DriveTrain extends BaseComponent {
         }
 
         @Override
-        public void start() {
-
-            // Calculate the new desired heading by rounding to the nearest tile edge.
-            targetHeading = heading.alignToRightAngle();
-
+        protected Position calculateTargetPosition() {
             // Calculate the new target position, aligned to the tile middle.
+            Position targetPosition;
             if (direction == X) {
                 targetPosition = new Position(position.getX() + distance, position.getY());
             } else if (direction == Y) {
                 targetPosition = new Position(position.getX(), position.getY() + distance);
+            } else {
+                throw new IllegalArgumentException();
             }
-            targetPosition = targetPosition.alignToTileMiddle();
+            return targetPosition.alignToTileMiddle();
+        }
 
-            startingPosition = position;
-
-            setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
+        @Override
+        protected Heading calculateTargetHeading() {
+            return heading.alignToRightAngle();
         }
 
         @Override
@@ -726,14 +766,14 @@ public class DriveTrain extends BaseComponent {
                     // If this command has already been started, and a targetPosition calculated, calculate the
                     // remaining distance to the target.  Otherwise, the command has not yet been started but is in
                     // the queue, so just use the full requested distance to move.
-                    double remainingDistance = targetPosition != null ?
-                            position.distance(targetPosition) * Math.signum(distance) :
+                    double remainingDistance = getTargetPosition() != null ?
+                            position.distance(getTargetPosition()) * Math.signum(distance) :
                             distance;
 
                     return new MoveAlignedToTileCenter(
                             direction,
                             remainingDistance + otherMoveCommand.distance,
-                            speed
+                            getSpeed()
                     );
                 }
             }
@@ -746,21 +786,51 @@ public class DriveTrain extends BaseComponent {
         }
     }
 
-    private class RotateAlignedToTile extends BaseCommand {
+    private class RotateAlignedToTile extends BaseMoveCommand implements CombinableCommand {
 
-        // input of number of 90 degree turns, as an integer
-        // if you say 3, you want to rotate 270 degrees in the CCW direction
+        /**
+         * The number of degrees to rotate.
+         */
+        double rotation;
 
-
-        @Override
-        public void start() {
-
+        public RotateAlignedToTile(double rotation, double speed) {
+            super(speed);
+            this.rotation = rotation;
         }
 
         @Override
-        public boolean updateStatus() {
-            return false;
+        protected Position calculateTargetPosition() {
+            return position;
         }
+
+        @Override
+        protected Heading calculateTargetHeading() {
+            return heading.add(rotation).alignToRightAngle();
+        }
+
+        @Override
+        public Command combineWith(Command other) {
+            if (other instanceof RotateAlignedToTile) {
+
+                // If the other move command is a rotate aligned to tile, we can combine it with this one.
+                RotateAlignedToTile otherRotateCommand = (RotateAlignedToTile) other;
+
+                // If the other command has already been started, and a targetHeading calculated, calculate the
+                // remaining rotation.  Otherwise, the command has not yet been started but is in the queue, so
+                // just use the full requested rotation to move.
+                double remainingRotation = getTargetHeading() != null ?
+                        heading.delta(getTargetHeading()) :
+                        rotation;
+
+                return new RotateAlignedToTile(
+                        remainingRotation + otherRotateCommand.rotation,
+                        getSpeed()
+                );
+            }
+
+            return null;
+        }
+
     }
 
     private class MoveForward extends BaseCommand {
