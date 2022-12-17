@@ -24,27 +24,29 @@ public class RampUtil {
         // Calculate the distance to the destination in tiles.
         double distance = targetPosition.offset(position).magnitude();
 
-        // Ramping up - scale down power if the current speed is low.
-        /*
-        double speedToPowerRatio = speed / power;
-        if (speedToPowerRatio > robotDescriptor.rampingUpMaximumSpeedToMotorPowerRatio) {
-            power = speed / robotDescriptor.rampingUpMaximumSpeedToMotorPowerRatio;
-        }
-        */
-
-        // Ramping down - scale down power as we approach the destination.
         double rampDownDistance = robotDescriptor.rampingDownBeginDistance * speedFactor;
+        double rampUpEndSpeed = robotDescriptor.rampingUpEndSpeed;
+
         if (distance <= rampDownDistance) {
-            // Linear scale down
+            // Ramping down - close to target destination
             double scale = distance / rampDownDistance;
             power *= scale;
+            power *= speedFactor;
+
+            power = Math.max(power, robotDescriptor.rampingDownMinMotorPower);
+
+        } else if (speed < rampUpEndSpeed) {
+            // Ramping up - initial slow speed
+            double scale = speed / rampUpEndSpeed;
+            power *= scale;
+            power *= speedFactor;
+
+            power = Math.max(power, robotDescriptor.rampingUpMinMotorPower);
+
+        } else {
+            // At speed
+            power *= speedFactor;
         }
-
-        // Now include the overall speed factor.
-        power = power * speedFactor;
-
-        // Never go below the minimum power required to move the robot.
-        power = Math.max(power, robotDescriptor.rampingMinMotorPower);
 
         return power;
     }

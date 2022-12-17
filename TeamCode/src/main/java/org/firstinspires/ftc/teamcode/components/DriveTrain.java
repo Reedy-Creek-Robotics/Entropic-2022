@@ -176,7 +176,8 @@ public class DriveTrain extends BaseComponent {
 
         telemetry.addData("Heading", heading);
         telemetry.addData("Position", position);
-        telemetry.addData("Velocity", velocity);
+        //telemetry.addData("Velocity", velocity);
+        telemetry.addData("Speed", String.format("%.3f", velocity.magnitude()));
 
         if (tileEdgeDetectorSide.isDetected()) {
             //telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));

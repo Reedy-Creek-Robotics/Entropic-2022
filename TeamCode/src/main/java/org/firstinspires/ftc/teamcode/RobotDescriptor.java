@@ -16,23 +16,23 @@ public class RobotDescriptor {
     public double wheelMotorEncoderTicksPerRevolution = 537.6;
 
     /**
-     * For ramping up, the maximum ratio of robot speed in tiles/sec to abs motor power (0-1).
+     * The speed, in tiles per second, after which ramping up should end.
      */
-    //public double rampingUpMaximumSpeedToMotorPowerRatio = 2.0; // todo: measure this empirically
+    public double rampingUpEndSpeed = 1.0; // tiles / sec
+
+    /**
+     * For ramping up, the minimum motor power that will be applied to move the robot.
+     */
+    public double rampingUpMinMotorPower = 0.3;
 
     /**
      * The distance, in tiles, at which to begin ramping down.
      */
-    public double rampingDownBeginDistance = 0.5; // tiles
+    public double rampingDownBeginDistance = 0.75; // tiles
 
     /**
-     * For ramping down, the maximum ratio of motor power to the distance left to reach the target.
+     * For ramping down, the minimum motor power that will be applied to move the robot.
      */
-    //public double rampingDownMaximumMotorPowerToDistanceRemainingRatio = 1.0; // todo: measure this empirically
-
-    /**
-     * For ramping up or down, the minimum motor power that will be applied to move the robot.
-     */
-    public double rampingMinMotorPower = 0.10;
+    public double rampingDownMinMotorPower = 0.10;
 
 }
