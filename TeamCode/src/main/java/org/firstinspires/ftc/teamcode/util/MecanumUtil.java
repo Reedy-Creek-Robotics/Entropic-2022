@@ -138,8 +138,30 @@ public class MecanumUtil {
         return motorPowers;
     }
 
+    public static MotorPowers calculateWheelPowerForDrive(
+            double drive,
+            double strafe,
+            double turn,
+            double speedFactor
+    ) {
+        MotorPowers motorPowers = new MotorPowers(
+                drive - turn + strafe,
+                drive + turn - strafe,
+                drive - turn - strafe,
+                drive + turn + strafe
+        );
+
+        motorPowers = MotorPowers.fromVectorN(
+                motorPowers.toVectorN()
+                        .multiply(speedFactor)
+                        .clampToMax(1.0)
+        );
+
+        return  motorPowers;
+    }
+
     /**
-     * Calculates the power to apply to each mecanum wheel in order to progress toward the target position and heading.
+     * Calculates the power to apply to each mecanum wheel for driver relative movement.
      */
     public static MotorPowers calculateWheelPowerForDriverRelative(
             double drive,

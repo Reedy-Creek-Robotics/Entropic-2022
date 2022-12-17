@@ -81,7 +81,7 @@ public class MoveCommandTest extends OpMode {
 
         telemetry.addData("Limiter", limiter);
         //telemetry.addData("Ramp Up Ratio", robotDescriptor.rampingUpMaximumSpeedToMotorPowerRatio);
-        //telemetry.addData("Ramp Down Ratio", robotDescriptor.rampingDownMaximumMotorPowerToDistanceRemainingRatio);
+        telemetry.addData("Ramp Down Begin Distance", robotDescriptor.rampingDownBeginDistance);
         robot.updateStatus();
 
     }

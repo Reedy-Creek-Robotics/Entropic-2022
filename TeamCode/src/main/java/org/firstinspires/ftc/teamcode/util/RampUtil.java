@@ -18,7 +18,6 @@ public class RampUtil {
         // Start with full power
         double power = 1.0;
 
-        /*
         // Speed in tiles per second is the magnitude of the veloctiy vector.
         double speed = velocity.magnitude();
 
@@ -26,17 +25,20 @@ public class RampUtil {
         double distance = targetPosition.offset(position).magnitude();
 
         // Ramping up - scale down power if the current speed is low.
+        /*
         double speedToPowerRatio = speed / power;
         if (speedToPowerRatio > robotDescriptor.rampingUpMaximumSpeedToMotorPowerRatio) {
             power = speed / robotDescriptor.rampingUpMaximumSpeedToMotorPowerRatio;
         }
+        */
 
         // Ramping down - scale down power as we approach the destination.
-        double powerToDistanceRemainingRatio = power / distance;
-        if (powerToDistanceRemainingRatio < robotDescriptor.rampingDownMaximumMotorPowerToDistanceRemainingRatio) {
-            power = power / robotDescriptor.rampingDownMaximumMotorPowerToDistanceRemainingRatio;
+        double rampDownDistance = robotDescriptor.rampingDownBeginDistance * speedFactor;
+        if (distance <= rampDownDistance) {
+            // Linear scale down
+            double scale = distance / rampDownDistance;
+            power *= scale;
         }
-        */
 
         // Now include the overall speed factor.
         power = power * speedFactor;

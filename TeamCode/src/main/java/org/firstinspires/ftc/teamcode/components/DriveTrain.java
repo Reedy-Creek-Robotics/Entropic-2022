@@ -290,28 +290,26 @@ public class DriveTrain extends BaseComponent {
     /**
      * Sets the motor powers equal to the controllers inputs.
      */
-    public void drive(double drive, double turn, double strafe) {
-        drive(drive, turn, strafe, 1.0);
-    }
-
     public void drive(double drive, double turn, double strafe, double speed) {
 
         // Stop any current command from executing.
         stopAllCommands();
 
-        drive *= speed;
-        turn *= speed;
-        strafe *= speed;
+        MecanumUtil.MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDrive(
+                drive,
+                strafe,
+                turn,
+                speed
+        );
 
         setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-
-        frontLeft.setPower(drive - turn - strafe);
-        frontRight.setPower(drive + turn + strafe);
-        backRight.setPower(drive + turn - strafe);
-        backLeft.setPower(drive - turn + strafe);
+        setMotorPowers(motorPowers);
     }
 
     public void driverRelative(double drive, double turn, double strafe, double speed) {
+
+        // Stop any current command from executing.
+        stopAllCommands();
 
         MecanumUtil.MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDriverRelative(
                 drive,
@@ -321,10 +319,8 @@ public class DriveTrain extends BaseComponent {
                 speed
         );
 
-        frontLeft.setPower(motorPowers.frontLeft);
-        frontRight.setPower(motorPowers.frontRight);
-        backLeft.setPower(motorPowers.backLeft);
-        backRight.setPower(motorPowers.backRight);
+        setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        setMotorPowers(motorPowers);
     }
 
     public enum Direction {
@@ -480,6 +476,13 @@ public class DriveTrain extends BaseComponent {
         for (DcMotorEx motor : motors) {
             motor.setPower(speed);
         }
+    }
+
+    private void setMotorPowers(MecanumUtil.MotorPowers motorPowers) {
+        frontLeft.setPower(motorPowers.frontLeft);
+        frontRight.setPower(motorPowers.frontRight);
+        backLeft.setPower(motorPowers.backLeft);
+        backRight.setPower(motorPowers.backRight);
     }
 
     /**
