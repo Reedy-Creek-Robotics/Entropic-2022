@@ -1,5 +1,14 @@
 package org.firstinspires.ftc.teamcode.test;
 
+import static org.firstinspires.ftc.teamcode.Controller.Button.A;
+import static org.firstinspires.ftc.teamcode.Controller.Button.B;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 
@@ -7,18 +16,15 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
 
 @TeleOp
 public class MoveCommandTest extends OpMode {
-    public static double BASE_SPEED = 1;
 
     public Robot robot;
-
-    private ElapsedTime lastButtonTime;
 
     public double limiter;
 
@@ -27,76 +33,47 @@ public class MoveCommandTest extends OpMode {
         robot = new Robot(this);
         robot.init();
 
-        limiter = .3;
-        lastButtonTime = new ElapsedTime();
-    }
-
-    private boolean deadZoneCheck(double... values) {
-        for (double value : values) {
-            if (Math.abs(value) > .1) {
-                return true;
-            }
-        }
-        return false;
+        limiter = 0.3;
     }
 
     @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
 
-        double drive = -gamepad1.left_stick_y;
-        double strafe = -gamepad1.left_stick_x;
-        double turn = -gamepad1.right_stick_x;
-
         RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
 
-        //telemetry.addData("left stick", String.format("%.3f, %.3f", gamepad1.left_stick_x, gamepad1.left_stick_y));
-        //telemetry.addData("right stick", String.format("%.3f, %.3f", gamepad1.right_stick_x, gamepad1.right_stick_y));
+        Controller controller = new Controller(gamepad1);
 
-        if (deadZoneCheck(gamepad1.left_trigger)) {
-            if (deadZoneCheck(gamepad1.left_stick_y)) {
-                robotDescriptor.rampingUpMaximumSpeedToMotorPowerRatio += gamepad1.left_stick_y / 4;
-            } else if (deadZoneCheck(gamepad1.right_stick_y)) {
-                robotDescriptor.rampingDownMaximumMotorPowerToDistanceRemainingRatio += gamepad1.right_stick_y / 4;
-            }
+        double drive = controller.leftStickY();
+        double strafe = controller.leftStickX();
+        double turn = controller.rightStickX();
 
-        } else {
-            //sets the power to the drivetrain
-            if (deadZoneCheck(drive, turn, strafe) || !robot.getDriveTrain().isBusy())
-                robot.getDriveTrain().drive(drive, turn, strafe, limiter);
+        if (nonZero(drive, turn, strafe) || !robot.getDriveTrain().isBusy()) {
+            robot.getDriveTrain().drive(drive, turn, strafe, limiter);
         }
 
-        if (lastButtonTime.seconds() > 0.25) {
-            boolean buttonPress = true;
-            if (gamepad1.dpad_up) {
-                robot.getDriveTrain().moveAlignedToTileCenter(1, Y, limiter);
-            } else if (gamepad1.dpad_left) {
-                robot.getDriveTrain().moveAlignedToTileCenter(-1, X, limiter);
-            } else if (gamepad1.dpad_down) {
-                robot.getDriveTrain().moveAlignedToTileCenter(-1, Y, limiter);
-            } else if (gamepad1.dpad_right) {
-                robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
-            } else if (gamepad1.x) {
-                robot.getDriveTrain().rotate(-90, limiter);
-            } else if (gamepad1.y) {
-                robot.getDriveTrain().rotate(90, limiter);
-            } else if (gamepad1.b) {
-                robot.getDriveTrain().stopAllCommands();
-            } else if (gamepad1.a) {
-                robot.getDriveTrain().centerInCurrentTile(limiter);
-            } else if (gamepad1.start) {
-                robot.getDriveTrain().resetPosition();
-            } else if (gamepad1.left_bumper) {
-                limiter -= 0.05;
-            } else if (gamepad1.right_bumper) {
-                limiter += 0.05;
-            } else {
-                buttonPress = false;
-            }
-
-            if (buttonPress) {
-                lastButtonTime.reset();
-            }
+        if (controller.isPressed(DPAD_UP)) {
+            robot.getDriveTrain().moveAlignedToTileCenter(1, Y, limiter);
+        } else if (controller.isPressed(DPAD_LEFT)) {
+            robot.getDriveTrain().moveAlignedToTileCenter(-1, X, limiter);
+        } else if (controller.isPressed(DPAD_DOWN)) {
+            robot.getDriveTrain().moveAlignedToTileCenter(-1, Y, limiter);
+        } else if (controller.isPressed(DPAD_RIGHT)) {
+            robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
+        } else if (controller.isPressed(Controller.Button.X)) {
+            robot.getDriveTrain().rotate(-90, limiter);
+        } else if (controller.isPressed(Controller.Button.Y)) {
+            robot.getDriveTrain().rotate(90, limiter);
+        } else if (controller.isPressed(B)) {
+            robot.getDriveTrain().stopAllCommands();
+        } else if (controller.isPressed(A)) {
+            robot.getDriveTrain().centerInCurrentTile(limiter);
+        } else if (controller.isPressed(START)) {
+            robot.getDriveTrain().resetPosition();
+        } else if (controller.isPressed(LEFT_BUMPER)) {
+            limiter -= 0.05;
+        } else if (controller.isPressed(RIGHT_BUMPER)) {
+            limiter += 0.05;
         }
 
         telemetry.addData("Limiter", limiter);
@@ -105,4 +82,14 @@ public class MoveCommandTest extends OpMode {
         robot.updateStatus();
 
     }
+
+    private static boolean nonZero(double... values) {
+        for (double value : values) {
+            if (value != 0.0) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
