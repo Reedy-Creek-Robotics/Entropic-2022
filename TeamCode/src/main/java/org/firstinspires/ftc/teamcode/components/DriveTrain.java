@@ -311,31 +311,14 @@ public class DriveTrain extends BaseComponent {
         backLeft.setPower(drive - turn + strafe);
     }
 
-    public void attemptDriverRelative(double drive, double turn, double strafe, double speed, double driverHeading) {
-        Vector2 joyStickPosition = new Vector2(strafe,drive);
+    public void driverRelative(double drive, double turn, double strafe, double speed) {
 
-        Heading joyStickHeading = joyStickPosition.toHeading();
+        MecanumUtil.MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDriverRelative(robotDescriptor,drive,strafe,turn,heading,speed);
 
-        Heading directionRobotWillMove = joyStickHeading.add(heading);
-
-        //The direction the robot wants to go relative to itself
-        double angle = Math.toRadians(directionRobotWillMove.delta(joyStickHeading));
-
-        Vector2 powerVector = new Vector2(
-                Math.sin(angle + Math.PI / 4.0),  // FL, BR
-                Math.sin(angle - Math.PI / 4.0)   // FR, BL
-        );
-
-        Vector2 finalPower = powerVector.multiply(speed);
-
-        double powerFLBR = finalPower.getX();
-        double powerFRBL = finalPower.getY();
-
-        frontLeft.setPower(powerFLBR);
-        backRight.setPower(powerFLBR);
-
-        frontRight.setPower(powerFRBL);
-        backLeft.setPower(powerFRBL);
+        frontLeft.setPower(motorPowers.frontLeft);
+        frontRight.setPower(motorPowers.frontRight);
+        backLeft.setPower(motorPowers.backLeft);
+        backRight.setPower(motorPowers.backRight);
     }
 
     public enum Direction {
@@ -357,7 +340,7 @@ public class DriveTrain extends BaseComponent {
     }
 
     public void moveToTargetPosition(Position targetPosition, Heading heading, double speed) {
-        executeCommand(new MoveTargetDistance(targetPosition.offset(position),heading,speed));
+        executeCommand(new MoveToTargetPosition(targetPosition,heading,speed));
     }
 
 
@@ -563,39 +546,6 @@ public class DriveTrain extends BaseComponent {
 
     }
 
-    /*
-    private abstract class GeneralMoveCommand extends BaseCommand implements CombinableCommand {
-
-
-
-        @Override
-        public boolean updateStatus() {
-            MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
-                    robotDescriptor,
-                    position, heading, velocity,
-                    targetPosition, targetHeading,
-                    speed
-            );
-
-            //telemetry.addData("startingPosition", startingPosition);
-            //telemetry.addData("targetPosition", targetPosition);
-            //telemetry.addData("targetHeading", targetHeading);
-            //telemetry.addData("motorPowers", powers);
-
-            frontLeft.setPower(powers.frontLeft);
-            backRight.setPower(powers.backRight);
-            frontRight.setPower(powers.frontRight);
-            backLeft.setPower(powers.backLeft);
-
-            double distanceMoved = position.distance(startingPosition);
-            return distanceMoved >= startingPosition.distance(targetPosition) && heading.delta(targetHeading) <= 2;
-        }
-    }
-
-     */
-
-
-
     private class MoveTargetDistance extends BaseCommand implements CombinableCommand {
 
         /**
@@ -622,6 +572,10 @@ public class DriveTrain extends BaseComponent {
          * The starting position of the robot
          */
         private Position startingPosition;
+
+        public MoveTargetDistance(double speed) {
+            this.speed = speed;
+        }
 
         public MoveTargetDistance(Vector2 distance, Heading targetHeading, double speed) {
             this.distance = distance;
@@ -663,8 +617,34 @@ public class DriveTrain extends BaseComponent {
 
         @Override
         public Command combineWith(Command other) {
-            //@todo make this
+            if (other instanceof MoveTargetDistance) {
+
+                // If the other move command is the same direction as this one, it can be combined with this one.
+                MoveTargetDistance otherMoveCommand = (MoveTargetDistance) other;
+
+                if(this.targetHeading.equals(((MoveTargetDistance) other).targetHeading)) {
+                    // If this command has already been started, and a targetPosition calculated, calculate the
+                    // remaining distance to the target.  Otherwise, the command has not yet been started but is in
+                    // the queue, so just use the full requested distance to move.
+                    Vector2 remainingDistance = targetPosition != null ?
+                            targetPosition.offset(position) :
+                            distance;
+
+                    return new MoveTargetDistance(
+                            remainingDistance,
+                            targetHeading,
+                            speed
+                    );
+                }
+            }
+
             return null;
+        }
+    }
+
+    private class MoveToTargetPosition extends MoveTargetDistance {
+        MoveToTargetPosition(Position targetPosition, Heading heading, double speed) {
+            super(targetPosition.offset(position), heading, speed);
         }
     }
 
@@ -710,9 +690,9 @@ public class DriveTrain extends BaseComponent {
         private Position startingPosition;
 
         public MoveAlignedToTileCenter(Direction direction, double distance, double speed) {
+            super(speed);
             this.direction = direction;
             this.distance = distance;
-            this.speed = speed;
         }
 
         @Override
@@ -733,32 +713,6 @@ public class DriveTrain extends BaseComponent {
 
             setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
 
-        }
-
-        @Override
-        public boolean updateStatus() {
-
-            MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
-                    robotDescriptor,
-                    position, heading, velocity,
-                    targetPosition, targetHeading,
-                    speed
-            );
-
-            //telemetry.addData("startingPosition", startingPosition);
-            //telemetry.addData("targetPosition", targetPosition);
-            //telemetry.addData("targetHeading", targetHeading);
-            //telemetry.addData("motorPowers", powers);
-
-            frontLeft.setPower(powers.frontLeft);
-            backRight.setPower(powers.backRight);
-            frontRight.setPower(powers.frontRight);
-            backLeft.setPower(powers.backLeft);
-
-            telemetry.addData("Theta to target heading", heading.delta(targetHeading));
-
-            double distanceMoved = position.distance(startingPosition);
-            return distanceMoved >= startingPosition.distance(targetPosition) && heading.delta(targetHeading) <= 2;
         }
 
         @Override
