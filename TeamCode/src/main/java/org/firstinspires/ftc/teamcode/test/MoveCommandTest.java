@@ -84,10 +84,10 @@ public class MoveCommandTest extends OpMode {
         //telemetry.addData("Ramp Up End Speed", robotDescriptor.rampingUpEndSpeed);
         //telemetry.addData("Ramp Down Min Power", robotDescriptor.rampingDownMinMotorPower);
         //telemetry.addData("Ramp Down Begin Distance", robotDescriptor.rampingDownBeginDistance);
-        telemetry.addData("Ramp Min Turn Power", robotDescriptor.rampingMinTurnPower);
-        telemetry.addData("Ramp Max Turn Power", robotDescriptor.rampingMaxTurnPower);
-        telemetry.addData("Ramp Max Turn Degrees", robotDescriptor.rampingMaxTurnDegrees);
-        telemetry.addData("Ramp Turn Exponent", robotDescriptor.rampingTurnExponent);
+        //telemetry.addData("Ramp Min Turn Power", robotDescriptor.rampingMinTurnPower);
+        //telemetry.addData("Ramp Max Turn Power", robotDescriptor.rampingMaxTurnPower);
+        //telemetry.addData("Ramp Max Turn Degrees", robotDescriptor.rampingMaxTurnDegrees);
+        //telemetry.addData("Ramp Turn Exponent", robotDescriptor.rampingTurnExponent);
 
         robot.updateStatus();
 
