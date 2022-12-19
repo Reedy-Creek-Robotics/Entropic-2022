@@ -20,9 +20,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.util.Heading;
 import org.firstinspires.ftc.teamcode.util.Position;
-import org.firstinspires.ftc.teamcode.util.Vector2;
 
 @TeleOp
 public class MoveCommandTest extends OpMode {
@@ -72,7 +70,7 @@ public class MoveCommandTest extends OpMode {
         } else if (controller.isPressed(A)) {
             robot.getDriveTrain().centerInCurrentTile(limiter);
         } else if (controller.isPressed(START)) {
-            robot.getDriveTrain().resetPosition();
+            robot.getDriveTrain().setPosition(new Position(.5,.5));
         } else if (controller.isPressed(LEFT_BUMPER)) {
             limiter -= 0.05;
         } else if (controller.isPressed(RIGHT_BUMPER)) {

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.test;
 
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.Position.*;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -10,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.LinearSlide;
+import org.firstinspires.ftc.teamcode.util.Position;
 
 import java.util.Arrays;
 import java.util.List;
@@ -26,7 +27,7 @@ public class ComponentTest extends OpMode {
 
     public double limiter;
 
-    public List<LinearSlide.Position> positions;
+    public List<LinearSlide.SlideHeight> positions;
     public int currentPosition;
 
     public double turretLocation;
@@ -93,7 +94,7 @@ public class ComponentTest extends OpMode {
             } else if (gamepad1.b) {
                 robot.getDriveTrain().stopAllCommands();
             } else if (gamepad1.start) {
-                robot.getDriveTrain().resetPosition();
+                robot.getDriveTrain().setPosition(new Position(.5,.5));
             } else if (gamepad1.left_bumper) {
                 limiter -= 0.05;
             } else if (gamepad1.right_bumper) {

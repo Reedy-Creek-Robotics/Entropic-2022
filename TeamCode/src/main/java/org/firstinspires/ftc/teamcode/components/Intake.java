@@ -13,8 +13,12 @@ public class Intake extends BaseComponent {
     /**
      * @param power of the servo
      */
-    public void intake(double power) {
-        executeCommand(new IntakeCone(power));
+    public void intake(double power, double time) {
+        executeCommand(new BaseCommand(power,time));
+    }
+
+    public void outake(double power, double time) {
+        executeCommand(new BaseCommand(-power,time));
     }
 
     /**
@@ -24,11 +28,18 @@ public class Intake extends BaseComponent {
         intakeServo.setPower(0);
     }
 
-    private abstract class BaseCommand implements Command {
+    private class BaseCommand implements Command {
         double power;
+        double time;
 
-        public BaseCommand(double power) {
+        public BaseCommand(double power, double time) {
             this.power = power;
+            this.time = time;
+        }
+
+        @Override
+        public void start() {
+            intakeServo.setPower(power);
         }
 
         @Override
@@ -38,19 +49,8 @@ public class Intake extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            return true;
+            return time > commandTime.seconds();
         }
     }
 
-    private class IntakeCone extends BaseCommand {
-
-        public IntakeCone(double power) {
-            super(power);
-        }
-
-        @Override
-        public void start() {
-            intakeServo.setPower(power);
-        }
-    }
 }

@@ -231,8 +231,8 @@ public class DriveTrain extends BaseComponent {
 
     }
 
-    public void resetPosition() {
-        position = new Position(0.5, 0.5);
+    public void setPosition(Position position) {
+        this.position = position;
         previousPosition = null;
     }
 
@@ -340,6 +340,16 @@ public class DriveTrain extends BaseComponent {
     }
 
     /**
+     * Moves the given distance in tiles, in the given direction, at the given speed.
+     *
+     * @param distance      Move that many tiles in the x and y direction. Backwards and Right are negative Directions.
+     * @param speed         The speed you want to move at
+     */
+    public void moveTargetDistance(Vector2 distance, double speed) {
+        executeCommand(new MoveTargetDistance(distance, heading, speed));
+    }
+
+    /**
      * Moves to the given target position and heading
      *
      * @param targetPosition The target position at which the robot should end.
@@ -348,6 +358,16 @@ public class DriveTrain extends BaseComponent {
      */
     public void moveToTargetPosition(Position targetPosition, Heading targetHeading, double speed) {
         executeCommand(new MoveToTargetPosition(targetPosition, targetHeading, speed));
+    }
+
+    /**
+     * Moves to the given target position and heading
+     *
+     * @param targetPosition The target position at which the robot should end.
+     * @param speed          The speed you want to move at.
+     */
+    public void moveToTargetPosition(Position targetPosition, double speed) {
+        executeCommand(new MoveToTargetPosition(targetPosition, heading, speed));
     }
 
     /**
@@ -566,6 +586,7 @@ public class DriveTrain extends BaseComponent {
         }
 
     }
+
 
     private abstract class BaseMoveCommand extends BaseCommand {
 
