@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import static org.firstinspires.ftc.teamcode.util.TelemetryHolder.*;
+
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 
 public class RampUtil {
@@ -27,7 +29,11 @@ public class RampUtil {
         double rampDownDistance = robotDescriptor.rampingDownBeginDistance * speedFactor;
         double rampUpEndSpeed = robotDescriptor.rampingUpEndSpeed;
 
-        if (distance <= rampDownDistance) {
+        if (distance <= robotDescriptor.movementTargetPositionReachedThreshold) {
+            // Target reached - don't try to move
+            power = 0;
+
+        } else if (distance <= rampDownDistance) {
             // Ramping down - close to target destination
             double scale = distance / rampDownDistance;
             power *= scale;
@@ -48,7 +54,51 @@ public class RampUtil {
             power *= speedFactor;
         }
 
+        if (telemetry != null) {
+            telemetry.addData("Ramping Power", power);
+        }
+
         return power;
+    }
+
+    /**
+     * Calculates the turning factor to add based on the given heading and target heading.
+     * <p>
+     * A positive return value means turning left, negative turning right.
+     */
+    public static double calculateRampingTurnFactor(
+            RobotDescriptor robotDescriptor,
+            Heading heading, Heading targetHeading,
+            double speedFactor
+    ) {
+        // Calculate how far off we are from the target heading.
+        double delta = targetHeading.delta(heading);
+
+        if (Math.abs(delta) < robotDescriptor.rotationTargetHeadingReachedThreshold) {
+            return 0.0;
+
+        } else {
+            // Scale geometrically.
+            double exponent = robotDescriptor.rampingTurnExponent;
+            double rampingMaxTurnDegrees = robotDescriptor.rampingMaxTurnDegrees * speedFactor;
+            double xVal = Math.abs(delta) / rampingMaxTurnDegrees;
+            double yVal = Math.pow(xVal, exponent) * robotDescriptor.rampingMaxTurnPower;
+
+            double turnFactor = Math.min(yVal, robotDescriptor.rampingMaxTurnPower);
+
+            turnFactor *= speedFactor;
+
+            turnFactor = Math.max(turnFactor, robotDescriptor.rampingMinTurnPower);
+
+            // Add back in direction.
+            turnFactor *= Math.signum(delta);
+
+            if (telemetry != null) {
+                telemetry.addData("Turn factor", turnFactor);
+            }
+
+            return turnFactor;
+        }
     }
 
 }

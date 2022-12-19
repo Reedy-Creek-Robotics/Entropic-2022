@@ -27,7 +27,6 @@ import java.util.List;
 @SuppressLint("DefaultLocale")
 public class DriveTrain extends BaseComponent {
 
-
     /**
      * The software of the drivetrain
      */
@@ -634,7 +633,7 @@ public class DriveTrain extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
+            MecanumUtil.MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForTargetPosition(
                     robotDescriptor,
                     position, heading, velocity,
                     targetPosition, targetHeading,
@@ -644,19 +643,25 @@ public class DriveTrain extends BaseComponent {
             //telemetry.addData("startingPosition", startingPosition);
             //telemetry.addData("targetPosition", targetPosition);
             //telemetry.addData("targetHeading", targetHeading);
-            //telemetry.addData("motorPowers", powers);
+            //telemetry.addData("motorPowers", motorPowers);
 
-            frontLeft.setPower(powers.frontLeft);
-            backRight.setPower(powers.backRight);
-            frontRight.setPower(powers.frontRight);
-            backLeft.setPower(powers.backLeft);
+            setMotorPowers(motorPowers);
 
             double distanceMoved = position.distance(startingPosition);
+            double distanceRemaining = position.distance(targetPosition);
             double headingMoved = Math.abs(heading.delta(startingHeading));
+            double headingRemaining = Math.abs(heading.delta(targetHeading));
 
             // Finish the command when the target position is reached and we are within a threshold of the target heading.
-            return distanceMoved >= startingPosition.distance(targetPosition) &&
-                    headingMoved >= Math.abs(startingHeading.delta(targetHeading));
+            boolean targetPositionReached =
+                    distanceRemaining <= robotDescriptor.movementTargetPositionReachedThreshold ||
+                    distanceMoved >= startingPosition.distance(targetPosition);
+
+            boolean targetHeadingReached =
+                    headingMoved >= Math.abs(startingHeading.delta(targetHeading)) ||
+                    headingRemaining <= robotDescriptor.rotationTargetHeadingReachedThreshold;
+
+            return targetPositionReached && targetHeadingReached;
         }
     }
 
@@ -682,7 +687,7 @@ public class DriveTrain extends BaseComponent {
 
         @Override
         protected Heading calculateTargetHeading() {
-            return heading;
+            return targetHeading;
         }
 
     }
@@ -823,7 +828,7 @@ public class DriveTrain extends BaseComponent {
                 // remaining rotation.  Otherwise, the command has not yet been started but is in the queue, so
                 // just use the full requested rotation to move.
                 double remainingRotation = getTargetHeading() != null ?
-                        heading.delta(getTargetHeading()) :
+                        getTargetHeading().delta(heading) :
                         rotation;
 
                 return new RotateAlignedToTile(

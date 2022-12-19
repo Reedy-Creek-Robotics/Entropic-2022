@@ -35,4 +35,35 @@ public class RobotDescriptor {
      */
     public double rampingDownMinMotorPower = 0.10;
 
+    /**
+     * For ramping down, the distance threshold under which no motor power will be applied for movement.
+     * Even within this distance threshold, power may still be applied for turning to the target heading.
+     */
+    public double movementTargetPositionReachedThreshold = 0.05;
+
+    /**
+     * The threshold in degrees under which no motor power will be applied for turning.
+     */
+    public double rotationTargetHeadingReachedThreshold = 2;
+
+    /**
+     * For turning, the maximum turn motor power to add.
+     */
+    public double rampingMaxTurnPower = 1.0;
+
+    /**
+     * For turning, the minimum turn motor power to add.
+     */
+    public double rampingMinTurnPower = 0.05;
+
+    /**
+     * For turning, the degrees off the target heading at which the maximum turn power will be added.
+     */
+    public double rampingMaxTurnDegrees = 45;
+
+    /**
+     * For turning, the exponent to use when scaling.
+     */
+    public double rampingTurnExponent = 2.0;
+
 }

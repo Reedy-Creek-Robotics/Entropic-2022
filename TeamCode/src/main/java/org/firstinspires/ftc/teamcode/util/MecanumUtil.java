@@ -105,23 +105,13 @@ public class MecanumUtil {
         Vector2 powerVector = new Vector2(
                 Math.sin(angle + Math.PI / 4.0),  // FL, BR
                 Math.sin(angle - Math.PI / 4.0)   // FR, BL
-        ).withMagnitude(1.0);
+        );
 
-        // Calculate how far off we are from the target heading.
-        // Positive turn value means turning left, negative means turning right.
-        double turn = targetHeading.delta(heading) / 10.0;
-        if (turn >= .25) {
-            turn = .25;
-        } else if (turn <= -.25) {
-            turn = -.25;
-        }
-
-        // Add in turn.  For example, to turn left, give less power to the left wheels and more to the right.
         MotorPowers motorPowers = new MotorPowers(
-                powerVector.getY() - turn,
-                powerVector.getX() + turn,
-                powerVector.getX() - turn,
-                powerVector.getY() + turn
+                powerVector.getY(),
+                powerVector.getX(),
+                powerVector.getX(),
+                powerVector.getY()
         );
 
         // Add in power ramping and desired speed by scaling the motor powers to the desired overall max component.
@@ -133,6 +123,22 @@ public class MecanumUtil {
 
         motorPowers = MotorPowers.fromVectorN(
                 motorPowers.toVectorN().withMaxComponent(power)
+        );
+
+        // Add in turn.  For example, to turn left, give less power to the left wheels and more to the right.
+        double turn = RampUtil.calculateRampingTurnFactor(
+                robotDescriptor, heading, targetHeading, speedFactor
+        );
+
+        motorPowers = new MotorPowers(
+                motorPowers.backLeft - turn,
+                motorPowers.backRight + turn,
+                motorPowers.frontLeft - turn,
+                motorPowers.frontRight + turn
+        );
+
+        motorPowers = MotorPowers.fromVectorN(
+                motorPowers.toVectorN().clampToMax(1.0)
         );
 
         return motorPowers;
@@ -157,7 +163,7 @@ public class MecanumUtil {
                         .clampToMax(1.0)
         );
 
-        return  motorPowers;
+        return motorPowers;
     }
 
     /**
@@ -180,7 +186,7 @@ public class MecanumUtil {
         // magnitude is the speed to move [0, 1]
         // turn is a value from [-1, 1]
 
-        Vector2 joyStickPosition = new Vector2(drive,strafe);
+        Vector2 joyStickPosition = new Vector2(drive, strafe);
 
         // The direction the robot wants to move relative to the field
         Heading directionToMove = joyStickPosition.toHeading();

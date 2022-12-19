@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
 
 
 public class Robot extends BaseComponent {
@@ -38,6 +39,8 @@ public class Robot extends BaseComponent {
             addSubComponents(webCamSide);
             addSubComponents(aprilTagDetector);
         }
+
+        TelemetryHolder.telemetry = telemetry;
     }
 
     private static RobotContext createRobotContext(OpMode opMode) {
