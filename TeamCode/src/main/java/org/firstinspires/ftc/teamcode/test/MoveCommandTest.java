@@ -29,10 +29,18 @@ public class MoveCommandTest extends OpMode {
 
     public double limiter;
 
+    public Controller controller;
+
+    RobotDescriptor robotDescriptor;
+
     @Override
     public void init() {
         robot = new Robot(this);
         robot.init();
+
+        controller = new Controller(gamepad1);
+
+        robotDescriptor = robot.getRobotContext().robotDescriptor;
 
         limiter = 0.3;
     }
@@ -40,10 +48,6 @@ public class MoveCommandTest extends OpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
-
-        RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
-
-        Controller controller = new Controller(gamepad1);
 
         double drive = controller.leftStickY();
         double strafe = controller.leftStickX();

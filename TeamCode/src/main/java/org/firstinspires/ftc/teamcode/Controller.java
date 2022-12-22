@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
+
 /**
  * Wraps a gamepad to provide convenience functions.
  */
@@ -130,7 +132,7 @@ public class Controller {
         }
     }
 
-    private boolean isButtonDown(Button button) {
+    public boolean isButtonDown(Button button) {
         switch (button) {
             case LEFT_STICK_BUTTON:
                 return gamepad.left_stick_button;

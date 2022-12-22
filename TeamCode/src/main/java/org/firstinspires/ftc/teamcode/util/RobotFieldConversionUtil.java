@@ -9,56 +9,56 @@ public class RobotFieldConversionUtil {
     public static FieldSpaceCoordinates convertToFieldSpace(RobotSpaceCoordinates robotSpaceCoordinates) {
 
         //get the offset between two neighboring points
-        Vector2 offsetFrontNeighbor = robotSpaceCoordinates.frontLeftTileVertex.offset(robotSpaceCoordinates.backLeftTileVertex);
-        Vector2 offsetRightNeighbor = robotSpaceCoordinates.backRightTileVertex.offset(robotSpaceCoordinates.backLeftTileVertex);
+        Vector2 backToFront = robotSpaceCoordinates.frontLeftTileVertex.offset(robotSpaceCoordinates.backLeftTileVertex);
+        Vector2 leftToRight = robotSpaceCoordinates.backRightTileVertex.offset(robotSpaceCoordinates.backLeftTileVertex);
 
         Heading heading = null;
-        double yPos = -1000;
-        double xPos = -1000;
+        Double xPos = null;
+        Double yPos = null;
 
-        if(offsetFrontNeighbor.getY() != 0) {
+        if (backToFront.getY() != 0) {
             //y runs from the front to back / back to front
-            heading = offsetFrontNeighbor.toHeading().add(robotSpaceCoordinates.offsetHeading);
+            heading = backToFront.toHeading().add(robotSpaceCoordinates.offsetHeading);
 
-            if(offsetFrontNeighbor.getY() < 0) {
+            if (backToFront.getY() < 0) {
                 //y runs front to back
                 yPos = robotSpaceCoordinates.frontLeftTileVertex.getY() + robotSpaceCoordinates.offsetFront;
 
-            }else {
+            } else {
                 //y runs back to front
                 yPos = robotSpaceCoordinates.frontLeftTileVertex.getY() - robotSpaceCoordinates.offsetFront;
 
             }
 
-            if(offsetRightNeighbor.getX() < 0) {
+            if (leftToRight.getX() < 0) {
                 //x runs right to left
                 xPos = robotSpaceCoordinates.backRightTileVertex.getX() + robotSpaceCoordinates.offsetRight;
 
-            }else {
+            } else {
                 //x runs left to right
                 xPos = robotSpaceCoordinates.backRightTileVertex.getX() - robotSpaceCoordinates.offsetRight;
 
             }
 
-        }else if(offsetRightNeighbor.getY() != 0) {
+        } else if (leftToRight.getY() != 0) {
             //y runs from right to left / left to right
-            heading = offsetRightNeighbor.toHeading().add(robotSpaceCoordinates.offsetHeading + 90);
+            heading = leftToRight.toHeading().add(robotSpaceCoordinates.offsetHeading + 90);
 
-            if(offsetRightNeighbor.getY() < 0) {
+            if (leftToRight.getY() < 0) {
                 //y runs right to left
                 yPos = robotSpaceCoordinates.frontRightTileVertex.getY() + robotSpaceCoordinates.offsetRight;
 
-            }else {
+            } else {
                 //y runs left to right
                 yPos = robotSpaceCoordinates.frontRightTileVertex.getY() - robotSpaceCoordinates.offsetRight;
 
             }
 
-            if(offsetFrontNeighbor.getX() < 0) {
+            if (backToFront.getX() < 0) {
                 //x runs back to front
                 xPos = robotSpaceCoordinates.frontLeftTileVertex.getX() + robotSpaceCoordinates.offsetFront;
 
-            }else {
+            } else {
                 //x runs front to back
                 xPos = robotSpaceCoordinates.frontLeftTileVertex.getX() - robotSpaceCoordinates.offsetFront;
 
@@ -66,13 +66,13 @@ public class RobotFieldConversionUtil {
         }
 
         assert heading != null;
-        assert yPos != -1000;
-        assert xPos != -1000;
+        assert yPos != null;
+        assert xPos != null;
 
 
         return new FieldSpaceCoordinates(
                 heading,
-                new Position(xPos,yPos)
+                new Position(xPos, yPos)
         );
     }
 

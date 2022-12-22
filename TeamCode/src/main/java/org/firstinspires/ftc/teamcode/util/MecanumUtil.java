@@ -63,7 +63,18 @@ public class MecanumUtil {
 
         Vector2 deltaPositionRelativeToRobot = deltaPositionInTiles.rotate(-90);
 
-        Vector2 deltaPositionRelativeToField = deltaPositionRelativeToRobot.rotate(heading.getValue());
+        double atPoint7 = 0.92004;
+        double atPoint3 = 0.93004;
+
+        // todo: scale by motor power
+
+        //double strafeAmount = Math.abs(deltaPositionRelativeToRobot.withMagnitude(1.0).getX());
+        Vector2 deltaPositionRelativeToRobotWithStrafeCorrection = new Vector2(
+                deltaPositionRelativeToRobot.getX() * atPoint3,
+                deltaPositionRelativeToRobot.getY()
+        );
+
+        Vector2 deltaPositionRelativeToField = deltaPositionRelativeToRobotWithStrafeCorrection.rotate(heading.getValue());
 
         return deltaPositionRelativeToField;
     }

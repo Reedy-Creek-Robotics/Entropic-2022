@@ -123,7 +123,7 @@ public class ComponentTest extends OpMode {
             }
         }
 
-        robot.getSlide().moveToPosition(positions.get(currentPosition));
+        robot.getSlide().moveToHeight(positions.get(currentPosition));
         robot.getTurret().moveToPosition(turretLocation);
 
         telemetry.addData("Slide Position", positions.get(currentPosition));

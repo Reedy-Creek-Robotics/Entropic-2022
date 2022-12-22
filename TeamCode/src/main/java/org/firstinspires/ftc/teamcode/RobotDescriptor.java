@@ -39,7 +39,7 @@ public class RobotDescriptor {
      * For ramping down, the distance threshold under which no motor power will be applied for movement.
      * Even within this distance threshold, power may still be applied for turning to the target heading.
      */
-    public double movementTargetPositionReachedThreshold = 0.05;
+    public double movementTargetPositionReachedThreshold = 0.01;
 
     /**
      * The threshold in degrees under which no motor power will be applied for turning.
