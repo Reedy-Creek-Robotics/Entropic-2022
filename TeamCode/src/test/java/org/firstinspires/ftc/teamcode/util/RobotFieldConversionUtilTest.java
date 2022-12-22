@@ -173,12 +173,11 @@ public class RobotFieldConversionUtilTest {
     }
 
     @Test
-    @Ignore("Work in progress")
     public void convertToFieldSpace_Rotated270() {
         RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
                 0,.5,.5,
-                new Position(0,1), new Position(0,0),
-                new Position(1,1), new Position(1,0)
+                new Position(1,0), new Position(0,0),
+                new Position(1,1), new Position(0,1)
         );
 
         FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
@@ -228,19 +227,18 @@ public class RobotFieldConversionUtilTest {
     }
 
     @Test
-    @Ignore("Work in progress")
     public void convertToFieldSpace_Rotated270_OffsetRight_Heading30() {
         RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
                 30,.5,.2,
-                new Position(0,1), new Position(0,0),
-                new Position(1,1), new Position(1,0)
+                new Position(1,0), new Position(0,0),
+                new Position(1,1), new Position(0,1)
         );
 
         FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
 
         assertFieldSpaceCoordinate(
                 new FieldSpaceCoordinates(
-                        new Heading(300), new Position(.8,.5)
+                        new Heading(300), new Position(.2,.5)
                 ),
                 result
         );
@@ -265,12 +263,11 @@ public class RobotFieldConversionUtilTest {
     }
 
     @Test
-    @Ignore("Work in progress")
     public void convertToFieldSpace_Rotated0_Heading30() {
         RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
                 30,.5,.5,
-                new Position(1,1), new Position(0,1),
-                new Position(1,0), new Position(0,0)
+                new Position(1,1), new Position(1,0),
+                new Position(0,1), new Position(0,0)
         );
 
         FieldSpaceCoordinates result = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
