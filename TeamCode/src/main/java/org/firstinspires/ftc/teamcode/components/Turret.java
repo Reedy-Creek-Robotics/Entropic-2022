@@ -12,8 +12,9 @@ public class Turret extends BaseComponent {
 
     public enum Orientation {
         FRONT(0.0),
-        BACK(0.5),
-        LEFT_SIDE(1.0);
+        BACK(1.0),
+        LEFT_SIDE(.5),
+        START(.3);
 
         private double servoPosition;
 

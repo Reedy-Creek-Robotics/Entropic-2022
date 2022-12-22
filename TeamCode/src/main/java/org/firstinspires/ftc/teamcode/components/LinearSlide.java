@@ -42,7 +42,7 @@ public class LinearSlide extends BaseComponent {
     /**
      * Move the are to the desired position
      */
-    public void moveToPosition(SlideHeight position) {
+    public void moveToHeight(SlideHeight position) {
         executeCommand(new MoveToPosition(position));
     }
 
