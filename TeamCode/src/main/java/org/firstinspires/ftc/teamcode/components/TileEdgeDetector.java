@@ -156,7 +156,7 @@ public class TileEdgeDetector extends BaseComponent {
 
             List<Line> lines = detectLines(input, output);
             for (Line line : lines) {
-                drawOutputLine(output, line, Color.BLUE.toRGBA());
+                //drawOutputLine(output, line, Color.BLUE.toRGBA());
             }
 
             // The near and far edges of the gap between tiles are about 0.8 inches apart.  We set the threshold
@@ -167,7 +167,7 @@ public class TileEdgeDetector extends BaseComponent {
             // Group lines that are very similar together
             lines = groupSimilarLines(lines, 2, rhoThreshold);
             for (Line line : lines) {
-                drawOutputLine(output, line, Color.ORANGE.toRGBA());
+                //drawOutputLine(output, line, Color.ORANGE.toRGBA());
             }
 
             // Sorts the lines by angle closest to 90 degrees.
@@ -184,18 +184,20 @@ public class TileEdgeDetector extends BaseComponent {
 
             if (!lines.isEmpty()) {
                 Line line = lines.get(0);
-                drawOutputLine(output, line, Color.GREEN.toRGBA());
+                //drawOutputLine(output, line, Color.GREEN.toRGBA());
 
                 distanceToTileHorizontal = convertRhoToTileDistance(line.rho);
                 angleToTile = convertThetaToTileAngle(line.theta);
 
                 // Print out rho, theta, and count for the detected line.
+                /*
                 DrawUtil.drawText(
                         output,
                         String.format("(<%.2f, %.2f in) [%d]", angleToTile, distanceToTileHorizontal * 12.0, line.count),
                         new Point(100, 50),
                         Color.GREEN.toRGBA()
                 );
+                */
 
                 observationTime = new ElapsedTime();
 

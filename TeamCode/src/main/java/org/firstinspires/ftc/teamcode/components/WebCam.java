@@ -112,11 +112,14 @@ public class WebCam extends BaseComponent {
     }
 
     public synchronized void saveLastFrame() {
-        // todo: save the last frame to disk
-        // todo: figure out how to save the image to disk?  maybe if a button is pressed?
-        String filename = getExternalStorageDirectory() + "/webcam-frame-" + new Date().toString().replace(' ', '-') + this.getExposure() + ".bmp";
+        String filename = getExternalStorageDirectory() + "/webcam-frame-" +
+                new Date().toString().replace(' ', '-') +
+                this.getExposure() + ".bmp";
+
         telemetry.addData("WebCam Frame Saved", filename);
-        telemetry.addData("did I write?", Imgcodecs.imwrite(filename, output));
+
+        boolean success = Imgcodecs.imwrite(filename, output);
+        telemetry.addData("did I write?", success);
     }
 
     public int getFrameCount() {

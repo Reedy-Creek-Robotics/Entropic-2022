@@ -360,6 +360,10 @@ public class DriveTrain extends BaseComponent {
         executeCommand(new MoveToTargetPosition(targetPosition, targetHeading, speed));
     }
 
+    public void moveToHeading(Heading targetHeading, double speed) {
+        executeCommand(new MoveToTargetPosition(position,targetHeading,speed));
+    }
+
     /**
      * Moves to the given target position and heading
      *

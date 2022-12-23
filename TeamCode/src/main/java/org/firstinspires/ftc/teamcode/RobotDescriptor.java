@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.teamcode.util.Vector2;
+
 /**
  * Variables that indicate the physical characteristics of the robot.
  */
@@ -65,5 +67,36 @@ public class RobotDescriptor {
      * For turning, the exponent to use when scaling.
      */
     public double rampingTurnExponent = 2.0;
+
+    /**
+     * The height at which the webcam is mounted above the ground.
+     */
+    public double webCamHeightInInches = 14.25;
+
+    /**
+     * The angle in degrees between the webcam and the side of the robot (to account for skew in mounting).
+     */
+    public double webCamAngleToRightSideOfRobot = 0.0;
+
+    /**
+     * The angle in degrees between the webcam and ground.
+     *
+     * For example, 90 means pointing straight down.  100 means pointing degrees away from the robot.
+     */
+    public double webCamAngleToGround = 100.0;
+
+    /**
+     * The horizontal fiel
+     */
+    public double webCamFieldOfViewHorizontal = ;  // 30 cm horizontal, 20 cm vertical
+
+    /**
+     * The vertical field of view for the webcam, in degrees.
+     */
+    public double webCamFieldOfViewVertical = ;
+
+    public Vector2 webCamPositionRelativeToRobotFrontRightInInches;
+
+    public Vector2 robotDimensionsInInches;
 
 }
