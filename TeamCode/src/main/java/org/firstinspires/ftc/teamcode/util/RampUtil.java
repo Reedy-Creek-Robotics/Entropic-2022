@@ -1,8 +1,11 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.teamcode.util.TelemetryHolder.*;
+import static org.firstinspires.ftc.teamcode.util.TelemetryHolder.telemetry;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Vector2;
 
 public class RampUtil {
 

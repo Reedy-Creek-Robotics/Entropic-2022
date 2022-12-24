@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.*;
-import static org.junit.Assert.*;
+import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
+import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.junit.Test;
 
 public class RobotFieldConversionUtilTest {

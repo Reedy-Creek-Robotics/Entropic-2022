@@ -1,6 +1,14 @@
 package org.firstinspires.ftc.teamcode.test;
 
-import static org.firstinspires.ftc.teamcode.Controller.Button.*;
+import static org.firstinspires.ftc.teamcode.Controller.Button.A;
+import static org.firstinspires.ftc.teamcode.Controller.Button.B;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 
@@ -12,7 +20,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.util.Position;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 
 @TeleOp
 public class MoveCommandTest extends OpMode {

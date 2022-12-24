@@ -1,13 +1,16 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-import static org.firstinspires.ftc.teamcode.Controller.Button.*;
+import static org.firstinspires.ftc.teamcode.Controller.Button.A;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.util.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
 
 @TeleOp
 public class ImageCaptureTest extends OpMode {

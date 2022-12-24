@@ -2,15 +2,20 @@ package org.firstinspires.ftc.teamcode.test;
 
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.INTAKE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.SMALL_POLE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TOP_POLE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.LinearSlide;
-import org.firstinspires.ftc.teamcode.util.Position;
+import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 
 import java.util.Arrays;
 import java.util.List;

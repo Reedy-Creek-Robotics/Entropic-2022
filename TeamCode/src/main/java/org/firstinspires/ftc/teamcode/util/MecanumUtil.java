@@ -4,6 +4,10 @@ import android.annotation.SuppressLint;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Vector2;
+import org.firstinspires.ftc.teamcode.geometry.VectorN;
 
 public class MecanumUtil {
 

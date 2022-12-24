@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.teamcode.util.Vector2;
+import org.firstinspires.ftc.teamcode.geometry.Vector2;
 
 /**
  * Variables that indicate the physical characteristics of the robot.

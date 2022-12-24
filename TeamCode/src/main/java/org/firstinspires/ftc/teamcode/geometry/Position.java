@@ -1,8 +1,6 @@
-package org.firstinspires.ftc.teamcode.util;
+package org.firstinspires.ftc.teamcode.geometry;
 
 import android.annotation.SuppressLint;
-
-import org.opencv.core.Point;
 
 public class Position {
     private double x, y;
