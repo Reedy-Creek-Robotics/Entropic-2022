@@ -69,34 +69,54 @@ public class RobotDescriptor {
     public double rampingTurnExponent = 2.0;
 
     /**
-     * The height at which the webcam is mounted above the ground.
+     * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
      */
-    public double webCamHeightInInches = 14.25;
+    public Vector2 webCamImageTopLeftCornerCoordinates = new Vector2(-0.1, 8.3);
+    public Vector2 webCamImageTopRightCornerCoordinates = new Vector2(13.8, 8.2);
+    public Vector2 webCamImageBottomLeftCornerCoordinates = new Vector2(0.5, 0.75);
+    public Vector2 webCamImageBottomRightCornerCoordinates = new Vector2(12.9, 0.6);
 
     /**
-     * The angle in degrees between the webcam and the side of the robot (to account for skew in mounting).
+     * The width and height of the robot in inches.
      */
-    public double webCamAngleToRightSideOfRobot = 0.0;
+    public Vector2 robotDimensionsInInches = new Vector2(16.5, 17.25);
 
-    /**
-     * The angle in degrees between the webcam and ground.
-     *
-     * For example, 90 means pointing straight down.  100 means pointing degrees away from the robot.
-     */
-    public double webCamAngleToGround = 100.0;
-
-    /**
-     * The horizontal fiel
-     */
-    public double webCamFieldOfViewHorizontal = ;  // 30 cm horizontal, 20 cm vertical
-
-    /**
-     * The vertical field of view for the webcam, in degrees.
-     */
-    public double webCamFieldOfViewVertical = ;
-
-    public Vector2 webCamPositionRelativeToRobotFrontRightInInches;
-
-    public Vector2 robotDimensionsInInches;
+    ///**
+    // * When detecting lines for tile edges, the rho threshold to use when grouping similar lines.
+    // */
+    //public double tileEdgeDetectionSimilarLineRhoThreshold = ;
+    //
+    ///**
+    // * When detecting lines for tile edges, the theta threshold to use when grouping similar lines.
+    // */
+    //public double tileEdgeDetectionSimilarLineThetaThreshold = ;
+    //
+    //
+    ///**
+    // * The height at which the webcam is mounted above the ground.
+    // */
+    //public double webCamHeightInInches = 14.25;
+    //
+    ///**
+    // * The angle in degrees between the webcam and the side of the robot (to account for skew in mounting).
+    // */
+    //public double webCamAngleToRightSideOfRobot = 0.0;
+    //
+    ///**
+    // * The angle in degrees between the webcam and ground.
+    // *
+    // * For example, 90 means pointing straight down.  100 means pointing degrees away from the robot.
+    // */
+    //public double webCamAngleToGround = 100.0;
+    //
+    ///**
+    // * The horizontal fiel
+    // */
+    //public double webCamFieldOfViewHorizontal = 60;  // 30 cm horizontal, 20 cm vertical
+    //
+    ///**
+    // * The vertical field of view for the webcam, in degrees.
+    // */
+    //public double webCamFieldOfViewVertical = 45;
 
 }
