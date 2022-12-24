@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import org.firstinspires.ftc.teamcode.geometry.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 
@@ -117,8 +118,8 @@ public class RobotFieldConversionUtil {
         assert backRight != null;
 
         double offsetHeading = frontLeft.offset(backLeft).toHeading().delta(heading);
-        double offsetFront = position.distance(frontLeft, frontRight);
-        double offsetRight = position.distance(backRight, frontRight);
+        double offsetFront = position.distance(new Line(frontLeft, frontRight));
+        double offsetRight = position.distance(new Line(backRight, frontRight));
 
         return new RobotSpaceCoordinates(
                 offsetHeading,
