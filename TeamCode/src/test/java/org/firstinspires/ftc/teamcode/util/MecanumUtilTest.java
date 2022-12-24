@@ -3,20 +3,24 @@ package org.firstinspires.ftc.teamcode.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.junit.Test;
 
 public class MecanumUtilTest {
 
     private static final double E = 1e-6;
 
+    private static RobotDescriptor descriptor = new RobotDescriptor();
+
     @Test
     public void offsetFromWheelDelta_simpleMoveForward() {
         Vector2 offset = MecanumUtil.calculatePositionOffsetFromWheelRotations(
+                descriptor,
                 10, 10, 10, 10,
                 new Heading(90)
         );
 
-        double expectedTiles = DistanceUtil.ticksToTiles(10);
+        double expectedTiles = MecanumUtil.ticksToTiles(descriptor, 10);
 
         assertVectorEquals(new Vector2(0.0, expectedTiles), offset);
     }
@@ -24,11 +28,12 @@ public class MecanumUtilTest {
     @Test
     public void offsetFromWheelDelta_strafeRight() {
         Vector2 offset = MecanumUtil.calculatePositionOffsetFromWheelRotations(
+                descriptor,
                 -10, 10, 10, -10,
                 new Heading(90)
         );
 
-        double expectedTiles = DistanceUtil.ticksToTiles(10);
+        double expectedTiles = MecanumUtil.ticksToTiles(descriptor, 10);
 
         assertVectorEquals(new Vector2(expectedTiles, 0.0), offset);
     }
@@ -36,11 +41,12 @@ public class MecanumUtilTest {
     @Test
     public void offsetFromWheelDelta_move45() {
         Vector2 offset = MecanumUtil.calculatePositionOffsetFromWheelRotations(
+                descriptor,
                 10, 10, 10, 10,
                 new Heading(45)
         );
 
-        double expectedTiles = DistanceUtil.ticksToTiles(10) / Math.sqrt(2);
+        double expectedTiles = MecanumUtil.ticksToTiles(descriptor, 10) / Math.sqrt(2);
 
         assertVectorEquals(new Vector2(expectedTiles, expectedTiles), offset);
     }
@@ -48,6 +54,7 @@ public class MecanumUtilTest {
     @Test
     public void calculateWheelPowerForTargetPosition_moveForward() {
         MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
+                descriptor,
                 new Position(0.5, 0.5), new Heading(90), new Vector2(0, 0),
                 new Position(0.5, 1.5), new Heading(90),
                 0.5
@@ -67,6 +74,7 @@ public class MecanumUtilTest {
     @Test
     public void calculateWheelPowerForTargetPosition_moveBackward() {
         MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
+                descriptor,
                 new Position(0.5, 1.5), new Heading(90), new Vector2(0, 0),
                 new Position(0.5, 0.5), new Heading(90),
                 0.5
@@ -86,6 +94,7 @@ public class MecanumUtilTest {
     @Test
     public void calculateWheelPowerForTargetPosition_strafeRight() {
         MecanumUtil.MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
+                descriptor,
                 new Position(0.5, 0.5), new Heading(90), new Vector2(0, 0),
                 new Position(1.5, 0.5), new Heading(90),
                 0.5

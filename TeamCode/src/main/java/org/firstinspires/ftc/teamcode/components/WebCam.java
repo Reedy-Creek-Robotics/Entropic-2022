@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static android.os.Environment.getExternalStorageDirectory;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
@@ -66,15 +64,15 @@ public class WebCam extends BaseComponent {
 
     private ExposureControl exposureControl;
 
-    public WebCam(OpMode opMode, String cameraName, boolean streamOutput, Size resolution) {
-        super(opMode);
+    public WebCam(RobotContext context, String cameraName, boolean streamOutput, Size resolution) {
+        super(context);
         this.cameraName = cameraName;
         this.streamOutput = streamOutput;
         this.size = resolution;
     }
 
-    public WebCam(OpMode opMode, String cameraName, boolean streamOutput) {
-        this(opMode, cameraName, streamOutput, DEFAULT_RESOLUTION);
+    public WebCam(RobotContext context, String cameraName, boolean streamOutput) {
+        this(context, cameraName, streamOutput, DEFAULT_RESOLUTION);
     }
 
     @Override
@@ -114,11 +112,14 @@ public class WebCam extends BaseComponent {
     }
 
     public synchronized void saveLastFrame() {
-        // todo: save the last frame to disk
-        // todo: figure out how to save the image to disk?  maybe if a button is pressed?
-        String filename = getExternalStorageDirectory() + "/webcam-frame-" + new Date().toString().replace(' ', '-') + this.getExposure() + ".bmp";
+        String filename = getExternalStorageDirectory() + "/webcam-frame-" +
+                new Date().toString().replace(' ', '-') +
+                this.getExposure() + ".bmp";
+
         telemetry.addData("WebCam Frame Saved", filename);
-        telemetry.addData("did I write?", Imgcodecs.imwrite(filename, output));
+
+        boolean success = Imgcodecs.imwrite(filename, output);
+        telemetry.addData("did I write?", success);
     }
 
     public int getFrameCount() {

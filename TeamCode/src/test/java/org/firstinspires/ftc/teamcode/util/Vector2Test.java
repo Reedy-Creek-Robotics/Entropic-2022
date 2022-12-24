@@ -33,6 +33,7 @@ public class Vector2Test {
 
     @Test
     public void toHeading() {
+        assertEquals(0.0, new Vector2(0,0).toHeading().getValue(), E);
         assertEquals(0.0, new Vector2(1.0, 0.0).toHeading().getValue(), E);
         assertEquals(90.0, new Vector2(0.0, 1.0).toHeading().getValue(), E);
         assertEquals(180.0, new Vector2(-1.0, 0.0).toHeading().getValue(), E);

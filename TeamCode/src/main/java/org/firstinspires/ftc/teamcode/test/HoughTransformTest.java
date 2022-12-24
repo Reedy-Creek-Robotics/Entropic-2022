@@ -30,7 +30,7 @@ public class HoughTransformTest extends OpMode {
         double strafe = gamepad1.left_stick_x;
 
         //sets the power to the drivetrain
-        robot.getDriveTrain().drive(drive, turn, strafe);
+        robot.getDriveTrain().drive(drive, turn, strafe,1);
 
         if (gamepad1.a && waitTime.seconds() > 1) {
             waitTime.reset();

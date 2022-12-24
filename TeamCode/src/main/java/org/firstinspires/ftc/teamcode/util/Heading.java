@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.util;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.Nullable;
+
 public class Heading {
 
     /**
@@ -79,4 +81,8 @@ public class Heading {
         return String.format("%.2f deg", value);
     }
 
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return obj instanceof Heading && this.value == ((Heading) obj).value;
+    }
 }

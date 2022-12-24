@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,22 +16,27 @@ public abstract class BaseComponent implements Component {
 
     private OpMode opMode;
 
+    protected RobotContext context;
+    protected RobotDescriptor robotDescriptor;
+
     protected HardwareMap hardwareMap;
 
     protected Telemetry telemetry;
 
-    protected ElapsedTime time;
+    protected ElapsedTime commandTime;
 
     private Command currentCommand;
     private List<Command> nextCommands;
 
     private List<Component> subComponents = new ArrayList<>();
 
-    public BaseComponent(OpMode opMode) {
-        this.opMode = opMode;
+    public BaseComponent(RobotContext context) {
+        this.context = context;
+        this.opMode = context.opMode;
         this.hardwareMap = opMode.hardwareMap;
         this.telemetry = opMode.telemetry;
-        this.time = new ElapsedTime();
+        this.robotDescriptor = context.robotDescriptor;
+        this.commandTime = new ElapsedTime();
         this.currentCommand = null;
         this.nextCommands = new ArrayList<>();
     }
@@ -100,12 +106,10 @@ public abstract class BaseComponent implements Component {
     @Override
     public void init() {
         for (Component subComponent : subComponents) {
-            telemetry.addData("Subcomponent:", subComponent);
-            telemetry.update();
+            //telemetry.log().add("Init SubComponent: " + subComponent);
+            //telemetry.update();
             subComponent.init();
         }
-        telemetry.addData("Robot is initialized", "");
-        telemetry.update();
     }
 
     @Override
@@ -115,7 +119,7 @@ public abstract class BaseComponent implements Component {
         if (currentCommand == null && !nextCommands.isEmpty()) {
             currentCommand = nextCommands.remove(0);
             currentCommand.start();
-            time.reset();
+            commandTime.reset();
         }
 
         // If there is a current command we are trying to execute, delegate to it for update status

@@ -1,16 +1,12 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.annotation.SuppressLint;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.components.AprilTagDetector;
-import org.firstinspires.ftc.teamcode.components.BaseComponent;
-import org.firstinspires.ftc.teamcode.components.DriveTrain;
-import org.firstinspires.ftc.teamcode.components.Intake;
-import org.firstinspires.ftc.teamcode.components.LinearSlide;
-import org.firstinspires.ftc.teamcode.components.Turret;
-import org.firstinspires.ftc.teamcode.components.WebCam;
-import org.firstinspires.ftc.teamcode.util.TelemetryUtil;
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
 
 
 public class Robot extends BaseComponent {
@@ -23,16 +19,19 @@ public class Robot extends BaseComponent {
     private Intake intake;
     private LinearSlide slide;
 
+    private int updateCount;
+    private ElapsedTime initTime;
+
     public Robot(OpMode opMode, boolean initWithCamera) {
-        super(opMode);
+        super(createRobotContext(opMode));
 
-        this.webCamSide = new WebCam(opMode, "WebcamFront", initWithCamera);
-        this.driveTrain = new DriveTrain(opMode, webCamSide);
-        this.aprilTagDetector = new AprilTagDetector(opMode, webCamSide);
+        this.webCamSide = new WebCam(context, "WebcamFront", initWithCamera);
+        this.driveTrain = new DriveTrain(context, webCamSide);
+        this.aprilTagDetector = new AprilTagDetector(context, webCamSide);
 
-        //this.turret = new Turret(opMode);
-        //this.slide = new LinearSlide(opMode);
-        //this.intake = new Intake(opMode);
+        //this.turret = new Turret(context);
+        //this.slide = new LinearSlide(context);
+        //this.intake = new Intake(context);
 
         addSubComponents(driveTrain);  //, turret, slide, intake);
 
@@ -41,7 +40,18 @@ public class Robot extends BaseComponent {
             addSubComponents(aprilTagDetector);
         }
 
-        TelemetryUtil.telemetry = opMode.telemetry;
+        TelemetryHolder.telemetry = telemetry;
+    }
+
+    private static RobotContext createRobotContext(OpMode opMode) {
+        return new RobotContext(
+                opMode,
+                new RobotDescriptor()
+        );
+    }
+
+    public RobotContext getRobotContext() {
+        return context;
     }
 
     /**
@@ -52,8 +62,23 @@ public class Robot extends BaseComponent {
     }
 
     @Override
+    public void init() {
+        super.init();
+
+        telemetry.log().add("Robot is initialized");
+        telemetry.update();
+
+        initTime = new ElapsedTime();
+    }
+
+    @SuppressLint("DefaultLocale")
+    @Override
     public void updateStatus() {
         super.updateStatus();
+
+        updateCount++;
+        double updatesPerSecond = updateCount / initTime.seconds();
+        telemetry.addData("Updates / sec", String.format("%.1f", updatesPerSecond));
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();
@@ -108,4 +133,5 @@ public class Robot extends BaseComponent {
     public AprilTagDetector getAprilTagDetector() {
         return aprilTagDetector;
     }
+
 }

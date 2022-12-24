@@ -1,15 +1,46 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.teamcode.util.TelemetryUtil.telemetry;
-
 import android.annotation.SuppressLint;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
+
 public class MecanumUtil {
+
+    /**
+     * Converts tiles traveled into number of ticks moved by
+     *
+     * @param distance how far you want to travel in tiles
+     * @return number of ticks to move
+     */
+    public static int tilesToTicks(RobotDescriptor robotDescriptor, double distance) {
+        double wheelSizeInTiles = DistanceUtil.toTiles(robotDescriptor.wheelSizeInMm, DistanceUnit.MM);
+        double wheelCircumference = wheelSizeInTiles * Math.PI;
+        double wheelRevolutions = distance / wheelCircumference;
+
+        double ticksPerRevolution = robotDescriptor.wheelMotorEncoderTicksPerRevolution;
+        return (int) Math.round(wheelRevolutions * ticksPerRevolution);
+    }
+
+    /**
+     * Converts ticks moved by the motor into the number of tiles traveled.
+     *
+     * @param ticks the number of ticks that were moved by the motor
+     * @return the distance in tiles that the robot moved
+     */
+    public static double ticksToTiles(RobotDescriptor robotDescriptor, double ticks) {
+        double wheelSizeInTiles = DistanceUtil.toTiles(robotDescriptor.wheelSizeInMm, DistanceUnit.MM);
+        double wheelCircumference = wheelSizeInTiles * Math.PI;
+        double wheelRevolutions = ticks / robotDescriptor.wheelMotorEncoderTicksPerRevolution;
+
+        return wheelRevolutions * wheelCircumference;
+    }
 
     /**
      * Calculates the offset in field position for a mecanum wheel robot, given the ticks rotation for each wheel.
      */
     public static Vector2 calculatePositionOffsetFromWheelRotations(
+            RobotDescriptor robotDescriptor,
             int deltaBackLeft,
             int deltaBackRight,
             int deltaFrontLeft,
@@ -26,13 +57,24 @@ public class MecanumUtil {
         Vector2 deltaPositionInTicks = u.multiply(du).add(v.multiply(dv)).multiply(0.5);
 
         Vector2 deltaPositionInTiles = new Vector2(
-                DistanceUtil.ticksToTiles(deltaPositionInTicks.getX()),
-                DistanceUtil.ticksToTiles(deltaPositionInTicks.getY())
+                ticksToTiles(robotDescriptor, deltaPositionInTicks.getX()),
+                ticksToTiles(robotDescriptor, deltaPositionInTicks.getY())
         );
 
         Vector2 deltaPositionRelativeToRobot = deltaPositionInTiles.rotate(-90);
 
-        Vector2 deltaPositionRelativeToField = deltaPositionRelativeToRobot.rotate(heading.getValue());
+        double atPoint7 = 0.92004;
+        double atPoint3 = 0.93004;
+
+        // todo: scale by motor power
+
+        //double strafeAmount = Math.abs(deltaPositionRelativeToRobot.withMagnitude(1.0).getX());
+        Vector2 deltaPositionRelativeToRobotWithStrafeCorrection = new Vector2(
+                deltaPositionRelativeToRobot.getX() * atPoint3,
+                deltaPositionRelativeToRobot.getY()
+        );
+
+        Vector2 deltaPositionRelativeToField = deltaPositionRelativeToRobotWithStrafeCorrection.rotate(heading.getValue());
 
         return deltaPositionRelativeToField;
     }
@@ -41,6 +83,7 @@ public class MecanumUtil {
      * Calculates the power to apply to each mecanum wheel in order to progress toward the target position and heading.
      */
     public static MotorPowers calculateWheelPowerForTargetPosition(
+            RobotDescriptor robotDescriptor,
             Position position,
             Heading heading,
             Vector2 velocity,
@@ -73,16 +116,102 @@ public class MecanumUtil {
         Vector2 powerVector = new Vector2(
                 Math.sin(angle + Math.PI / 4.0),  // FL, BR
                 Math.sin(angle - Math.PI / 4.0)   // FR, BL
-        ).withMagnitude(1.0);
+        );
 
-        // Calculate how far off we are from the target heading.
-        // Positive turn value means turning left, negative means turning right.
-        double turn = targetHeading.delta(heading) / 10.0;
-        if (turn >= .25) {
-            turn = .25;
-        } else if (turn <= -.25) {
-            turn = -.25;
-        }
+        MotorPowers motorPowers = new MotorPowers(
+                powerVector.getY(),
+                powerVector.getX(),
+                powerVector.getX(),
+                powerVector.getY()
+        );
+
+        // Add in power ramping and desired speed by scaling the motor powers to the desired overall max component.
+        // In other words, scale so that the motor getting the most power has its absolute value equal
+        // to the power and ramping
+        double power = RampUtil.calculateRampingFactor(
+                robotDescriptor, position, targetPosition, velocity, speedFactor
+        );
+
+        motorPowers = MotorPowers.fromVectorN(
+                motorPowers.toVectorN().withMaxComponent(power)
+        );
+
+        // Add in turn.  For example, to turn left, give less power to the left wheels and more to the right.
+        double turn = RampUtil.calculateRampingTurnFactor(
+                robotDescriptor, heading, targetHeading, speedFactor
+        );
+
+        motorPowers = new MotorPowers(
+                motorPowers.backLeft - turn,
+                motorPowers.backRight + turn,
+                motorPowers.frontLeft - turn,
+                motorPowers.frontRight + turn
+        );
+
+        motorPowers = MotorPowers.fromVectorN(
+                motorPowers.toVectorN().clampToMax(1.0)
+        );
+
+        return motorPowers;
+    }
+
+    public static MotorPowers calculateWheelPowerForDrive(
+            double drive,
+            double strafe,
+            double turn,
+            double speedFactor
+    ) {
+        MotorPowers motorPowers = new MotorPowers(
+                drive - turn + strafe,
+                drive + turn - strafe,
+                drive - turn - strafe,
+                drive + turn + strafe
+        );
+
+        motorPowers = MotorPowers.fromVectorN(
+                motorPowers.toVectorN()
+                        .multiply(speedFactor)
+                        .clampToMax(1.0)
+        );
+
+        return motorPowers;
+    }
+
+    /**
+     * Calculates the power to apply to each mecanum wheel for driver relative movement.
+     */
+    public static MotorPowers calculateWheelPowerForDriverRelative(
+            double drive,
+            double strafe,
+            double turn,
+            Heading heading,
+            double speedFactor
+    ) {
+        // Mecanum formulas
+        // https://seamonsters-2605.github.io/archive/mecanum/
+
+        // front-left, back-right power = sin(angle+1/4π) * magnitude + turn
+        // front-right, back-left power = sin(angle−1/4π) * magnitude + turn
+
+        // angle is the desired offset from current heading [-PI/2, PI/2]
+        // magnitude is the speed to move [0, 1]
+        // turn is a value from [-1, 1]
+
+        Vector2 joyStickPosition = new Vector2(drive, strafe);
+
+        // The direction the robot wants to move relative to the field
+        Heading directionToMove = joyStickPosition.toHeading();
+
+        // Direction the robot needs to move before zeroing it out relative to the robot
+        Heading directionToMoveRelativeToRobot = heading.minus(directionToMove);
+
+        // The angle the robot wants to move at relative to itself
+        double angle = directionToMoveRelativeToRobot.toRadians();
+
+        Vector2 powerVector = new Vector2(
+                Math.sin(angle - Math.PI / 4.0),   // FR, BL
+                Math.sin(angle + Math.PI / 4.0)  // FL, BR
+        ).withMagnitude(joyStickPosition.magnitude());
 
         // Add in turn.  For example, to turn left, give less power to the left wheels and more to the right.
         MotorPowers motorPowers = new MotorPowers(
@@ -92,24 +221,11 @@ public class MecanumUtil {
                 powerVector.getY() + turn
         );
 
-        // Add in power ramping and desired speed by scaling the motor powers to the desired overall max component.
-        // In other words, scale so that the motor getting the most power has its absolute value equal
-        // to the power and ramping
-        double rampingFactor = RampUtil.calculateRampingFactor(position, targetPosition, velocity, speedFactor);
-        double power = rampingFactor * speedFactor;
-
         motorPowers = MotorPowers.fromVectorN(
-                motorPowers.toVectorN().withMaxComponent(power)
+                motorPowers.toVectorN()
+                        .multiply(speedFactor)
+                        .clampToMax(1.0)
         );
-
-        // Telemetry for debugging
-        if (telemetry != null) {
-            //telemetry.addData("Turn", turn);
-            //telemetry.addData("Offset to Move", offset);
-            //telemetry.addData("Angle", directionToMoveRelativeToRobot);
-            //telemetry.addData("Sin FLBR", Math.sin(angle + Math.PI / 4.0));
-            //telemetry.addData("Sin FRBL", Math.sin(angle - Math.PI / 4.0));
-        }
 
         return motorPowers;
     }

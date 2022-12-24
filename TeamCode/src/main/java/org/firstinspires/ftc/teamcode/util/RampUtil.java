@@ -1,12 +1,21 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import static org.firstinspires.ftc.teamcode.util.TelemetryHolder.*;
+
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
+
 public class RampUtil {
 
     /**
      * Returns a scalar value from range (0, 1) that indicates how the power applied to motors
      * should be scaled to account for ramping up and down.
      */
-    public static double calculateRampingFactor(Position position, Position targetPosition, Vector2 velocity, double speedFactor) {
+    public static double calculateRampingFactor(
+            RobotDescriptor robotDescriptor,
+            Position position, Position targetPosition,
+            Vector2 velocity,
+            double speedFactor
+    ) {
 
         // Start with full power
         double power = 1.0;
@@ -17,29 +26,79 @@ public class RampUtil {
         // Calculate the distance to the destination in tiles.
         double distance = targetPosition.offset(position).magnitude();
 
-        // Ramping up - scale down power if the current speed is low.
+        double rampDownDistance = robotDescriptor.rampingDownBeginDistance * speedFactor;
+        double rampUpEndSpeed = robotDescriptor.rampingUpEndSpeed;
 
-        // References
-        // https://www.physicsforums.com/threads/how-much-of-torque-do-you-need-to-start-wheels-slipping.681324/
-        // https://www.engineeringtoolbox.com/tractive-effort-d_1783.html
-        // https://calculator.academy/tractive-force-calculator/
+        if (distance <= robotDescriptor.movementTargetPositionReachedThreshold) {
+            // Target reached - don't try to move
+            power = 0;
 
-        // From physics, the wheels will slip if the tractive force applied by the wheels is
-        // greater than the force of friction between the wheels and the ground.
+        } else if (distance <= rampDownDistance) {
+            // Ramping down - close to target destination
+            double scale = distance / rampDownDistance;
+            power *= scale;
+            power *= speedFactor;
 
-        // The force of friction is calculated as:
-        //   Normal force * coefficient of friction
+            power = Math.max(power, robotDescriptor.rampingDownMinMotorPower);
 
-        // The tractive force applied by the wheel is:
-        //   ???
+        } else if (speed < rampUpEndSpeed) {
+            // Ramping up - initial slow speed
+            double scale = speed / rampUpEndSpeed;
+            power *= scale;
+            power *= speedFactor;
 
-        // todo: implement the math formula.  For now, just scale by some factor according to velocity
+            power = Math.max(power, robotDescriptor.rampingUpMinMotorPower);
 
-        // Ramping down - scale down power as we approach the destination.
+        } else {
+            // At speed
+            power *= speedFactor;
+        }
 
-        // todo: scale down according to distance remaining
+        if (telemetry != null) {
+            telemetry.addData("Ramping Power", power);
+        }
 
         return power;
+    }
+
+    /**
+     * Calculates the turning factor to add based on the given heading and target heading.
+     * <p>
+     * A positive return value means turning left, negative turning right.
+     */
+    public static double calculateRampingTurnFactor(
+            RobotDescriptor robotDescriptor,
+            Heading heading, Heading targetHeading,
+            double speedFactor
+    ) {
+        // Calculate how far off we are from the target heading.
+        double delta = targetHeading.delta(heading);
+
+        if (Math.abs(delta) < robotDescriptor.rotationTargetHeadingReachedThreshold) {
+            return 0.0;
+
+        } else {
+            // Scale geometrically.
+            double exponent = robotDescriptor.rampingTurnExponent;
+            double rampingMaxTurnDegrees = robotDescriptor.rampingMaxTurnDegrees * speedFactor;
+            double xVal = Math.abs(delta) / rampingMaxTurnDegrees;
+            double yVal = Math.pow(xVal, exponent) * robotDescriptor.rampingMaxTurnPower;
+
+            double turnFactor = Math.min(yVal, robotDescriptor.rampingMaxTurnPower);
+
+            turnFactor *= speedFactor;
+
+            turnFactor = Math.max(turnFactor, robotDescriptor.rampingMinTurnPower);
+
+            // Add back in direction.
+            turnFactor *= Math.signum(delta);
+
+            if (telemetry != null) {
+                telemetry.addData("Turn factor", turnFactor);
+            }
+
+            return turnFactor;
+        }
     }
 
 }

@@ -30,7 +30,7 @@ public class AprilTagTest extends OpMode {
         double strafe = gamepad1.left_stick_x;
 
         //sets the power to the drivetrain
-        robot.getDriveTrain().drive(drive, turn, strafe);
+        robot.getDriveTrain().drive(drive, turn, strafe,1);
 
         List<AprilTagDetection> currentDetections = robot.getAprilTagDetector().getDetections();
 

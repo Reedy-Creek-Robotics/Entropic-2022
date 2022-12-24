@@ -18,4 +18,5 @@ public interface Component {
      * Indicates if the component is busy trying to execute a command, or it is idle.
      */
     boolean isBusy();
+
 }

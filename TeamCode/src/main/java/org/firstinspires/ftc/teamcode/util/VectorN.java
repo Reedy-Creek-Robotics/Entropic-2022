@@ -54,4 +54,25 @@ public class VectorN {
         return multiply(scale);
     }
 
+    /**
+     * Clamps the vector such that it does not exceed the given max component absolute value.
+     */
+    public VectorN clampToMax(double maxAbsComponentValue) {
+        double existingMax = Double.MIN_VALUE;
+        for (double value : values) {
+            double abs = Math.abs(value);
+            if (abs > existingMax) {
+                existingMax = abs;
+            }
+        }
+
+        if (existingMax > maxAbsComponentValue) {
+            double scale = maxAbsComponentValue / existingMax;
+            return multiply(scale);
+        }
+
+        // No need to modify the vector, since it is already in the allowed range.
+        return this;
+    }
+
 }

@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -8,10 +7,10 @@ public class LinearSlide extends BaseComponent {
 
     public static final double ARMPOWER = 0.4;
     public static final double IDLEARMPOWER = 0.25;
-    public Position position;
+    public SlideHeight position;
     public static final int THRESHOLD = 5;
 
-    public enum Position {
+    public enum SlideHeight {
         TOP_POLE(0),
         MEDIUM_POLE(0),
         SMALL_POLE(0),
@@ -21,18 +20,18 @@ public class LinearSlide extends BaseComponent {
         ;
         private int ticks;
 
-        Position(int ticks) {
+        SlideHeight(int ticks) {
             this.ticks = ticks;
         }
     }
 
     private DcMotorEx motor;
 
-    public LinearSlide(OpMode opMode) {
-        super(opMode);
+    public LinearSlide(RobotContext context) {
+        super(context);
         motor = (DcMotorEx) hardwareMap.dcMotor.get("Slide");
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        position = Position.INTAKE;
+        position = SlideHeight.INTAKE;
     }
 
     @Override
@@ -43,14 +42,14 @@ public class LinearSlide extends BaseComponent {
     /**
      * Move the are to the desired position
      */
-    public void moveToPosition(Position position) {
+    public void moveToHeight(SlideHeight position) {
         executeCommand(new MoveToPosition(position));
     }
 
     private class MoveToPosition implements Command {
-        private Position desiredPosition;
+        private SlideHeight desiredPosition;
 
-        public MoveToPosition(Position desiredPosition) {
+        public MoveToPosition(SlideHeight desiredPosition) {
             this.desiredPosition = desiredPosition;
         }
 
