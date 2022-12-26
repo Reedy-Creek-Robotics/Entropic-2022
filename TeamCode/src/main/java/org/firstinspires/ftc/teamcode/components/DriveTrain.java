@@ -278,7 +278,7 @@ public class DriveTrain extends BaseComponent {
 
         if (previousPosition != null) {
 
-            Vector2 delta = position.offset(previousPosition);
+            Vector2 delta = position.minus(previousPosition);
             double elapsed = previousUpdateTime.seconds();
 
             velocity = delta.multiply(1 / elapsed);

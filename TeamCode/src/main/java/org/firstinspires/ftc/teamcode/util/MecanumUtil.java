@@ -106,7 +106,7 @@ public class MecanumUtil {
         // turn is a value from [-1, 1]
 
         // Gets the angle between the current position and the target position
-        Vector2 offset = targetPosition.offset(position);
+        Vector2 offset = targetPosition.minus(position);
 
         // The direction the robot wants to move relative to the field
         Heading directionToMove = offset.toHeading();

@@ -27,7 +27,7 @@ public class RampUtil {
         double speed = velocity.magnitude();
 
         // Calculate the distance to the destination in tiles.
-        double distance = targetPosition.offset(position).magnitude();
+        double distance = targetPosition.minus(position).magnitude();
 
         double rampDownDistance = robotDescriptor.rampingDownBeginDistance * speedFactor;
         double rampUpEndSpeed = robotDescriptor.rampingUpEndSpeed;

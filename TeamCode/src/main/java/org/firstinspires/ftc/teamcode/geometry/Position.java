@@ -59,7 +59,7 @@ public class Position {
     /**
      * Calculates the offset between this position and another.
      */
-    public Vector2 offset(Position other) {
+    public Vector2 minus(Position other) {
         double dx = this.getX() - other.getX();
         double dy = this.getY() - other.getY();
         return new Vector2(dx, dy);

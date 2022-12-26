@@ -14,8 +14,8 @@ public class RobotFieldConversionUtil {
     public static FieldSpaceCoordinates convertToFieldSpace(RobotSpaceCoordinates robotSpaceCoordinates) {
 
         //get the offset between two neighboring points
-        Vector2 backToFront = robotSpaceCoordinates.frontLeftTileVertex.offset(robotSpaceCoordinates.backLeftTileVertex);
-        Vector2 leftToRight = robotSpaceCoordinates.backRightTileVertex.offset(robotSpaceCoordinates.backLeftTileVertex);
+        Vector2 backToFront = robotSpaceCoordinates.frontLeftTileVertex.minus(robotSpaceCoordinates.backLeftTileVertex);
+        Vector2 leftToRight = robotSpaceCoordinates.backRightTileVertex.minus(robotSpaceCoordinates.backLeftTileVertex);
 
         Heading heading = null;
         Double xPos = null;
@@ -98,7 +98,7 @@ public class RobotFieldConversionUtil {
         Position frontLeft = null, frontRight = null, backLeft = null, backRight = null;
         Position tileMiddle = position.alignToTileMiddle();
         for (Position vertex : vertices) {
-            Vector2 offset = vertex.offset(tileMiddle);
+            Vector2 offset = vertex.minus(tileMiddle);
             Heading vertexHeading = offset.toHeading().minus(heading).add(90);
 
             if (between(vertexHeading.getValue(), 0, 90)) {
@@ -117,7 +117,7 @@ public class RobotFieldConversionUtil {
         assert backLeft != null;
         assert backRight != null;
 
-        double offsetHeading = frontLeft.offset(backLeft).toHeading().delta(heading);
+        double offsetHeading = frontLeft.minus(backLeft).toHeading().delta(heading);
         double offsetFront = position.distance(new Line(frontLeft, frontRight));
         double offsetRight = position.distance(new Line(backRight, frontRight));
 
