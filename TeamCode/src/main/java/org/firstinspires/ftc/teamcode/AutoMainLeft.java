@@ -64,7 +64,7 @@ public class AutoMainLeft extends LinearOpMode {
     }
 
     protected void initRobot() {
-        robot = new Robot(this, true);
+        robot = new Robot(this);
         robot.init();
 
         robot.getDriveTrain().setPosition(new Position(1.5,inchesToTiles(8)));

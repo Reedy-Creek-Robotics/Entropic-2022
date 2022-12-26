@@ -3,7 +3,11 @@ package org.firstinspires.ftc.teamcode.geometry;
 import org.firstinspires.ftc.teamcode.util.ScalingUtil;
 
 /**
- * A viewport with its own coordinate system, relative to an external coordinate system.
+ * A viewport (e.g. from a webcam), with coordinates at each corner of the image in an external
+ * coordinate system, such as relative to the corner of the robot.
+ *
+ * The viewport image starts from (0,0) in the top left corner and counts up to (width,height) in
+ * the bottom right corner of the image.
  */
 public class Viewport {
 
@@ -30,7 +34,7 @@ public class Viewport {
     public Position convertViewToExternal(Position viewPosition) {
         // Scale the pixel coordinates to be in (0-1).
         double x = ScalingUtil.scaleLinear(viewPosition.getX(), 0, viewWidth, 0, 1);
-        double y = ScalingUtil.scaleLinear(viewPosition.getY(), 0, viewHeight, 0, 1);
+        double y = ScalingUtil.scaleLinear(viewPosition.getY(), viewHeight, 0, 0, 1);
 
         // Bilinear interpolation, first find the position on the left and right sides in the y direction.
         Position left = between(externalBottomLeft, externalTopLeft, y);

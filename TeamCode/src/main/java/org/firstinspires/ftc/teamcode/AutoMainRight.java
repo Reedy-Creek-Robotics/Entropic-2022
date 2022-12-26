@@ -69,7 +69,7 @@ public class AutoMainRight extends LinearOpMode {
     }
 
     protected void initRobot() {
-        robot = new Robot(this, true);
+        robot = new Robot(this);
         robot.init();
 
         robot.getDriveTrain().setPosition(new Position(4.5,.5));

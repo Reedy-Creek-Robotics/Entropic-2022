@@ -39,7 +39,7 @@ public class ComponentTest extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot(this, true);
+        robot = new Robot(this);
         robot.init();
 
         limiter = .3;

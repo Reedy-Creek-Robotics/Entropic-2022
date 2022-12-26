@@ -1,24 +1,41 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import org.firstinspires.ftc.teamcode.util.TileEdgeDetectionUtil;
-import org.junit.Test;
-import org.opencv.core.Mat;
-import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
+import static org.firstinspires.ftc.teamcode.util.TileEdgeDetectionUtil.TileEdgeObservation;
+import static org.firstinspires.ftc.teamcode.util.TileEdgeDetectionUtil.convertToObservation;
 
-import java.net.URL;
-import java.util.List;
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.geometry.Line;
+import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.junit.Assert;
+import org.junit.Test;
+
+import java.util.Arrays;
 
 public class TileEdgeDetectionUtilTest {
 
+    private static RobotDescriptor descriptor = new RobotDescriptor();
+
     @Test
-    public void detectLines() {
-        URL url = TileEdgeDetectionUtilTest.class.getResource("/cornerTileImage.bmp");
-        String filename = url.getFile();
+    public void convertToObservation_noLinesFound() {
+        TileEdgeObservation observation = convertToObservation(descriptor, Arrays.asList(
+                // no lines
+        ));
 
-        Mat image = Imgcodecs.imread(filename);
+        Assert.assertNull(observation.distanceFront);
+        Assert.assertNull(observation.distanceRight);
+        Assert.assertNull(observation.headingOffset);
+    }
 
-        List<TileEdgeDetectionUtil.Line> lines = TileEdgeDetectionUtil.detectLines(image, 0.0, 0.0);
+    @Test
+    public void convertToObservation_rightLineFound() {
+        TileEdgeObservation observation = convertToObservation(descriptor, Arrays.asList(
+                new Line(new Position(0, 180), new Position(640, 180))
+        ));
+
+        Assert.assertNull(observation.distanceFront);
+
+        Assert.assertNotNull(observation.distanceRight);
+        Assert.assertNotNull(observation.headingOffset);
     }
 
 }

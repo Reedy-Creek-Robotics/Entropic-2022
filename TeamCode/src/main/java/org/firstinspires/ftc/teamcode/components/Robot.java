@@ -22,10 +22,24 @@ public class Robot extends BaseComponent {
     private int updateCount;
     private ElapsedTime initTime;
 
-    public Robot(OpMode opMode, boolean initWithCamera) {
+    public enum CameraMode {
+        DISABLED,
+        ENABLED,
+        ENABLED_AND_STREAMING;
+
+        public boolean isEnabled() {
+            return this != DISABLED;
+        }
+
+        public boolean isStreaming() {
+            return this == ENABLED_AND_STREAMING;
+        }
+    }
+
+    public Robot(OpMode opMode, CameraMode cameraMode) {
         super(createRobotContext(opMode));
 
-        this.webCamSide = new WebCam(context, "WebcamFront", initWithCamera);
+        this.webCamSide = new WebCam(context, "WebcamFront", cameraMode.isStreaming(), robotDescriptor.webCamResolution);
         this.driveTrain = new DriveTrain(context, webCamSide);
         this.aprilTagDetector = new AprilTagDetector(context, webCamSide);
 
@@ -35,7 +49,7 @@ public class Robot extends BaseComponent {
 
         addSubComponents(driveTrain);  //, turret, slide, intake);
 
-        if (initWithCamera) {
+        if (cameraMode.isEnabled()) {
             addSubComponents(webCamSide);
             addSubComponents(aprilTagDetector);
         }
@@ -58,7 +72,7 @@ public class Robot extends BaseComponent {
      * Inits with default settings.
      */
     public Robot(OpMode opMode) {
-        this(opMode, true);
+        this(opMode, CameraMode.ENABLED_AND_STREAMING);
     }
 
     @Override

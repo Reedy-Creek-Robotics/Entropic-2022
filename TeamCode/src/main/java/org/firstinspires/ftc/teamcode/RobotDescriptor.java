@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
+import org.opencv.core.Size;
 
 /**
  * Variables that indicate the physical characteristics of the robot.
@@ -69,12 +71,17 @@ public class RobotDescriptor {
     public double rampingTurnExponent = 2.0;
 
     /**
+     * The resolution of the side web cam, in pixels.
+     */
+    public Size webCamResolution = new Size(640, 360);
+
+    /**
      * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
      */
-    public Vector2 webCamImageTopLeftCornerCoordinates = new Vector2(-0.1, 8.3);
-    public Vector2 webCamImageTopRightCornerCoordinates = new Vector2(13.8, 8.2);
-    public Vector2 webCamImageBottomLeftCornerCoordinates = new Vector2(0.5, 0.75);
-    public Vector2 webCamImageBottomRightCornerCoordinates = new Vector2(12.9, 0.6);
+    public Position webCamImageTopLeftCornerCoordinates = new Position(-0.1, 8.3);
+    public Position webCamImageTopRightCornerCoordinates = new Position(13.8, 8.2);
+    public Position webCamImageBottomLeftCornerCoordinates = new Position(0.5, 0.75);
+    public Position webCamImageBottomRightCornerCoordinates = new Position(12.9, 0.6);
 
     /**
      * The width and height of the robot in inches.
