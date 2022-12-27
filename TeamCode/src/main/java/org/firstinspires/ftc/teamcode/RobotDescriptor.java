@@ -88,42 +88,4 @@ public class RobotDescriptor {
      */
     public Size robotDimensionsInInches = new Size(16.5, 17.25);
 
-    ///**
-    // * When detecting lines for tile edges, the rho threshold to use when grouping similar lines.
-    // */
-    //public double tileEdgeDetectionSimilarLineRhoThreshold = ;
-    //
-    ///**
-    // * When detecting lines for tile edges, the theta threshold to use when grouping similar lines.
-    // */
-    //public double tileEdgeDetectionSimilarLineThetaThreshold = ;
-    //
-    //
-    ///**
-    // * The height at which the webcam is mounted above the ground.
-    // */
-    //public double webCamHeightInInches = 14.25;
-    //
-    ///**
-    // * The angle in degrees between the webcam and the side of the robot (to account for skew in mounting).
-    // */
-    //public double webCamAngleToRightSideOfRobot = 0.0;
-    //
-    ///**
-    // * The angle in degrees between the webcam and ground.
-    // *
-    // * For example, 90 means pointing straight down.  100 means pointing degrees away from the robot.
-    // */
-    //public double webCamAngleToGround = 100.0;
-    //
-    ///**
-    // * The horizontal fiel
-    // */
-    //public double webCamFieldOfViewHorizontal = 60;  // 30 cm horizontal, 20 cm vertical
-    //
-    ///**
-    // * The vertical field of view for the webcam, in degrees.
-    // */
-    //public double webCamFieldOfViewVertical = 45;
-
 }

@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.util.TileEdgeSolver.TileEdgeObservation;
+import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.TileEdgeObservation;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
-import org.firstinspires.ftc.teamcode.util.TileEdgeSolver;
+import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.junit.Assert;
 import org.junit.Test;
 

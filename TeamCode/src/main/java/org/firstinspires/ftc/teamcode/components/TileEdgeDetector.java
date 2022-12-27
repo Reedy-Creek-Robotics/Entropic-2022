@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.*;
-import static org.firstinspires.ftc.teamcode.util.TileEdgeSolver.*;
+import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.*;
 
 import android.annotation.SuppressLint;
 
@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
-import org.firstinspires.ftc.teamcode.util.TileEdgeSolver;
+import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
