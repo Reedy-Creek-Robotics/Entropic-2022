@@ -17,8 +17,8 @@ public class ViewportTest {
         );
 
         assertPosEquals(new Position(0.5, 0.5), viewport.convertViewToExternal(new Position(320, 180)));
-        assertPosEquals(new Position(0.25, 0.75), viewport.convertViewToExternal(new Position(160, 270)));
-        assertPosEquals(new Position(-0.5, 1.5), viewport.convertViewToExternal(new Position(-320, 540)));
+        assertPosEquals(new Position(0.25, 0.75), viewport.convertViewToExternal(new Position(160, 90)));
+        assertPosEquals(new Position(-0.5, 1.5), viewport.convertViewToExternal(new Position(-320, -180)));
     }
 
     @Test
@@ -32,10 +32,10 @@ public class ViewportTest {
                 bottomLeft, bottomRight
         );
 
-        assertPosEquals(bottomLeft, viewport.convertViewToExternal(new Position(0, 0)));
-        assertPosEquals(bottomRight, viewport.convertViewToExternal(new Position(640, 0)));
-        assertPosEquals(topLeft, viewport.convertViewToExternal(new Position(0, 360)));
-        assertPosEquals(topRight, viewport.convertViewToExternal(new Position(640, 360)));
+        assertPosEquals(bottomLeft, viewport.convertViewToExternal(new Position(0, 360)));
+        assertPosEquals(bottomRight, viewport.convertViewToExternal(new Position(640, 360)));
+        assertPosEquals(topLeft, viewport.convertViewToExternal(new Position(0, 0)));
+        assertPosEquals(topRight, viewport.convertViewToExternal(new Position(640, 0)));
 
         Position center = average(topLeft, topRight, bottomLeft, bottomRight);
         assertPosEquals(center, viewport.convertViewToExternal(new Position(320, 180)));

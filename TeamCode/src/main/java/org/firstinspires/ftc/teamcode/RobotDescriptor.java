@@ -86,7 +86,7 @@ public class RobotDescriptor {
     /**
      * The width and height of the robot in inches.
      */
-    public Vector2 robotDimensionsInInches = new Vector2(16.5, 17.25);
+    public Size robotDimensionsInInches = new Size(16.5, 17.25);
 
     ///**
     // * When detecting lines for tile edges, the rho threshold to use when grouping similar lines.

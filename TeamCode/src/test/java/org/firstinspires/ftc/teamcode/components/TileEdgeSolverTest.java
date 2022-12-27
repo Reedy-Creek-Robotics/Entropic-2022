@@ -1,23 +1,25 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.util.TileEdgeDetectionUtil.TileEdgeObservation;
-import static org.firstinspires.ftc.teamcode.util.TileEdgeDetectionUtil.convertToObservation;
+import static org.firstinspires.ftc.teamcode.util.TileEdgeSolver.TileEdgeObservation;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.util.TileEdgeSolver;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Arrays;
 
-public class TileEdgeDetectionUtilTest {
+public class TileEdgeSolverTest {
 
     private static RobotDescriptor descriptor = new RobotDescriptor();
 
+    private static TileEdgeSolver solver = new TileEdgeSolver(descriptor);
+
     @Test
     public void convertToObservation_noLinesFound() {
-        TileEdgeObservation observation = convertToObservation(descriptor, Arrays.asList(
+        TileEdgeObservation observation = solver.solve(Arrays.asList(
                 // no lines
         ));
 
@@ -28,7 +30,7 @@ public class TileEdgeDetectionUtilTest {
 
     @Test
     public void convertToObservation_rightLineFound() {
-        TileEdgeObservation observation = convertToObservation(descriptor, Arrays.asList(
+        TileEdgeObservation observation = solver.solve(Arrays.asList(
                 new Line(new Position(0, 180), new Position(640, 180))
         ));
 

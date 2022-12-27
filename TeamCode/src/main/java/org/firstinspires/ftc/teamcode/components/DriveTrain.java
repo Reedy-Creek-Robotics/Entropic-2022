@@ -439,6 +439,7 @@ public class DriveTrain extends BaseComponent {
      * @param speed       the master speed at which we travel
      * @param time        the time the detector will wait in seconds
      */
+    /*
     public void alignToTileAngle(double targetAngle, double speed, double time) {
         if (tileEdgeDetectorSide.waitForDetection(time)) {
             double initialAngle = tileEdgeDetectorSide.getAngleToTile();
@@ -453,7 +454,7 @@ public class DriveTrain extends BaseComponent {
 
     public void alignToTileAngle(double targetAngle, double speed) {
         alignToTileAngle(targetAngle, speed, 1);
-    }
+    }*/
 
     /**
      * Strafes the robot so that the edge of the right wheel is the requested distance from the edge of the closest
@@ -463,6 +464,7 @@ public class DriveTrain extends BaseComponent {
      * @param speed          the master speed at which we travel
      * @param time           the time the detector will wait in seconds
      */
+    /*
     public void moveDistanceFromTileEdge(double targetDistance, double speed, double time) {
         if (tileEdgeDetectorSide.waitForDetection(time)) {
             double initialDistance = tileEdgeDetectorSide.getDistanceToTileHorizontal();
@@ -478,7 +480,7 @@ public class DriveTrain extends BaseComponent {
 
     public void moveDistanceFromTileEdge(double targetDistance, double speed) {
         moveDistanceFromTileEdge(targetDistance, speed, 1);
-    }
+    }*/
 
     /**
      * Turns off all the motors.
@@ -591,7 +593,6 @@ public class DriveTrain extends BaseComponent {
 
     }
 
-
     private abstract class BaseMoveCommand extends BaseCommand {
 
         /**
@@ -680,11 +681,11 @@ public class DriveTrain extends BaseComponent {
             // Finish the command when the target position is reached and we are within a threshold of the target heading.
             boolean targetPositionReached =
                     distanceRemaining <= robotDescriptor.movementTargetPositionReachedThreshold ||
-                    distanceMoved >= startingPosition.distance(targetPosition);
+                            distanceMoved >= startingPosition.distance(targetPosition);
 
             boolean targetHeadingReached =
                     headingMoved >= Math.abs(startingHeading.delta(targetHeading)) ||
-                    headingRemaining <= robotDescriptor.rotationTargetHeadingReachedThreshold;
+                            headingRemaining <= robotDescriptor.rotationTargetHeadingReachedThreshold;
 
             return targetPositionReached && targetHeadingReached;
         }

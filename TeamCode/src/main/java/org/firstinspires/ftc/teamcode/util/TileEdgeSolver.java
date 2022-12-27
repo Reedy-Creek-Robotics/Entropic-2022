@@ -1,50 +1,31 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.teamcode.util.HoughUtil.HoughLine;
-import static org.firstinspires.ftc.teamcode.util.HoughUtil.detectLines;
-
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.firstinspires.ftc.teamcode.geometry.Viewport;
-import org.opencv.core.Mat;
 import org.opencv.core.Size;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TileEdgeDetectionUtil {
+public class TileEdgeSolver {
 
-    /**
-     * Detects tile edges in the given image, and derives an observation about the position of the robot within
-     * the tile.
-     *
-     * @param descriptor the description of the robot's physical characteristics
-     * @param image the image of the tiles to use for detection
-     *
-     * @return the observation of the robot's position.
-     */
-    public static TileEdgeObservation detectTileEdges(
-            RobotDescriptor descriptor,
-            Mat image
-    ) {
-        List<HoughLine> houghLines = detectLines(image, 0.0, 0.0);
-        List<Line> lines = new ArrayList<>();
-        for (HoughLine houghLine : houghLines) {
-            lines.add(houghLine.toLine(descriptor.webCamResolution));
-        }
+    private RobotDescriptor descriptor;
 
-        TileEdgeObservation observation = convertToObservation(descriptor, lines);
-
-        return observation;
+    public TileEdgeSolver(RobotDescriptor descriptor) {
+        this.descriptor = descriptor;
     }
 
-    public static TileEdgeObservation convertToObservation(
-            RobotDescriptor descriptor,
-            List<Line> webCamLines
-    ) {
+    /**
+     * todo: document that this returns null
+     *
+     * @param webCamLines
+     */
+    public TileEdgeObservation solve(List<Line> webCamLines) {
 
         Size resolution = descriptor.webCamResolution;
 
@@ -93,6 +74,26 @@ public class TileEdgeDetectionUtil {
 
         return observation;
     }
+
+    /**
+     * Converts a position from the image calibration coordinate space to robot center coordinate space.
+     *
+     * Image calibration space is convenient for measuring the bounds of the webcam.  It has its origin at the
+     * right-front corner of the robot, is oriented with the y-axis pointing out to the right side of the robot,
+     * and is measured in inches.  WebCam coordinates found in RobotDescriptor are specified in Image Calibration Space.
+     *
+     * Robot center space has its origin at the center of the robot, is oriented with the y-axis pointing toward the
+     * front of the robot, and is measured in tiles.
+     */
+    /*private Position convertFromImageCalibrationSpaceToRobotCenterSpace(
+            RobotDescriptor descriptor, Position position
+    ) {
+        // Translate the coordinates to robot center.
+        Vector2 robotCenterToRobotRight = new Position(
+
+        )
+        descriptor.robotDimensionsInInches.width
+    }*/
 
     public static class TileEdgeObservation {
         public Double distanceFront;

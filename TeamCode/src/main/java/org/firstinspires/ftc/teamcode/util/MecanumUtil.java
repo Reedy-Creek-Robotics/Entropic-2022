@@ -67,14 +67,15 @@ public class MecanumUtil {
 
         Vector2 deltaPositionRelativeToRobot = deltaPositionInTiles.rotate(-90);
 
-        double atPoint7 = 0.92004;
-        double atPoint3 = 0.93004;
-
         // todo: scale by motor power
+        //double atPoint7 = 0.92004;
+        //double atPoint3 = 0.93004;
+
+        double strafeCorrection = 1.0;
 
         //double strafeAmount = Math.abs(deltaPositionRelativeToRobot.withMagnitude(1.0).getX());
         Vector2 deltaPositionRelativeToRobotWithStrafeCorrection = new Vector2(
-                deltaPositionRelativeToRobot.getX() * atPoint3,
+                deltaPositionRelativeToRobot.getX() * strafeCorrection,
                 deltaPositionRelativeToRobot.getY()
         );
 
