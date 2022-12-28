@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
+import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
+import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
+import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.convertToFieldSpace;
+import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.convertToRobotSpace;
 
 import android.annotation.SuppressLint;
 
@@ -18,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.firstinspires.ftc.teamcode.util.MecanumUtil;
 
@@ -227,7 +231,33 @@ public class DriveTrain extends BaseComponent {
         // Remember the current motor ticks for the next loop iteration
         previousMotorTicks = ticks;
 
-        // todo: override this with a visual observation from hough code, if there is one
+        // Override this with a visual observation from hough code, if there is one
+        TileEdgeSolver.TileEdgeObservation observation = tileEdgeDetectorSide.getObservation();
+        if (observation != null) {
+            // First, compute the expected robot space coordinates using our theoretical position.
+            RobotSpaceCoordinates robotSpaceCoordinates = convertToRobotSpace(new FieldSpaceCoordinates(heading, position));
+            
+            // Then using the observation overwrite the expected with the actual values.
+            if (observation.distanceRight != null) {
+                robotSpaceCoordinates.distanceRight = observation.distanceRight;
+            }
+            if (observation.distanceRight != null) {
+                robotSpaceCoordinates.distanceFront = observation.distanceFront;
+            }
+            if (observation.headingOffset != null) {
+                robotSpaceCoordinates.headingOffset = observation.headingOffset;
+            }
+
+            // Convert back to field space.
+            FieldSpaceCoordinates updatedFieldSpaceCoordinates = convertToFieldSpace(robotSpaceCoordinates);
+
+            // todo: sanity check, don't override it if it says we are some crazy amount off
+
+            // Finally update the current position to be the actual position
+            heading = updatedFieldSpaceCoordinates.heading;
+            position = updatedFieldSpaceCoordinates.position;
+
+        }
 
     }
 
@@ -267,8 +297,6 @@ public class DriveTrain extends BaseComponent {
         heading = heading.add(deltaAngle);
 
         previousImuOrientation = orientation;
-
-        // todo: override this with a visual observation from hough code, if there is one
     }
 
     /**

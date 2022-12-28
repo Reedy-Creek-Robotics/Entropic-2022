@@ -288,9 +288,9 @@ public class RobotFieldConversionUtilTest {
         assertPosition(expected.backLeftTileVertex, actual.backLeftTileVertex);
         assertPosition(expected.backRightTileVertex, actual.backRightTileVertex);
 
-        assertEquals(expected.offsetHeading, actual.offsetHeading, E);
-        assertEquals(expected.offsetRight, actual.offsetRight, E);
-        assertEquals(expected.offsetFront, actual.offsetFront, E);
+        assertEquals(expected.headingOffset, actual.headingOffset, E);
+        assertEquals(expected.distanceRight, actual.distanceRight, E);
+        assertEquals(expected.distanceFront, actual.distanceFront, E);
     }
 
     private void assertFieldSpaceCoordinate(FieldSpaceCoordinates expected, FieldSpaceCoordinates actual) {

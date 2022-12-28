@@ -23,57 +23,52 @@ public class RobotFieldConversionUtil {
 
         if (backToFront.getY() != 0) {
             //y runs from the front to back / back to front
-            heading = backToFront.toHeading().add(robotSpaceCoordinates.offsetHeading);
+            heading = backToFront.toHeading().add(robotSpaceCoordinates.headingOffset);
 
             if (backToFront.getY() < 0) {
                 //y runs front to back
-                yPos = robotSpaceCoordinates.frontLeftTileVertex.getY() + robotSpaceCoordinates.offsetFront;
+                yPos = robotSpaceCoordinates.frontLeftTileVertex.getY() + robotSpaceCoordinates.distanceFront;
 
             } else {
                 //y runs back to front
-                yPos = robotSpaceCoordinates.frontLeftTileVertex.getY() - robotSpaceCoordinates.offsetFront;
-
+                yPos = robotSpaceCoordinates.frontLeftTileVertex.getY() - robotSpaceCoordinates.distanceFront;
             }
 
             if (leftToRight.getX() < 0) {
                 //x runs right to left
-                xPos = robotSpaceCoordinates.backRightTileVertex.getX() + robotSpaceCoordinates.offsetRight;
+                xPos = robotSpaceCoordinates.backRightTileVertex.getX() + robotSpaceCoordinates.distanceRight;
 
             } else {
                 //x runs left to right
-                xPos = robotSpaceCoordinates.backRightTileVertex.getX() - robotSpaceCoordinates.offsetRight;
-
+                xPos = robotSpaceCoordinates.backRightTileVertex.getX() - robotSpaceCoordinates.distanceRight;
             }
 
         } else if (leftToRight.getY() != 0) {
             //y runs from right to left / left to right
-            heading = leftToRight.toHeading().add(robotSpaceCoordinates.offsetHeading + 90);
+            heading = leftToRight.toHeading().add(robotSpaceCoordinates.headingOffset + 90);
 
             if (leftToRight.getY() < 0) {
                 //y runs right to left
-                yPos = robotSpaceCoordinates.frontRightTileVertex.getY() + robotSpaceCoordinates.offsetRight;
+                yPos = robotSpaceCoordinates.frontRightTileVertex.getY() + robotSpaceCoordinates.distanceRight;
 
             } else {
                 //y runs left to right
-                yPos = robotSpaceCoordinates.frontRightTileVertex.getY() - robotSpaceCoordinates.offsetRight;
-
+                yPos = robotSpaceCoordinates.frontRightTileVertex.getY() - robotSpaceCoordinates.distanceRight;
             }
 
             if (backToFront.getX() < 0) {
                 //x runs back to front
-                xPos = robotSpaceCoordinates.frontLeftTileVertex.getX() + robotSpaceCoordinates.offsetFront;
+                xPos = robotSpaceCoordinates.frontLeftTileVertex.getX() + robotSpaceCoordinates.distanceFront;
 
             } else {
                 //x runs front to back
-                xPos = robotSpaceCoordinates.frontLeftTileVertex.getX() - robotSpaceCoordinates.offsetFront;
-
+                xPos = robotSpaceCoordinates.frontLeftTileVertex.getX() - robotSpaceCoordinates.distanceFront;
             }
         }
 
         assert heading != null;
         assert yPos != null;
         assert xPos != null;
-
 
         return new FieldSpaceCoordinates(
                 heading,
@@ -117,14 +112,14 @@ public class RobotFieldConversionUtil {
         assert backLeft != null;
         assert backRight != null;
 
-        double offsetHeading = frontLeft.minus(backLeft).toHeading().delta(heading);
-        double offsetFront = position.distance(new Line(frontLeft, frontRight));
-        double offsetRight = position.distance(new Line(backRight, frontRight));
+        double headingOffset = frontLeft.minus(backLeft).toHeading().delta(heading);
+        double distanceFront = position.distance(new Line(frontLeft, frontRight));
+        double distanceRight = position.distance(new Line(backRight, frontRight));
 
         return new RobotSpaceCoordinates(
-                offsetHeading,
-                offsetFront,
-                offsetRight,
+                headingOffset,
+                distanceFront,
+                distanceRight,
                 frontLeft,
                 frontRight,
                 backLeft,
@@ -147,9 +142,9 @@ public class RobotFieldConversionUtil {
     }
 
     public static class RobotSpaceCoordinates {
-        public double offsetHeading;
-        public double offsetFront;
-        public double offsetRight;
+        public double headingOffset;
+        public double distanceFront;
+        public double distanceRight;
 
         // Field position of the vertices that surround the robot
         public Position frontLeftTileVertex;
@@ -158,13 +153,13 @@ public class RobotFieldConversionUtil {
         public Position backRightTileVertex;
 
         public RobotSpaceCoordinates(
-                double offsetHeading, double offsetFront, double offsetRight,
+                double headingOffset, double distanceFront, double distanceRight,
                 Position frontLeftTileVertex, Position frontRightTileVertex,
                 Position backLeftTileVertex, Position backRightTileVertex
         ) {
-            this.offsetHeading = offsetHeading;
-            this.offsetFront = offsetFront;
-            this.offsetRight = offsetRight;
+            this.headingOffset = headingOffset;
+            this.distanceFront = distanceFront;
+            this.distanceRight = distanceRight;
             this.frontLeftTileVertex = frontLeftTileVertex;
             this.frontRightTileVertex = frontRightTileVertex;
             this.backLeftTileVertex = backLeftTileVertex;
