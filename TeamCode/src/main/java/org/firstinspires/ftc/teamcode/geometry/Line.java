@@ -17,6 +17,24 @@ public class Line {
         return p2;
     }
 
+    /**
+     * Returns an equivalent line with the guarantee that its p1 and p2 x values are increasing.
+     */
+    public Line normalizeX() {
+        return p1.getX() > p2.getX() ?
+                new Line(p2, p1) :
+                this;
+    }
+
+    /**
+     * Returns an equivalent line with the guarantee that its p1 and p2 y values are increasing.
+     */
+    public Line normalizeY() {
+        return p1.getY() > p2.getY() ?
+                new Line(p2, p1) :
+                this;
+    }
+
     /*
     public Position withX(double x) {
 
@@ -37,7 +55,15 @@ public class Line {
         // Heading is from 0 - 360 as opposed to 0 to 180, so convert.
         double theta = offset.toHeading().getValue();
 
-        return theta > 180 ? theta - 360 : theta;
+        return theta > 180 ? theta - 180 : theta;
+    }
+
+    /**
+     * Determines if a given position falls to the left side of the line, when drawn from p1 to p2.
+     */
+    public boolean isLeft(Position position) {
+        return ((p2.getX() - p1.getX()) * (position.getY() - p1.getY()) -
+                (p2.getY() - p1.getY()) * (position.getX() - p1.getX())) > 0;
     }
 
 }

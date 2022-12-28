@@ -27,9 +27,9 @@ public class TileEdgeSolverTest {
     @Before
     public void setUp() {
         descriptor.webCamImageTopLeftCornerCoordinates = new Position(0, 9);
-        descriptor.webCamImageBottomLeftCornerCoordinates = new Position(1, 1);
+        descriptor.webCamImageBottomLeftCornerCoordinates = new Position(0, 1);
         descriptor.webCamImageTopRightCornerCoordinates = new Position(12, 9);
-        descriptor.webCamImageBottomRightCornerCoordinates = new Position(11, 1);
+        descriptor.webCamImageBottomRightCornerCoordinates = new Position(12, 1);
         descriptor.robotDimensionsInInches = new Size(10.0, 12.0);
     }
 
@@ -72,6 +72,26 @@ public class TileEdgeSolverTest {
 
         // Right on top of the tile boundary (line 6 inches from front of robot, robot is 12 inches long)
         assertEquals(0.0, observation.distanceFront, E);
+
+        // Perfectly aligned with right tile edge
+        assertEquals(0.0, observation.headingOffset, E);
+
+        // No data about the distance to the tile in front
+        assertNull(observation.distanceRight);
+    }
+
+    @Test
+    public void convertToObservation_frontLineFound_negativeDistanceFront() {
+        // One line, vertical across the right side of the image
+        TileEdgeObservation observation = solver.solve(Arrays.asList(
+                new Line(new Position(480, 0), new Position(480, 360))
+        ));
+
+        assertNotNull(observation);
+
+        // Just crossed a tile boundary, distance front should be almost 1 tile
+        // Robot center is 3 inches over the tile.
+        assertEquals(1 - inchesToTiles(3), observation.distanceFront, E);
 
         // Perfectly aligned with right tile edge
         assertEquals(0.0, observation.headingOffset, E);
