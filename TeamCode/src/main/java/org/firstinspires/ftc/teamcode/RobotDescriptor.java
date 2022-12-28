@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.geometry.Position;
-import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.opencv.core.Size;
 
 /**
@@ -84,7 +83,8 @@ public class RobotDescriptor {
     public Position webCamImageBottomRightCornerCoordinates = new Position(12.9, 0.6);
 
     /**
-     * The width and height of the robot in inches.
+     * The size of the robot in inches, with the x axis being left to right and the y axis being
+     * back to front.
      */
     public Size robotDimensionsInInches = new Size(16.5, 17.25);
 
