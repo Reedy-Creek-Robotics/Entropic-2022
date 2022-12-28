@@ -23,9 +23,7 @@ public class TileEdgeSolverTest {
                 // no lines
         ));
 
-        Assert.assertNull(observation.distanceFront);
-        Assert.assertNull(observation.distanceRight);
-        Assert.assertNull(observation.headingOffset);
+        Assert.assertNull(observation);
     }
 
     @Test

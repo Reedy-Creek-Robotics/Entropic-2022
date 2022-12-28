@@ -3,10 +3,6 @@ package org.firstinspires.ftc.teamcode.geometry;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
-import org.firstinspires.ftc.teamcode.geometry.Line;
-import org.firstinspires.ftc.teamcode.geometry.Position;
-import org.firstinspires.ftc.teamcode.geometry.Vector2;
-import org.firstinspires.ftc.teamcode.geometry.Viewport;
 import org.opencv.core.Size;
 
 import java.util.ArrayList;
@@ -52,13 +48,13 @@ public class TileEdgeSolver {
         // todo: dark gray, while posts and other robots will be different colors).
 
 
-        TileEdgeObservation observation = new TileEdgeObservation(
-                null,
-                null,
-                null
-        );
-
         if (!robotLines.isEmpty()) {
+            TileEdgeObservation observation = new TileEdgeObservation(
+                    null,
+                    null,
+                    null
+            );
+
             Line line = robotLines.get(0);
 
             // todo: figure out if the line is the front edge or the right edge
@@ -70,9 +66,12 @@ public class TileEdgeSolver {
             }
 
             // todo: handle multiple lines
-        }
 
-        return observation;
+            return observation;
+
+        } else {
+            return null;
+        }
     }
 
     /**
