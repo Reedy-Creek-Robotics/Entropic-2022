@@ -35,22 +35,29 @@ public class Line {
                 this;
     }
 
-    /*
+    /**
+     * Returns the point on the line with the given x coordinate.
+     */
     public Position withX(double x) {
-
+        // Put in slope intercept form, y = mx + b
+        double m = (p2.getY() - p1.getY()) / (p2.getX() - p1.getX());
+        double b = p1.getY() - m * p1.getX();
+        return new Position(x, m * x + b);
     }
 
     public Position withY(double y) {
-
+        // Put in vertical slope intercept form, x = my + b
+        double m = (p2.getX() - p1.getX()) / (p2.getY() - p1.getY());
+        double b = p1.getX() - m * p1.getY();
+        return new Position(m * y + b, y);
     }
-    */
 
     /**
-     * Returns the angle in degrees between the line and the X axis, in the range (0-180).
+     * Returns the angle in degrees between the line and the positive X axis, in the range (0-180).
      */
     public double getAngle() {
         // Convert to a vector.
-        Vector2 offset = p1.minus(p2);
+        Vector2 offset = p2.minus(p1);
 
         // Heading is from 0 - 360 as opposed to 0 to 180, so convert.
         double theta = offset.toHeading().getValue();

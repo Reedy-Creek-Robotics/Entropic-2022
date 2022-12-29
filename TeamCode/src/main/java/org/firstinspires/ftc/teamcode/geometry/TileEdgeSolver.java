@@ -30,7 +30,7 @@ public class TileEdgeSolver {
 
         Size resolution = descriptor.webCamResolution;
 
-        // Convert to coordinates that are relative to the center of the robot.
+        // Convert the webcam corners to coordinates that are relative to the center of the robot.
         Position topLeft = convertFromImageCalibrationSpaceToRobotCenterSpace(descriptor.webCamImageTopLeftCornerCoordinates);
         Position topRight = convertFromImageCalibrationSpaceToRobotCenterSpace(descriptor.webCamImageTopRightCornerCoordinates);
         Position bottomLeft = convertFromImageCalibrationSpaceToRobotCenterSpace(descriptor.webCamImageBottomLeftCornerCoordinates);
@@ -74,7 +74,7 @@ public class TileEdgeSolver {
                     observation.distanceRight = robotCenter.distance(line);
                     if (!line.normalizeY().isLeft(robotCenter)) {
                         // If the robot center is to the right of the line, this is actually
-                        // distanceLeft, so shift over one tile to compute the distanceRight.
+                        // distanceLeft, so shift over one tile to compute distanceRight.
                         observation.distanceRight = -observation.distanceRight + 1.0;
                     }
                     observation.headingOffset = angle - 90.0;
