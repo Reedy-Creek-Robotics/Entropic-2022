@@ -38,27 +38,27 @@ public class HoughTransformTest extends OpMode {
             robot.getDriveTrain().moveForward(inchesToTiles(12),.5);
             robot.waitForCommandsToFinish(.2);
 
-            robot.getFrontWebCam().saveLastFrame();
+            robot.getWebCamSide().saveLastFrame();
             robot.waitForCommandsToFinish(.2);
 
-            robot.getFrontWebCam().saveLastFrame();
+            robot.getWebCamSide().saveLastFrame();
             robot.waitForCommandsToFinish(.2);
 
-            robot.getFrontWebCam().saveLastFrame();
+            robot.getWebCamSide().saveLastFrame();
             robot.waitForCommandsToFinish();
         }
 
         if(gamepad1.dpad_down && waitTime.seconds() > 0.25) {
             waitTime.reset();
-            robot.getFrontWebCam().setExposure(robot.getFrontWebCam().getExposure() - 1);
+            robot.getWebCamSide().setExposure(robot.getWebCamSide().getExposure() - 1);
         }
         if(gamepad1.dpad_up && waitTime.seconds() > 0.25) {
             waitTime.reset();
-            robot.getFrontWebCam().setExposure(robot.getFrontWebCam().getExposure() + 1);
+            robot.getWebCamSide().setExposure(robot.getWebCamSide().getExposure() + 1);
         }
 
         if ((gamepad1.b) && waitTime.seconds() > 1) {
-            robot.getFrontWebCam().saveLastFrame();
+            robot.getWebCamSide().saveLastFrame();
         }
 
 
@@ -66,7 +66,7 @@ public class HoughTransformTest extends OpMode {
         telemetry.addData("IMU angle 2", robot.getDriveTrain().getImu().getAngularOrientation().secondAngle);
         telemetry.addData("IMU angle 3", robot.getDriveTrain().getImu().getAngularOrientation().thirdAngle);
 
-        telemetry.addData("Exposure(ms):",robot.getFrontWebCam().getExposure());
+        telemetry.addData("Exposure(ms):",robot.getWebCamSide().getExposure());
         telemetry.update();
     }
 }

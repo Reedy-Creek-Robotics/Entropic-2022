@@ -121,7 +121,7 @@ public class HoughLineDetector {
             double x0 = a * rho;
             double y0 = b * rho;
 
-            double length = Math.max(resolution.width, resolution.height);
+            double length = Math.max(resolution.width, resolution.height) * 2;
             double pt1y = Math.round(y0 + length * (a));
             double pt1x = Math.round(x0 + length * (-b));
             double pt2x = Math.round(x0 - length * (-b));

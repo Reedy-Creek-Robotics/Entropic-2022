@@ -25,13 +25,12 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 @TeleOp
 public class MoveCommandTest extends OpMode {
 
-    public Robot robot;
+    private Robot robot;
 
-    public double limiter;
+    private Controller controller;
 
-    public Controller controller;
+    private double limiter;
 
-    RobotDescriptor robotDescriptor;
 
     @Override
     public void init() {
@@ -40,7 +39,6 @@ public class MoveCommandTest extends OpMode {
 
         controller = new Controller(gamepad1);
 
-        robotDescriptor = robot.getRobotContext().robotDescriptor;
 
         limiter = 0.3;
     }
@@ -48,6 +46,8 @@ public class MoveCommandTest extends OpMode {
     @SuppressLint("DefaultLocale")
     @Override
     public void loop() {
+
+        RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
 
         double drive = controller.leftStickY();
         double strafe = controller.leftStickX();

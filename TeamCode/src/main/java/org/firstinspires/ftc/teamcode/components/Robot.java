@@ -140,7 +140,7 @@ public class Robot extends BaseComponent {
         return intake;
     }
 
-    public WebCam getFrontWebCam() {
+    public WebCam getWebCamSide() {
         return webCamSide;
     }
 

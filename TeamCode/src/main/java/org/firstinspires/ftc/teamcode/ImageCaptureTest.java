@@ -31,7 +31,7 @@ public class ImageCaptureTest extends OpMode {
 
     public void loop() {
         if (controller.isPressed(A)) {
-            robot.getFrontWebCam().saveLastFrame();
+            robot.getWebCamSide().saveLastFrame();
             robot.waitForCommandsToFinish();
         } else if (controller.isPressed(DPAD_UP)) {
             robot.getDriveTrain().moveToHeading(new Heading(45),.3);
