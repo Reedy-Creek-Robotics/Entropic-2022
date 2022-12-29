@@ -36,6 +36,25 @@ public class Line {
     }
 
     /**
+     * Finds the point where this line intersects with the other line.
+     */
+    public Position intersect(Line other) {
+        // Matrix determinant solution
+        // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
+
+        double x1 = p1.getX(), y1 = p1.getY();
+        double x2  = p2.getX(), y2 = p2.getY();
+        double x3 = other.p1.getX(), y3 = other.p1.getY();
+        double x4 = other.p2.getX(), y4 = other.p2.getY();
+
+        double denominator = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+        double x = ((x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4)) / denominator;
+        double y = ((x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4)) / denominator;
+
+        return new Position(x, y);
+    }
+
+    /**
      * Returns the point on the line with the given x coordinate.
      */
     public Position withX(double x) {

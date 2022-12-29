@@ -87,6 +87,26 @@ public class LineTest {
         assertTrue(new Line(new Position(1, 1), new Position(0, 0)).isLeft(new Position(1, 0)));
     }
 
+    @Test
+    public void intersect() {
+        Line first = new Line(new Position(1, 1), new Position(5, 5));
+        Line second = new Line(new Position(1, 5), new Position(5, 1));
+        assertPosEquals(new Position(3, 3), first.intersect(second));
+        assertPosEquals(new Position(3, 3), second.intersect(first));
+
+        // Vertical line
+        second = new Line(new Position(1, 0), new Position(1, 3));
+        assertPosEquals(new Position(1, 1), first.intersect(second));
+
+        // Horizontal line
+        second = new Line(new Position(0, 2), new Position(3, 2));
+        assertPosEquals(new Position(2, 2), first.intersect(second));
+
+        // Parallel line
+        first = new Line(new Position(0, 3), new Position(3, 3));
+        assertPosEquals(new Position(Double.POSITIVE_INFINITY, Double.NaN), first.intersect(second));
+    }
+
     private void assertPosEquals(Position expected, Position actual) {
         assertEquals("x", expected.getX(), actual.getX(), E);
         assertEquals("y", expected.getY(), actual.getY(), E);

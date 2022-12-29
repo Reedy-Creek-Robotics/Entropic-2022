@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.util;
 
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -130,9 +131,12 @@ public class HoughLineDetector {
             Position pt1 = new Position(pt1x, pt1y);
             Position pt2 = new Position(pt2x, pt2y);
 
-            // todo: clip the line to the size of the viewport, if needed
+            Line line = new Line(pt1, pt2);
 
-            return new Line(pt1, pt2);
+            line = new Rectangle(resolution.height, resolution.width, 0, 0).clip(line);
+            line = line.normalizeX();
+
+            return line;
         }
     }
 
