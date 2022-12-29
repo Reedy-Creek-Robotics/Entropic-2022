@@ -37,7 +37,7 @@ public class HoughLineDetector {
 
     private List<HoughLine> identifyLines(Mat input) {
 
-        Imgproc.cvtColor(input, gray, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.cvtColor(input, gray, Imgproc.COLOR_RGBA2GRAY);
         Imgproc.Canny(gray, edges, 60, 60 * 3, 3, false);
 
         Mat houghLines = new Mat();

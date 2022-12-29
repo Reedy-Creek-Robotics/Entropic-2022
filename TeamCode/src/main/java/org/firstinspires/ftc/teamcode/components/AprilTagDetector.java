@@ -131,7 +131,7 @@ public class AprilTagDetector extends BaseComponent {
         public void processFrame(Mat input, Mat output) {
 
             // Convert to greyscale
-            Imgproc.cvtColor(input, grey, Imgproc.COLOR_BGR2GRAY);
+            Imgproc.cvtColor(input, grey, Imgproc.COLOR_RGBA2GRAY);
 
             synchronized (decimationSync) {
                 if (needToSetDecimation) {

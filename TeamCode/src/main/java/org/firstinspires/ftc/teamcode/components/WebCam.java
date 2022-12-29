@@ -8,7 +8,6 @@ import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -36,11 +35,6 @@ public class WebCam extends BaseComponent {
      * The desired camera resolution.
      */
     private Size size;
-
-    /**
-     * The frame that is currently being processed (in BGR format).
-     */
-    private Mat frame = new Mat();
 
     /**
      * The output that will be rendered to the viewport (in RGBA format).
@@ -167,11 +161,6 @@ public class WebCam extends BaseComponent {
                 assert input.width() == (int) size.width && input.height() == (int) size.height;
                 assert input.channels() == 4 : "Expected RGBA image from webcam";
 
-                // Convert to BGR before handing input frame to processors.
-                Imgproc.cvtColor(input, frame, Imgproc.COLOR_RGBA2BGR);
-
-                assert frame.channels() == 3 : "Expected BGR image after conversion";
-
                 frameCount++;
 
                 // Allow any frame processors to analyze the image and annotate the output.
@@ -195,7 +184,7 @@ public class WebCam extends BaseComponent {
          * Will be invoked on each frame, giving the processor a chance to analyze the input image
          * and, if desired, update the output image.
          *
-         * @param input  the input frame image, in BGR.
+         * @param input  the input frame image, in RGBA.
          * @param output the output image, in RGBA.
          */
         void processFrame(Mat input, Mat output);
