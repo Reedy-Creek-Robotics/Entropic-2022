@@ -11,7 +11,7 @@ import org.firstinspires.ftc.teamcode.util.ScalingUtil;
  */
 public class Viewport {
 
-    private double viewWidth, viewHeight;
+    private Rectangle view;
 
     private Position externalTopLeft;
     private Position externalTopRight;
@@ -23,8 +23,19 @@ public class Viewport {
             Position externalTopLeft, Position externalTopRight,
             Position externalBottomLeft, Position externalBottomRight
     ) {
-        this.viewWidth = viewWidth;
-        this.viewHeight = viewHeight;
+        this(
+                new Rectangle(0, viewWidth, viewHeight, 0),
+                externalTopLeft, externalTopRight,
+                externalBottomLeft, externalBottomRight
+        );
+    }
+
+    public Viewport(
+            Rectangle view,
+            Position externalTopLeft, Position externalTopRight,
+            Position externalBottomLeft, Position externalBottomRight
+    ) {
+        this.view = view;
         this.externalTopLeft = externalTopLeft;
         this.externalTopRight = externalTopRight;
         this.externalBottomLeft = externalBottomLeft;
@@ -33,8 +44,8 @@ public class Viewport {
 
     public Position convertViewToExternal(Position viewPosition) {
         // Scale the pixel coordinates to be in (0-1).
-        double x = ScalingUtil.scaleLinear(viewPosition.getX(), 0, viewWidth, 0, 1);
-        double y = ScalingUtil.scaleLinear(viewPosition.getY(), viewHeight, 0, 0, 1);
+        double x = ScalingUtil.scaleLinear(viewPosition.getX(), view.getLeft(), view.getRight(), 0, 1);
+        double y = ScalingUtil.scaleLinear(viewPosition.getY(), view.getBottom(), view.getTop(), 0, 1);
 
         // Bilinear interpolation, first find the position on the left and right sides in the y direction.
         Position left = between(externalBottomLeft, externalTopLeft, y);

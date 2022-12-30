@@ -41,6 +41,29 @@ public class ViewportTest {
         assertPosEquals(center, viewport.convertViewToExternal(new Position(320, 180)));
     }
 
+    @Test
+    public void convertExternalToView_partialView() {
+        // 20x10 inch field of view, but with known coordinates inside view window.
+        Position topLeft = new Position(2, 9), topRight = new Position(18, 9);
+        Position bottomLeft = new Position(2, 1), bottomRight = new Position(18, 1);
+        Viewport viewport = new Viewport(
+                new Rectangle(10, 180, 90, 20),
+                topLeft, topRight,
+                bottomLeft, bottomRight
+        );
+
+        assertPosEquals(bottomLeft, viewport.convertViewToExternal(new Position(20, 90)));
+        assertPosEquals(bottomRight, viewport.convertViewToExternal(new Position(180, 90)));
+        assertPosEquals(topLeft, viewport.convertViewToExternal(new Position(20, 10)));
+        assertPosEquals(topRight, viewport.convertViewToExternal(new Position(180, 10)));
+        assertPosEquals(new Position(10, 5), viewport.convertViewToExternal(new Position(100, 50)));
+
+        assertPosEquals(new Position(0, 0), viewport.convertViewToExternal(new Position(0, 100)));
+        assertPosEquals(new Position(0, 10), viewport.convertViewToExternal(new Position(0, 0)));
+        assertPosEquals(new Position(20, 10), viewport.convertViewToExternal(new Position(200, 0)));
+        assertPosEquals(new Position(20, 0), viewport.convertViewToExternal(new Position(200, 100)));
+    }
+
     private Position average(Position... positions) {
         double x = 0.0, y = 0.0;
         for (Position position : positions) {
