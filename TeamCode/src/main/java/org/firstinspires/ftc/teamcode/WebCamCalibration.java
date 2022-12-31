@@ -35,6 +35,7 @@ public class WebCamCalibration extends OpMode {
     private Controller controller;
 
     private boolean calibrationMode = false;
+    private boolean showGrid = false;
 
     private enum Corner {
         TOP_LEFT,
@@ -98,11 +99,38 @@ public class WebCamCalibration extends OpMode {
                     }
 
                 } else {
+                    Position topLeft = descriptor.webCamImageTopLeftCornerCoordinates;
+                    Position topRight = descriptor.webCamImageTopRightCornerCoordinates;
+                    Position bottomLeft = descriptor.webCamImageBottomLeftCornerCoordinates;
+                    Position bottomRight = descriptor.webCamImageBottomRightCornerCoordinates;
+
                     Viewport viewport = new Viewport(
                             resolution.width, resolution.height,
-                            descriptor.webCamImageTopLeftCornerCoordinates, descriptor.webCamImageTopRightCornerCoordinates,
-                            descriptor.webCamImageBottomLeftCornerCoordinates, descriptor.webCamImageBottomRightCornerCoordinates
+                            topLeft, topRight,
+                            bottomLeft, bottomRight
                     );
+
+                    if (showGrid) {
+                        long minX = Math.round(Math.min(topLeft.getX(), bottomLeft.getX())) - 1;
+                        long minY = Math.round(Math.min(bottomLeft.getY(), bottomRight.getY())) - 1;
+                        long maxX = Math.round(Math.max(topRight.getX(), bottomRight.getX())) + 1;
+                        long maxY = Math.round(Math.max(topLeft.getY(), topRight.getY())) + 1;
+
+                        for (long x = minX; x <= maxX; x++) {
+                            Line line = new Line(
+                                    viewport.convertExternalToView(new Position(x, minY)),
+                                    viewport.convertExternalToView(new Position(x, maxY))
+                            );
+                            DrawUtil.drawLine(output, line, Color.BLUE, 1);
+                        }
+                        for (long y = minY; y <= maxY; y++) {
+                            Line line = new Line(
+                                    viewport.convertExternalToView(new Position(minX, y)),
+                                    viewport.convertExternalToView(new Position(maxX, y))
+                            );
+                            DrawUtil.drawLine(output, line, Color.BLUE, 1);
+                        }
+                    }
 
                     if (activeCornerPoint != null) {
                         Position viewPosition = activeCornerPoint.viewPosition;
@@ -133,6 +161,8 @@ public class WebCamCalibration extends OpMode {
             resetCalibration();
         } else if (controller.isPressed(Button.Y)) {
             calibrationMode = !calibrationMode;
+        } else if (controller.isPressed(Button.X)) {
+            showGrid = !showGrid;
         } else if (controller.isPressed(Button.A)) {
             cornerPoints.put(activeCorner, activeCornerPoint);
             startCorner(nextCorner(activeCorner));

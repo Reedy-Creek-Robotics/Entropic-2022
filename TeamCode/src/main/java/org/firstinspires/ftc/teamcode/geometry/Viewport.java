@@ -71,6 +71,22 @@ public class Viewport {
         return external;
     }
 
+    public Position convertExternalToView(Position externalPosition) {
+        // Scale the external coordinates to be in unit coordinates (0-1).
+        Position unit = scaleToUnit(externalPosition,
+                externalTopLeft, externalTopRight,
+                externalBottomLeft, externalBottomRight
+        );
+
+        // Scale the unit coordinates (0-1) to be in view coordinates.
+        Position view = scaleFromUnit(unit,
+                viewTopLeft, viewTopRight,
+                viewBottomLeft, viewBottomRight
+        );
+
+        return view;
+    }
+
     private Position scaleToUnit(
             Position position,
             Position topLeft, Position topRight,
