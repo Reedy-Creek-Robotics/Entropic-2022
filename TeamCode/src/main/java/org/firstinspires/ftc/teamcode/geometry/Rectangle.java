@@ -31,6 +31,22 @@ public class Rectangle {
         return left;
     }
 
+    public Position topLeft() {
+        return new Position(left, top);
+    }
+
+    public Position topRight() {
+        return new Position(right, top);
+    }
+
+    public Position bottomLeft() {
+        return new Position(left, bottom);
+    }
+
+    public Position bottomRight() {
+        return new Position(right, bottom);
+    }
+
     /**
      * Returns true if this rectangle contains the given position, false otherwise.
      */
