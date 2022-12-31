@@ -10,6 +10,7 @@ import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
+import org.firstinspires.ftc.teamcode.geometry.Viewport;
 import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
 import org.opencv.core.Mat;
@@ -27,7 +28,6 @@ public class WebCamCalibration extends OpMode {
     private static final Position MAT_CENTER = new Position(8.5, 6.5); // inches
 
     private Robot robot;
-    private RobotDescriptor descriptor;
 
     private Size resolution;
     private Position viewCenter;
@@ -52,7 +52,7 @@ public class WebCamCalibration extends OpMode {
         robot = new Robot(this);
         robot.init();
 
-        descriptor = robot.getRobotContext().robotDescriptor;
+        RobotDescriptor descriptor = robot.getRobotContext().robotDescriptor;
         resolution = descriptor.webCamResolution;
         viewCenter = new Position(resolution.width / 2, resolution.height / 2);
         controller = new Controller(gamepad1);
@@ -80,7 +80,7 @@ public class WebCamCalibration extends OpMode {
                         if (cornerPoint != null) {
                             DrawUtil.drawMarker(output, cornerPoint.viewPosition, Color.BLUE);
 
-                            Position screenCorner = screenCorner(corner);
+                            Position screenCorner = imageCorner(corner);
                             Position labelPosition = screenCorner.add(viewCenter.minus(screenCorner).multiply(0.3));
                             DrawUtil.drawText(output, cornerPoint.position.toString(), labelPosition, Color.GREEN, 0.5, 1);
                         }
@@ -91,7 +91,7 @@ public class WebCamCalibration extends OpMode {
                         DrawUtil.drawMarker(output, activeCornerPoint.viewPosition, Color.ORANGE);
 
                         DrawUtil.drawText(output, activeCorner.toString(),
-                                viewCenter.add(new Vector2(-50, 0)), Color.ORANGE);
+                                viewCenter.add(new Vector2(-50, -20)), Color.ORANGE);
                         DrawUtil.drawText(output, activeCornerPoint.position.toString(),
                                 viewCenter.add(new Vector2(-50, 20)), Color.ORANGE);
                     }
@@ -131,14 +131,33 @@ public class WebCamCalibration extends OpMode {
             );
         }
 
-        for (Corner corner : Corner.values()) {
-            AnchorPoint cornerPoint = cornerPoints.get(corner);
-            if (cornerPoint != null) {
-                telemetry.addData(corner.toString(), cornerPoint.position);
-            }
+        Viewport viewport = createViewport();
+        if (viewport != null) {
+            telemetry.addData("Image Top Left", viewport.convertViewToExternal(imageCorner(Corner.TOP_LEFT)));
+            telemetry.addData("Image Top Right", viewport.convertViewToExternal(imageCorner(Corner.TOP_RIGHT)));
+            telemetry.addData("Image Bottom Left", viewport.convertViewToExternal(imageCorner(Corner.BOTTOM_LEFT)));
+            telemetry.addData("Image Bottom Right", viewport.convertViewToExternal(imageCorner(Corner.BOTTOM_RIGHT)));
         }
 
         robot.updateStatus();
+    }
+
+    private Viewport createViewport() {
+        AnchorPoint topLeft = cornerPoints.get(Corner.TOP_LEFT);
+        AnchorPoint topRight = cornerPoints.get(Corner.TOP_RIGHT);
+        AnchorPoint bottomLeft = cornerPoints.get(Corner.BOTTOM_LEFT);
+        AnchorPoint bottomRight = cornerPoints.get(Corner.BOTTOM_RIGHT);
+
+        if (topLeft != null && topRight != null && bottomLeft != null && bottomRight != null) {
+            return new Viewport(
+                    topLeft.viewPosition, topRight.viewPosition,
+                    bottomLeft.viewPosition, bottomRight.viewPosition,
+                    topLeft.position, topRight.position,
+                    bottomLeft.position, bottomRight.position
+            );
+        } else {
+            return null;
+        }
     }
 
     private Corner nextCorner(Corner corner) {
@@ -146,18 +165,23 @@ public class WebCamCalibration extends OpMode {
     }
 
     private void startCorner(Corner corner) {
-        double startingY = (corner == Corner.TOP_LEFT || corner == Corner.TOP_RIGHT) ?
-                resolution.height / 10 : resolution.height * 9 / 10;
-        double startingX = (corner == Corner.TOP_LEFT || corner == Corner.BOTTOM_LEFT) ?
-                resolution.width / 10 : resolution.width * 9 / 10;
+        AnchorPoint existing = cornerPoints.get(corner);
+        if (existing == null) {
+            double startingY = (corner == Corner.TOP_LEFT || corner == Corner.TOP_RIGHT) ?
+                    resolution.height / 10 : resolution.height * 9 / 10;
+            double startingX = (corner == Corner.TOP_LEFT || corner == Corner.BOTTOM_LEFT) ?
+                    resolution.width / 10 : resolution.width * 9 / 10;
 
-        Position viewPosition = new Position(startingX, startingY);
+            Position viewPosition = new Position(startingX, startingY);
 
-        activeCornerPoint = new AnchorPoint(MAT_CENTER, viewPosition);
+            activeCornerPoint = new AnchorPoint(MAT_CENTER, viewPosition);
+        } else {
+            activeCornerPoint = existing;
+        }
         activeCorner = corner;
     }
 
-    private Position screenCorner(Corner corner) {
+    private Position imageCorner(Corner corner) {
         switch (corner) {
             case TOP_LEFT:
                 return new Position(0, 0);

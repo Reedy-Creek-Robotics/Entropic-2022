@@ -82,10 +82,17 @@ public class RobotDescriptor {
     /**
      * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
      */
+    public Position webCamImageTopLeftCornerCoordinates = new Position(-0.261, 9.185);
+    public Position webCamImageTopRightCornerCoordinates = new Position(13.888, 8.005);
+    public Position webCamImageBottomLeftCornerCoordinates = new Position(0.279, 0.852);
+    public Position webCamImageBottomRightCornerCoordinates = new Position(12.834, 0.427);
+
+    /*
     public Position webCamImageTopLeftCornerCoordinates = new Position(-0.1, 8.3);
     public Position webCamImageTopRightCornerCoordinates = new Position(13.8, 8.2);
     public Position webCamImageBottomLeftCornerCoordinates = new Position(0.5, 0.75);
     public Position webCamImageBottomRightCornerCoordinates = new Position(12.9, 0.6);
+    */
 
     /**
      * The size of the robot in inches, with the x axis being left to right and the y axis being
