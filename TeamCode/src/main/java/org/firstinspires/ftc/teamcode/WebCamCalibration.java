@@ -34,7 +34,7 @@ public class WebCamCalibration extends OpMode {
 
     private Controller controller;
 
-    private boolean annotateOutput = true;
+    private boolean calibrationMode = false;
 
     private enum Corner {
         TOP_LEFT,
@@ -63,7 +63,7 @@ public class WebCamCalibration extends OpMode {
             @Override
             public void processFrame(Mat input, Mat output) {
 
-                if (annotateOutput) {
+                if (!calibrationMode) {
 
                     // Draw the corners that have been set so far, and lines between
                     for (Corner corner : Corner.values()) {
@@ -91,10 +91,32 @@ public class WebCamCalibration extends OpMode {
                         DrawUtil.drawMarker(output, activeCornerPoint.viewPosition, Color.ORANGE);
 
                         DrawUtil.drawText(output, activeCorner.toString(),
-                                viewCenter.add(new Vector2(-50, -20)), Color.ORANGE);
-                        DrawUtil.drawText(output, activeCornerPoint.position.toString(),
-                                viewCenter.add(new Vector2(-50, 20)), Color.ORANGE);
+                                viewCenter.add(new Vector2(-50, -80)), Color.ORANGE);
+                        DrawUtil.drawText(output, activeCornerPoint.position.toString(1),
+                                viewCenter.add(new Vector2(-50, -40)), Color.ORANGE);
+
                     }
+
+                } else {
+                    Viewport viewport = new Viewport(
+                            resolution.width, resolution.height,
+                            descriptor.webCamImageTopLeftCornerCoordinates, descriptor.webCamImageTopRightCornerCoordinates,
+                            descriptor.webCamImageBottomLeftCornerCoordinates, descriptor.webCamImageBottomRightCornerCoordinates
+                    );
+
+                    if (activeCornerPoint != null) {
+                        Position viewPosition = activeCornerPoint.viewPosition;
+                        Position position = viewport.convertViewToExternal(viewPosition);
+                        DrawUtil.drawMarker(output, activeCornerPoint.viewPosition, Color.ORANGE);
+
+                        DrawUtil.drawText(output, "Test Mode",
+                                viewCenter.add(new Vector2(-50, -80)), Color.ORANGE);
+                        DrawUtil.drawText(output, "Pixel: " + activeCornerPoint.viewPosition.toString(0),
+                                viewCenter.add(new Vector2(-100, -40)), Color.ORANGE);
+                        DrawUtil.drawText(output, "Inches: " + position.toString(),
+                                viewCenter.add(new Vector2(-100, 0)), Color.ORANGE);
+                    }
+
                 }
             }
         });
@@ -110,7 +132,7 @@ public class WebCamCalibration extends OpMode {
         if (controller.isPressed(Button.START)) {
             resetCalibration();
         } else if (controller.isPressed(Button.Y)) {
-            annotateOutput = !annotateOutput;
+            calibrationMode = !calibrationMode;
         } else if (controller.isPressed(Button.A)) {
             cornerPoints.put(activeCorner, activeCornerPoint);
             startCorner(nextCorner(activeCorner));
@@ -132,6 +154,7 @@ public class WebCamCalibration extends OpMode {
         }
 
         Viewport viewport = createViewport();
+
         if (viewport != null) {
             telemetry.addData("Image Top Left", viewport.convertViewToExternal(imageCorner(Corner.TOP_LEFT)));
             telemetry.addData("Image Top Right", viewport.convertViewToExternal(imageCorner(Corner.TOP_RIGHT)));

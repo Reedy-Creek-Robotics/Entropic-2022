@@ -82,10 +82,10 @@ public class RobotDescriptor {
     /**
      * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
      */
-    public Position webCamImageTopLeftCornerCoordinates = new Position(-0.261, 9.185);
-    public Position webCamImageTopRightCornerCoordinates = new Position(13.888, 8.005);
-    public Position webCamImageBottomLeftCornerCoordinates = new Position(0.279, 0.852);
-    public Position webCamImageBottomRightCornerCoordinates = new Position(12.834, 0.427);
+    public Position webCamImageTopLeftCornerCoordinates = new Position(-0.251, 8.628);
+    public Position webCamImageTopRightCornerCoordinates = new Position(13.865, 8.088);
+    public Position webCamImageBottomLeftCornerCoordinates = new Position(0.280, 0.832);
+    public Position webCamImageBottomRightCornerCoordinates = new Position(12.845, 0.418);
 
     /*
     public Position webCamImageTopLeftCornerCoordinates = new Position(-0.1, 8.3);

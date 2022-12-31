@@ -80,4 +80,8 @@ public class Position {
         return String.format("(%.3f, %.3f)", x, y);
     }
 
+    public String toString(int precision) {
+        return String.format("(%." + precision + "f, %." + precision + "f)", x, y);
+    }
+
 }
