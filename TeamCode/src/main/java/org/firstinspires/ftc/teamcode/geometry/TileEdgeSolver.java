@@ -68,8 +68,9 @@ public class TileEdgeSolver {
             for (Line line : robotLines) {
                 // Figure out if the line is the front edge or the right edge
                 Position robotCenter = new Position(0, 0);
-                double angle = line.getAngle();
-                if (angle > 45 && angle < 135) {
+                double angle = line.getAngleToX();
+                // todo: this doesn't handle negative angle
+                if (Math.abs(angle) > 45) {
                     // Right edge
                     observation.distanceRight = robotCenter.distance(line);
                     if (!line.normalizeY().isLeft(robotCenter)) {

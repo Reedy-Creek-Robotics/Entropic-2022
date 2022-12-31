@@ -1,21 +1,19 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.*;
-import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.*;
+import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.TileEdgeObservation;
+import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.HoughLine;
+import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.HoughParameters;
 
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.geometry.Line;
-import org.firstinspires.ftc.teamcode.geometry.Position;
-import org.firstinspires.ftc.teamcode.util.Color;
-import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
+import org.firstinspires.ftc.teamcode.util.Color;
+import org.firstinspires.ftc.teamcode.util.DrawUtil;
+import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,10 +58,9 @@ public class TileEdgeDetector extends BaseComponent {
                 robotDescriptor.webCamImageBottomLeftCornerCoordinates).getY();
         double verticalPixelsPerInch = robotDescriptor.webCamResolution.height / verticalInches;
 
-        HoughParameters parameters = new HoughParameters(
-                0.9 * verticalPixelsPerInch,
-                2.0
-        );
+        HoughParameters parameters = new HoughParameters();
+        parameters.similarLineRhoThreshold = 0.9 * verticalPixelsPerInch;
+        parameters.similarLineThetaThreshold = 2.0;  // degrees
 
         this.houghLineDetector = new HoughLineDetector(parameters);
         this.tileEdgeSolver = new TileEdgeSolver(robotDescriptor);
@@ -117,7 +114,7 @@ public class TileEdgeDetector extends BaseComponent {
             TileEdgeObservation observation = tileEdgeSolver.solve(lines);
 
             for (Line line : lines) {
-                drawOutputLine(output, line, Color.ORANGE.toRGBA());
+                DrawUtil.drawLine(output, line, Color.ORANGE);
             }
 
             if (observation != null) {
@@ -135,14 +132,6 @@ public class TileEdgeDetector extends BaseComponent {
             }
         }
 
-        private void drawOutputLine(Mat output, Line line, Scalar color) {
-            Imgproc.line(output, toPoint(line.getP1()), toPoint(line.getP2()), color, 3);
-        }
-
-    }
-
-    private Point toPoint(Position position) {
-        return new Point(position.getX(), position.getY());
     }
 
 }

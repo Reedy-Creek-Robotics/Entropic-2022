@@ -48,35 +48,51 @@ public class LineTest {
     public void getAngle() {
         assertEquals(0.0,
                 new Line(new Position(0, 0), new Position(1, 0)
-                ).getAngle(), E);
+                ).getAngleToX(), E);
 
-        assertEquals(90.0,
-                new Line(new Position(0, 0), new Position(0, 1)
-                ).getAngle(), E);
+        assertEquals(30,
+                new Line(new Position(0, 0), new Position(Math.sqrt(3), 1)
+                ).getAngleToX(), E);
 
         assertEquals(45.0,
                 new Line(new Position(0, 0), new Position(1, 1)
-                ).getAngle(), E);
+                ).getAngleToX(), E);
 
-        assertEquals(135.0,
+        assertEquals(60,
+                new Line(new Position(0, 0), new Position(1, Math.sqrt(3))
+                ).getAngleToX(), E);
+
+        assertEquals(90.0,
+                new Line(new Position(0, 0), new Position(0, 1)
+                ).getAngleToX(), E);
+
+        assertEquals(-60,
+                new Line(new Position(0, 0), new Position(-1, Math.sqrt(3))
+                ).getAngleToX(), E);
+
+        assertEquals(-45.0,
                 new Line(new Position(0, 0), new Position(-1, 1)
-                ).getAngle(), E);
+                ).getAngleToX(), E);
 
-        assertEquals(180.0,
+        assertEquals(-30,
+                new Line(new Position(0, 0), new Position(Math.sqrt(3), -1)
+                ).getAngleToX(), E);
+
+        assertEquals(0.0,
                 new Line(new Position(0, 0), new Position(-1, 0)
-                ).getAngle(), E);
+                ).getAngleToX(), E);
 
         assertEquals(45.0,
                 new Line(new Position(0, 0), new Position(-1, -1)
-                ).getAngle(), E);
+                ).getAngleToX(), E);
 
-        assertEquals(90.0,
+        assertEquals(-90.0,
                 new Line(new Position(0, 0), new Position(0, -1)
-                ).getAngle(), E);
+                ).getAngleToX(), E);
 
-        assertEquals(135.0,
+        assertEquals(-45.0,
                 new Line(new Position(0, 0), new Position(1, -1)
-                ).getAngle(), E);
+                ).getAngleToX(), E);
     }
 
     @Test

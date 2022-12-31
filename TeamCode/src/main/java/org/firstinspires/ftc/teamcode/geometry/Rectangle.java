@@ -2,7 +2,11 @@ package org.firstinspires.ftc.teamcode.geometry;
 
 public class Rectangle {
 
-    double top, right, bottom, left;
+    private double top, right, bottom, left;
+
+    public Rectangle(double width, double height) {
+        this(height, width, 0, 0);
+    }
 
     public Rectangle(double top, double right, double bottom, double left) {
         this.top = top;
@@ -25,6 +29,14 @@ public class Rectangle {
 
     public double getLeft() {
         return left;
+    }
+
+    /**
+     * Returns true if this rectangle contains the given position, false otherwise.
+     */
+    public boolean contains(Position point) {
+        return point.getX() > left && point.getX() < right &&
+                point.getY() > bottom && point.getY() < top;
     }
 
     /**

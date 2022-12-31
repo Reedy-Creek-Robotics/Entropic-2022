@@ -75,6 +75,11 @@ public class RobotDescriptor {
     public Size webCamResolution = new Size(640, 360);
 
     /**
+     * The exposure duration for the webcam in milliseconds.
+     */
+    public long webCamExposureMs = 25;
+
+    /**
      * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
      */
     public Position webCamImageTopLeftCornerCoordinates = new Position(-0.1, 8.3);

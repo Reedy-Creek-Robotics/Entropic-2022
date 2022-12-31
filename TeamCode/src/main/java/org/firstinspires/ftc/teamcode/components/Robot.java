@@ -21,6 +21,7 @@ public class Robot extends BaseComponent {
 
     private int updateCount;
     private ElapsedTime initTime;
+    private ElapsedTime firstUpdateTime;
 
     public enum CameraMode {
         DISABLED,
@@ -39,7 +40,7 @@ public class Robot extends BaseComponent {
     public Robot(OpMode opMode, CameraMode cameraMode) {
         super(createRobotContext(opMode));
 
-        this.webCamSide = new WebCam(context, "WebcamFront", cameraMode.isStreaming(), robotDescriptor.webCamResolution);
+        this.webCamSide = new WebCam(context, "webCamSide", cameraMode.isStreaming(), robotDescriptor.webCamResolution);
         this.driveTrain = new DriveTrain(context, webCamSide);
         this.aprilTagDetector = new AprilTagDetector(context, webCamSide);
 
@@ -90,8 +91,11 @@ public class Robot extends BaseComponent {
     public void updateStatus() {
         super.updateStatus();
 
+        if (updateCount == 0) {
+            firstUpdateTime = new ElapsedTime();
+        }
         updateCount++;
-        double updatesPerSecond = updateCount / initTime.seconds();
+        double updatesPerSecond = updateCount / firstUpdateTime.seconds();
         telemetry.addData("Updates / sec", String.format("%.1f", updatesPerSecond));
 
         // Update telemetry once per iteration after all components have been called.

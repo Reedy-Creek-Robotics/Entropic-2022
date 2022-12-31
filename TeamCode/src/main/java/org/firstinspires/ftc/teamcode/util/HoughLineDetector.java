@@ -42,7 +42,13 @@ public class HoughLineDetector {
         Imgproc.Canny(gray, edges, 60, 60 * 3, 3, false);
 
         Mat houghLines = new Mat();
-        Imgproc.HoughLines(edges, houghLines, 1, Math.PI / 180, 125);
+        Imgproc.HoughLines(
+                edges,
+                houghLines,
+                parameters.rhoResolution,
+                parameters.thetaResolution,
+                parameters.linePixels
+        );
 
         List<HoughLine> lines = new ArrayList<>();
         for (int i = 0; i < houghLines.rows(); i++) {
@@ -78,8 +84,8 @@ public class HoughLineDetector {
     private HoughLine findSimilarLine(HoughLine line, List<HoughLine> linesToSearch) {
 
         for (HoughLine candidate : linesToSearch) {
-            if (Math.abs(candidate.theta - line.theta) < parameters.angleThreshold &&
-                    Math.abs(candidate.rho - line.rho) < parameters.rhoThreshold)
+            if (Math.abs(candidate.theta - line.theta) < parameters.similarLineThetaThreshold &&
+                    Math.abs(candidate.rho - line.rho) < parameters.similarLineRhoThreshold)
             {
                 return candidate;
             }
@@ -88,13 +94,11 @@ public class HoughLineDetector {
     }
 
     public static class HoughParameters {
-        public double rhoThreshold;
-        public double angleThreshold;
-
-        public HoughParameters(double rhoThreshold, double angleThreshold) {
-            this.rhoThreshold = rhoThreshold;
-            this.angleThreshold = angleThreshold;
-        }
+        public double similarLineRhoThreshold = 2.0;
+        public double similarLineThetaThreshold = 2.0;
+        public int linePixels = 125;  // number of pixels that must correspond to a line
+        public double rhoResolution = 1;  // 1 pixel
+        public double thetaResolution = Math.toRadians(1); // 1 degree
     }
 
     public static class HoughLine {
@@ -134,7 +138,7 @@ public class HoughLineDetector {
             Line line = new Line(pt1, pt2);
 
             line = new Rectangle(resolution.height, resolution.width, 0, 0).clip(line);
-            line = line.normalizeX();
+            line = line.normalize();
 
             return line;
         }

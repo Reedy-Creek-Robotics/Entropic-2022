@@ -4,12 +4,14 @@ import org.opencv.core.Scalar;
 
 public enum Color {
 
+    LIGHT_GRAY(170, 170, 170),
     BLUE(255, 0, 0),
     GREEN(0, 255, 0),
     ORANGE(0, 255, 165),
-    RED(0, 0, 255);
+    RED(0, 0, 255),
+    WHITE(255, 255, 255);
 
-    double blue, green, red;
+    final double blue, green, red;
 
     Color(double blue, double green, double red) {
         this.blue = blue;
@@ -19,10 +21,6 @@ public enum Color {
 
     public Scalar toRGBA() {
         return new Scalar(red, green, blue, 255);
-    }
-
-    public Scalar toBGR() {
-        return new Scalar(blue, green, red);
     }
 
 }

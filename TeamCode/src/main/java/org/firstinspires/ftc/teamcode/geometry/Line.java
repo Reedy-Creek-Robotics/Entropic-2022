@@ -36,6 +36,16 @@ public class Line {
     }
 
     /**
+     * Returns an equivalent line with the guarantee that its p1 and p2 values are in ascending
+     * order of x, or ascending order of y if the line is vertical.
+     */
+    public Line normalize() {
+        return p1.getX() != p2.getX() ?
+                normalizeX() :
+                normalizeY();
+    }
+
+    /**
      * Finds the point where this line intersects with the other line.
      */
     public Position intersect(Line other) {
@@ -43,7 +53,7 @@ public class Line {
         // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
 
         double x1 = p1.getX(), y1 = p1.getY();
-        double x2  = p2.getX(), y2 = p2.getY();
+        double x2 = p2.getX(), y2 = p2.getY();
         double x3 = other.p1.getX(), y3 = other.p1.getY();
         double x4 = other.p2.getX(), y4 = other.p2.getY();
 
@@ -72,16 +82,18 @@ public class Line {
     }
 
     /**
-     * Returns the angle in degrees between the line and the positive X axis, in the range (0-180).
+     * Returns the angle in degrees between the line and the positive X axis, in the range (-90,90).
      */
-    public double getAngle() {
-        // Convert to a vector.
-        Vector2 offset = p2.minus(p1);
+    public double getAngleToX() {
+        // Convert to a vector
+        Line normalized = normalizeX();
+        Vector2 offset = normalized.p2.minus(normalized.p1);
 
-        // Heading is from 0 - 360 as opposed to 0 to 180, so convert.
+        // Because line is normalized in x direction, heading should be from (0-90), or (270-360).
         double theta = offset.toHeading().getValue();
+        if (theta >= 270) theta = -(360 - theta);
 
-        return theta > 180 ? theta - 180 : theta;
+        return theta;
     }
 
     /**

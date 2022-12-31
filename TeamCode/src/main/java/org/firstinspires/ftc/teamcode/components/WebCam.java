@@ -100,9 +100,11 @@ public class WebCam extends BaseComponent {
             sleep(100);
         }
 
+        camera.showFpsMeterOnViewport(false);
+
         exposureControl = camera.getExposureControl();
         exposureControl.setMode(ExposureControl.Mode.Manual);
-        setExposure(32L);
+        setExposure(robotDescriptor.webCamExposureMs);
     }
 
     public synchronized void saveLastFrame() {
@@ -124,7 +126,7 @@ public class WebCam extends BaseComponent {
         return streamOutput;
     }
 
-    public Long getExposure() {
+    public long getExposure() {
         return exposureControl.getExposure(TimeUnit.MILLISECONDS);
     }
 
@@ -141,7 +143,7 @@ public class WebCam extends BaseComponent {
      *
      * @param duration how long the exposure is set to in milliseconds
      */
-    public void setExposure(Long duration) {
+    public void setExposure(long duration) {
         exposureControl.setExposure(duration, TimeUnit.MILLISECONDS);
     }
 
