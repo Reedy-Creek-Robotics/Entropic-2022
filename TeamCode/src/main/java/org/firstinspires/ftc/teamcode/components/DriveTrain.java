@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.*;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.convertToFieldSpace;
@@ -23,6 +24,7 @@ import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
+import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 import org.firstinspires.ftc.teamcode.util.MecanumUtil;
 
 import java.util.Arrays;
@@ -150,6 +152,10 @@ public class DriveTrain extends BaseComponent {
         //imu.startAccelerationIntegration(null, null, 5);
     }
 
+    public TileEdgeDetector getTileEdgeDetectorSide() {
+        return tileEdgeDetectorSide;
+    }
+
     public BNO055IMU getImu() {
         return imu;
     }
@@ -179,15 +185,7 @@ public class DriveTrain extends BaseComponent {
 
         telemetry.addData("Heading", heading);
         telemetry.addData("Position", position);
-        //telemetry.addData("Velocity", velocity);
         telemetry.addData("Speed", String.format("%.3f", velocity.magnitude()));
-
-        if (tileEdgeDetectorSide.isDetected()) {
-            //telemetry.addData("Angle to Tile", String.format("%.2f", tileEdgeDetectorSide.getAngleToTile()));
-            // todo: convert these to tile units instead of inches
-            //telemetry.addData("Distance to Tile (horiz)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileHorizontal() * 12.0));
-            //telemetry.addData("Distance to Tile (vert)", String.format("%.2f in", tileEdgeDetectorSide.getDistanceToTileVertical() * 12.0));
-        }
 
         telemetry.addData("Current Command", getCurrentCommand());
         telemetry.addData("Next Commands", getNextCommands());
@@ -234,29 +232,37 @@ public class DriveTrain extends BaseComponent {
         // Override this with a visual observation from hough code, if there is one
         TileEdgeSolver.TileEdgeObservation observation = tileEdgeDetectorSide.getObservation();
         if (observation != null) {
+
             // First, compute the expected robot space coordinates using our theoretical position.
             RobotSpaceCoordinates robotSpaceCoordinates = convertToRobotSpace(new FieldSpaceCoordinates(heading, position));
-            
+
             // Then using the observation overwrite the expected with the actual values.
             if (observation.distanceRight != null) {
+                double distanceRightInches = tilesToInches(observation.distanceRight) - robotDescriptor.robotDimensionsInInches.width / 2;
+                telemetry.addData("Distance Right", String.format("%.2f in", distanceRightInches));
                 robotSpaceCoordinates.distanceRight = observation.distanceRight;
             }
-            if (observation.distanceRight != null) {
+            if (observation.distanceFront != null) {
+                double distanceFrontInches = tilesToInches(observation.distanceFront) - robotDescriptor.robotDimensionsInInches.height / 2;
+                telemetry.addData("Distance Front", String.format("%.2f in", distanceFrontInches));
                 robotSpaceCoordinates.distanceFront = observation.distanceFront;
             }
             if (observation.headingOffset != null) {
+                telemetry.addData("Heading Offset", observation.headingOffset);
                 robotSpaceCoordinates.headingOffset = observation.headingOffset;
             }
 
             // Convert back to field space.
             FieldSpaceCoordinates updatedFieldSpaceCoordinates = convertToFieldSpace(robotSpaceCoordinates);
 
-            // todo: sanity check, don't override it if it says we are some crazy amount off
-
-            // Finally update the current position to be the actual position
-            heading = updatedFieldSpaceCoordinates.heading;
-            position = updatedFieldSpaceCoordinates.position;
-
+            // Sanity check - make sure that the distance we would be correcting is less than a maximum.
+            double maxHoughCorrectionDistance = inchesToTiles(12);
+            double correctionDistance = updatedFieldSpaceCoordinates.position.minus(position).magnitude();
+            if (correctionDistance < maxHoughCorrectionDistance) {
+                // Finally update the current position to be the actual position
+                //heading = updatedFieldSpaceCoordinates.heading;
+                position = updatedFieldSpaceCoordinates.position;
+            }
         }
 
     }
@@ -370,8 +376,8 @@ public class DriveTrain extends BaseComponent {
     /**
      * Moves the given distance in tiles, in the given direction, at the given speed.
      *
-     * @param distance      Move that many tiles in the x and y direction. Backwards and Right are negative Directions.
-     * @param speed         The speed you want to move at
+     * @param distance Move that many tiles in the x and y direction. Backwards and Right are negative Directions.
+     * @param speed    The speed you want to move at
      */
     public void moveTargetDistance(Vector2 distance, double speed) {
         executeCommand(new MoveTargetDistance(distance, heading, speed));
@@ -389,7 +395,7 @@ public class DriveTrain extends BaseComponent {
     }
 
     public void moveToHeading(Heading targetHeading, double speed) {
-        executeCommand(new MoveToTargetPosition(position,targetHeading,speed));
+        executeCommand(new MoveToTargetPosition(position, targetHeading, speed));
     }
 
     /**

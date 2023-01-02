@@ -21,6 +21,10 @@ public class HoughLineDetector {
         this.parameters = parameters;
     }
 
+    public HoughParameters getParameters() {
+        return parameters;
+    }
+
     /**
      * Uses the hough transform to detect lines in the given image.  Automatically groups lines that are very
      * similar into a single line.
@@ -47,7 +51,11 @@ public class HoughLineDetector {
                 houghLines,
                 parameters.rhoResolution,
                 parameters.thetaResolution,
-                parameters.linePixels
+                parameters.pixelVoterThreshold,
+                0,
+                0,
+                Math.toRadians(parameters.minTheta),
+                Math.toRadians(parameters.maxTheta)
         );
 
         List<HoughLine> lines = new ArrayList<>();
@@ -96,9 +104,11 @@ public class HoughLineDetector {
     public static class HoughParameters {
         public double similarLineRhoThreshold = 2.0;
         public double similarLineThetaThreshold = 2.0;
-        public int linePixels = 125;  // number of pixels that must correspond to a line
+        public int pixelVoterThreshold = 125;  // number of pixels that must correspond to a line
         public double rhoResolution = 1;  // 1 pixel
         public double thetaResolution = Math.toRadians(1); // 1 degree
+        public double minTheta = 0;
+        public double maxTheta = 180;
     }
 
     public static class HoughLine {

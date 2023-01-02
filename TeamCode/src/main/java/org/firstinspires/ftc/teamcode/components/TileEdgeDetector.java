@@ -14,6 +14,7 @@ import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 import org.opencv.core.Mat;
+import org.opencv.core.Size;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,12 @@ public class TileEdgeDetector extends BaseComponent {
     /**
      * The detector for finding lines in the webcam image.
      */
-    private HoughLineDetector houghLineDetector;
+    private HoughLineDetector houghLineDetectorHorizontal;
+
+    /**
+     * The detector for finding lines in the webcam image.
+     */
+    private HoughLineDetector houghLineDetectorVertical;
 
     /**
      * The solver that converts the tile edges found in the webcam image into an observation of the robot's position.
@@ -54,16 +60,40 @@ public class TileEdgeDetector extends BaseComponent {
 
     @Override
     public void init() {
+        Size resolution = robotDescriptor.webCamResolution;
+
         double verticalInches = robotDescriptor.webCamImageTopLeftCornerCoordinates.minus(
                 robotDescriptor.webCamImageBottomLeftCornerCoordinates).getY();
-        double verticalPixelsPerInch = robotDescriptor.webCamResolution.height / verticalInches;
+        double horizontalInches = robotDescriptor.webCamImageTopRightCornerCoordinates.minus(
+                robotDescriptor.webCamImageTopLeftCornerCoordinates).getX();
+        double verticalPixelsPerInch = resolution.height / verticalInches;
+        double horizontalPixelsPerInch = resolution.width / horizontalInches;
 
-        HoughParameters parameters = new HoughParameters();
-        parameters.similarLineRhoThreshold = 0.9 * verticalPixelsPerInch;
-        parameters.similarLineThetaThreshold = 2.0;  // degrees
+        HoughParameters horizontalParameters = new HoughParameters();
+        horizontalParameters.similarLineRhoThreshold = 1.2 * horizontalPixelsPerInch;
+        horizontalParameters.similarLineThetaThreshold = 4.0;  // degrees
+        horizontalParameters.minTheta = -45;
+        horizontalParameters.maxTheta = 45;
+        horizontalParameters.pixelVoterThreshold = (int) (resolution.width * (1.0 / 4.0));
+        this.houghLineDetectorHorizontal = new HoughLineDetector(horizontalParameters);
 
-        this.houghLineDetector = new HoughLineDetector(parameters);
+        HoughParameters verticalParameters = new HoughParameters();
+        verticalParameters.similarLineRhoThreshold = 1.2 * verticalPixelsPerInch;
+        verticalParameters.similarLineThetaThreshold = 4.0;  // degrees
+        verticalParameters.minTheta = 45;
+        verticalParameters.maxTheta = 135;
+        verticalParameters.pixelVoterThreshold = (int) (resolution.height * (1.0 / 4.0));
+        this.houghLineDetectorVertical = new HoughLineDetector(verticalParameters);
+
         this.tileEdgeSolver = new TileEdgeSolver(robotDescriptor);
+    }
+
+    public HoughLineDetector getHoughLineDetectorHorizontal() {
+        return houghLineDetectorHorizontal;
+    }
+
+    public HoughLineDetector getHoughLineDetectorVertical() {
+        return houghLineDetectorVertical;
     }
 
     public void activate() {
@@ -104,7 +134,9 @@ public class TileEdgeDetector extends BaseComponent {
         @Override
         public void processFrame(Mat input, Mat output) {
 
-            List<HoughLine> houghLines = houghLineDetector.detectLines(input);
+            List<HoughLine> houghLines = new ArrayList<>();
+            houghLines.addAll(houghLineDetectorHorizontal.detectLines(input));
+            houghLines.addAll(houghLineDetectorVertical.detectLines(input));
 
             List<Line> lines = new ArrayList<>();
             for (HoughLine houghline : houghLines) {

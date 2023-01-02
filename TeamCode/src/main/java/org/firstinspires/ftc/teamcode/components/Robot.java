@@ -13,6 +13,7 @@ public class Robot extends BaseComponent {
 
     private DriveTrain driveTrain;
     private WebCam webCamSide;
+    private WebCam webCamFront;
     private AprilTagDetector aprilTagDetector;
 
     private Turret turret;
@@ -26,32 +27,42 @@ public class Robot extends BaseComponent {
     public enum CameraMode {
         DISABLED,
         ENABLED,
-        ENABLED_AND_STREAMING;
+        ENABLED_AND_STREAMING_SIDE,
+        ENABLED_AND_STREAMING_FRONT;
 
         public boolean isEnabled() {
             return this != DISABLED;
-        }
-
-        public boolean isStreaming() {
-            return this == ENABLED_AND_STREAMING;
         }
     }
 
     public Robot(OpMode opMode, CameraMode cameraMode) {
         super(createRobotContext(opMode));
 
-        this.webCamSide = new WebCam(context, "webCamSide", cameraMode.isStreaming(), robotDescriptor.webCamResolution);
+        this.webCamSide = new WebCam(
+                context, "WebCamSide",
+                cameraMode == CameraMode.ENABLED_AND_STREAMING_SIDE,
+                robotDescriptor.webCamResolution
+        );
+        /*
+        this.webCamSide = new WebCam(
+                context, "WebCamFront",
+                cameraMode == CameraMode.ENABLED_AND_STREAMING_FRONT,
+                robotDescriptor.webCamResolution
+        );
+         */
+
         this.driveTrain = new DriveTrain(context, webCamSide);
-        this.aprilTagDetector = new AprilTagDetector(context, webCamSide);
+        this.aprilTagDetector = new AprilTagDetector(context, webCamFront);
 
-        //this.turret = new Turret(context);
-        //this.slide = new LinearSlide(context);
-        //this.intake = new Intake(context);
+        this.turret = new Turret(context);
+        this.slide = new LinearSlide(context);
+        this.intake = new Intake(context);
 
-        addSubComponents(driveTrain);  //, turret, slide, intake);
+        addSubComponents(driveTrain, turret, slide, intake);
 
         if (cameraMode.isEnabled()) {
             addSubComponents(webCamSide);
+            //addSubComponents(webCamFront);
             addSubComponents(aprilTagDetector);
         }
 
@@ -73,7 +84,7 @@ public class Robot extends BaseComponent {
      * Inits with default settings.
      */
     public Robot(OpMode opMode) {
-        this(opMode, CameraMode.ENABLED_AND_STREAMING);
+        this(opMode, CameraMode.ENABLED);
     }
 
     @Override

@@ -1,5 +1,12 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import static org.firstinspires.ftc.teamcode.util.Color.BLUE;
+import static org.firstinspires.ftc.teamcode.util.Color.GREEN;
+import static org.firstinspires.ftc.teamcode.util.Color.RED;
+import static org.firstinspires.ftc.teamcode.util.Color.WHITE;
+
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -8,7 +15,6 @@ import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.MatOfPoint3f;
 import org.opencv.core.Point;
 import org.opencv.core.Point3;
-import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.apriltag.AprilTagDetectorJNI;
@@ -23,18 +29,11 @@ public class AprilTagDetector extends BaseComponent {
      */
     private WebCam webCam;
 
-    // UNITS ARE METERS
-    private double tagsize = 0.166;
-
-    // Lens intrinsics
-    // UNITS ARE PIXELS
-    // NOTE: this calibration is for the C920 webcam at 800x448.
-    // You will need to do your own calibration for other configurations!
-    private double fx = 578.272;
-    private double fy = 578.272;
-    private double cx = 402.145;
-    private double cy = 221.506;
     private FrameProcessor frameProcessor;
+
+    private AprilTagDetectionParameters parameters = new AprilTagDetectionParameters();
+
+    private List<AprilTagDetection> detections = new ArrayList<>();
 
     public AprilTagDetector(RobotContext context, WebCam webCam) {
         super(context);
@@ -44,25 +43,40 @@ public class AprilTagDetector extends BaseComponent {
     /**
      * Sets the detection parameters.  This should be called prior to calling activate.
      */
-    public void setDetectionParameters(double tagsize, double fx, double fy, double cx, double cy) {
-        this.tagsize = tagsize;
-        this.fx = fx;
-        this.fy = fy;
-        this.cx = cx;
-        this.cy = cy;
-    }
-
-    public void setDecimation(float decimation) {
-        frameProcessor.setDecimation(decimation);
+    public void setDetectionParameters(AprilTagDetectionParameters parameters) {
+        if (isActive()) {
+            throw new IllegalStateException();
+        }
+        this.parameters = parameters;
     }
 
     public void activate() {
-        frameProcessor = new FrameProcessor(tagsize, fx, fy, cx, cy);
+        frameProcessor = new FrameProcessor(parameters);
         webCam.setFrameProcessor(frameProcessor);
     }
 
+    public boolean isActive() {
+        return frameProcessor != null;
+    }
+
+    public void deactivate() {
+        webCam.setFrameProcessor(null);
+        frameProcessor = null;
+    }
+
     public List<AprilTagDetection> getDetections() {
-        return frameProcessor.getDetections();
+        return detections;
+    }
+
+    public AprilTagDetection waitForDetection(double seconds) {
+        ElapsedTime begin = new ElapsedTime();
+        while (begin.seconds() < seconds) {
+            List<AprilTagDetection> detections = this.detections;
+            if (!detections.isEmpty()) {
+                return detections.get(0);
+            }
+        }
+        return null;
     }
 
     /**
@@ -70,21 +84,12 @@ public class AprilTagDetector extends BaseComponent {
      * <p>
      * Adapted with permission from the sample code developed by the OpenFTC Team, 2021.
      */
-    public static class FrameProcessor implements WebCam.FrameProcessor {
+    public class FrameProcessor implements WebCam.FrameProcessor {
 
         private long nativeApriltagPtr;
-        private Mat grey = new Mat();
-        private List<AprilTagDetection> detections = new ArrayList<>();
-
-        private List<AprilTagDetection> detectionsUpdate = new ArrayList<>();
-        private final Object detectionsUpdateSync = new Object();
+        private Mat gray = new Mat();
 
         Mat cameraMatrix;
-
-        private Scalar blue = new Scalar(7, 197, 235, 255);
-        private Scalar red = new Scalar(255, 0, 0, 255);
-        private Scalar green = new Scalar(0, 255, 0, 255);
-        private Scalar white = new Scalar(255, 255, 255, 255);
 
         private double fx;
         private double fy;
@@ -96,23 +101,20 @@ public class AprilTagDetector extends BaseComponent {
         private double tagsizeX;
         private double tagsizeY;
 
-        private float decimation;
-        private boolean needToSetDecimation;
-        private final Object decimationSync = new Object();
-
-        public FrameProcessor(double tagsize, double fx, double fy, double cx, double cy) {
-            this.tagsize = tagsize;
-            this.tagsizeX = tagsize;
-            this.tagsizeY = tagsize;
-            this.fx = fx;
-            this.fy = fy;
-            this.cx = cx;
-            this.cy = cy;
+        public FrameProcessor(AprilTagDetectionParameters parameters) {
+            this.tagsize = parameters.tagsize;
+            this.tagsizeX = parameters.tagsize;
+            this.tagsizeY = parameters.tagsize;
+            this.fx = parameters.fx;
+            this.fy = parameters.fy;
+            this.cx = parameters.cx;
+            this.cy = parameters.cy;
 
             constructMatrix();
 
             // Allocate a native context object. See the corresponding deletion in the finalizer
             nativeApriltagPtr = AprilTagDetectorJNI.createApriltagDetector(AprilTagDetectorJNI.TagFamily.TAG_36h11.string, 3, 3);
+            AprilTagDetectorJNI.setApriltagDetectorDecimation(nativeApriltagPtr, parameters.decimation);
         }
 
         @Override
@@ -131,21 +133,17 @@ public class AprilTagDetector extends BaseComponent {
         public void processFrame(Mat input, Mat output) {
 
             // Convert to greyscale
-            Imgproc.cvtColor(input, grey, Imgproc.COLOR_RGBA2GRAY);
-
-            synchronized (decimationSync) {
-                if (needToSetDecimation) {
-                    AprilTagDetectorJNI.setApriltagDetectorDecimation(nativeApriltagPtr, decimation);
-                    needToSetDecimation = false;
-                }
-            }
+            Imgproc.cvtColor(input, gray, Imgproc.COLOR_RGBA2GRAY);
 
             // Run AprilTag
-            detections = AprilTagDetectorJNI.runAprilTagDetectorSimple(nativeApriltagPtr, grey, tagsize, fx, fy, cx, cy);
+            List<AprilTagDetection> detections = AprilTagDetectorJNI.runAprilTagDetectorSimple(
+                    nativeApriltagPtr, gray,
+                    tagsize,
+                    fx, fy, cx, cy
+            );
 
-            synchronized (detectionsUpdateSync) {
-                detectionsUpdate = detections;
-            }
+            // Atomic update, so no need for synchronization
+            AprilTagDetector.this.detections = detections;
 
             // For fun, use OpenCV to draw 6DOF markers on the image. We actually recompute the pose using
             // OpenCV because I haven't yet figured out how to re-use AprilTag's pose in OpenCV.
@@ -153,22 +151,6 @@ public class AprilTagDetector extends BaseComponent {
                 Pose pose = poseFromTrapezoid(detection.corners, cameraMatrix, tagsizeX, tagsizeY);
                 drawAxisMarker(output, tagsizeY / 2.0, 6, pose.rvec, pose.tvec, cameraMatrix);
                 draw3dCubeMarker(output, tagsizeX, tagsizeX, tagsizeY, 5, pose.rvec, pose.tvec, cameraMatrix);
-            }
-        }
-
-        public void setDecimation(float decimation) {
-            synchronized (decimationSync) {
-                this.decimation = decimation;
-                needToSetDecimation = true;
-            }
-        }
-
-        public List<AprilTagDetection> getDetections() {
-            synchronized (detectionsUpdateSync) {
-                // todo: preserve detections between frames in case one frame has issues
-                List<AprilTagDetection> ret = detectionsUpdate;
-                detectionsUpdate = null;
-                return ret;
             }
         }
 
@@ -222,11 +204,11 @@ public class AprilTagDetector extends BaseComponent {
             Point[] projectedPoints = matProjectedPoints.toArray();
 
             // Draw the marker!
-            Imgproc.line(buf, projectedPoints[0], projectedPoints[1], red, thickness);
-            Imgproc.line(buf, projectedPoints[0], projectedPoints[2], green, thickness);
-            Imgproc.line(buf, projectedPoints[0], projectedPoints[3], blue, thickness);
+            Imgproc.line(buf, projectedPoints[0], projectedPoints[1], RED.toRGBA(), thickness);
+            Imgproc.line(buf, projectedPoints[0], projectedPoints[2], GREEN.toRGBA(), thickness);
+            Imgproc.line(buf, projectedPoints[0], projectedPoints[3], BLUE.toRGBA(), thickness);
 
-            Imgproc.circle(buf, projectedPoints[0], thickness, white, -1);
+            Imgproc.circle(buf, projectedPoints[0], thickness, WHITE.toRGBA(), -1);
         }
 
         private void draw3dCubeMarker(
@@ -258,7 +240,7 @@ public class AprilTagDetector extends BaseComponent {
 
             // Pillars
             for (int i = 0; i < 4; i++) {
-                Imgproc.line(buf, projectedPoints[i], projectedPoints[i + 4], blue, thickness);
+                Imgproc.line(buf, projectedPoints[i], projectedPoints[i + 4], BLUE.toRGBA(), thickness);
             }
 
             // Base lines
@@ -268,10 +250,10 @@ public class AprilTagDetector extends BaseComponent {
             //Imgproc.line(buf, projectedPoints[3], projectedPoints[0], blue, thickness);
 
             // Top lines
-            Imgproc.line(buf, projectedPoints[4], projectedPoints[5], green, thickness);
-            Imgproc.line(buf, projectedPoints[5], projectedPoints[6], green, thickness);
-            Imgproc.line(buf, projectedPoints[6], projectedPoints[7], green, thickness);
-            Imgproc.line(buf, projectedPoints[4], projectedPoints[7], green, thickness);
+            Imgproc.line(buf, projectedPoints[4], projectedPoints[5], GREEN.toRGBA(), thickness);
+            Imgproc.line(buf, projectedPoints[5], projectedPoints[6], GREEN.toRGBA(), thickness);
+            Imgproc.line(buf, projectedPoints[6], projectedPoints[7], GREEN.toRGBA(), thickness);
+            Imgproc.line(buf, projectedPoints[4], projectedPoints[7], GREEN.toRGBA(), thickness);
         }
 
         /**
@@ -303,19 +285,36 @@ public class AprilTagDetector extends BaseComponent {
             return pose;
         }
 
-        /*
-         * A simple container to hold both rotation and translation
-         * vectors, which together form a 6DOF pose.
-         */
-        static class Pose {
-            Mat rvec;
-            Mat tvec;
+    }
 
-            public Pose() {
-                rvec = new Mat();
-                tvec = new Mat();
-            }
+    /*
+     * A simple container to hold both rotation and translation
+     * vectors, which together form a 6DOF pose.
+     */
+    private static class Pose {
+        Mat rvec;
+        Mat tvec;
+
+        public Pose() {
+            rvec = new Mat();
+            tvec = new Mat();
         }
+    }
+
+    public static class AprilTagDetectionParameters {
+        // UNITS ARE METERS
+        public double tagsize = 0.166;
+
+        // Lens intrinsics
+        // UNITS ARE PIXELS
+        // NOTE: this calibration is for the C920 webcam at 800x448.
+        // You will need to do your own calibration for other configurations!
+        public double fx = 578.272;
+        public double fy = 578.272;
+        public double cx = 402.145;
+        public double cy = 221.506;
+
+        public float decimation;
     }
 
 }

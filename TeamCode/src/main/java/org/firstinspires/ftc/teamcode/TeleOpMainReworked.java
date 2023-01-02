@@ -1,11 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
 
 public class TeleOpMainReworked extends OpMode {
-    private Robot robot;
+
 
     @Override
     public void init() {
@@ -14,6 +15,5 @@ public class TeleOpMainReworked extends OpMode {
 
     @Override
     public void loop() {
-
     }
 }

@@ -16,8 +16,7 @@ public class LinearSlide extends BaseComponent {
         SMALL_POLE(0),
         GROUND_LEVEL(0),
         TRAVEL(0),
-        INTAKE(0)
-        ;
+        INTAKE(0);
         private int ticks;
 
         SlideHeight(int ticks) {
@@ -40,23 +39,29 @@ public class LinearSlide extends BaseComponent {
     }
 
     /**
-     * Move the are to the desired position
+     * Move the slide to the desired height
      */
     public void moveToHeight(SlideHeight position) {
-        executeCommand(new MoveToPosition(position));
+        executeCommand(new MoveToTicks(position.ticks));
     }
 
-    private class MoveToPosition implements Command {
-        private SlideHeight desiredPosition;
+    /**
+     * Move the slide to the set amount of ticks
+     */
+    public void moveToTicks(int ticks) {
+        executeCommand(new MoveToTicks(ticks));
+    }
 
-        public MoveToPosition(SlideHeight desiredPosition) {
-            this.desiredPosition = desiredPosition;
+    private class MoveToTicks implements Command {
+        private int ticks;
+
+        public MoveToTicks(int ticks) {
+            this.ticks = ticks;
         }
 
         @Override
         public void start() {
-            position = desiredPosition;
-            motor.setTargetPosition(desiredPosition.ticks);
+            motor.setTargetPosition(ticks);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             motor.setPower(ARMPOWER);
         }
@@ -68,21 +73,7 @@ public class LinearSlide extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            // todo: try to maintain the desired position, fight against gravity
-            // todo: ramping
-            telemetry.addData("Slide encoder ticks", motor.getCurrentPosition());
-            telemetry.addData("Slide encoder target ticks", motor.getTargetPosition());
-            telemetry.update();
-
-            if(isAtDesiredPosition()) {
-                stop();
-                return true;
-            }
-            return false;
-        }
-
-        private boolean isAtDesiredPosition() {
-            return Math.abs(motor.getCurrentPosition() - desiredPosition.ticks) <= THRESHOLD;
+            return Math.abs(motor.getCurrentPosition() - ticks) <= THRESHOLD;
         }
     }
 }

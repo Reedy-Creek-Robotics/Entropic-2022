@@ -4,17 +4,17 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class Turret extends BaseComponent {
 
-    private static double MAXIMUM = 1.0;
-    private static double MINIMUM = 0.0;
+    private static double MAXIMUM = .7;
+    private static double MINIMUM = .5;
     private static double THRESHOLD = 0.05;
 
     private Servo servo;
 
     public enum Orientation {
-        FRONT(0.0),
-        BACK(1.0),
-        LEFT_SIDE(.5),
-        START(.3);
+        FRONT(.3),
+        BACK(.7),
+        LEFT_SIDE(.4),
+        START(.4);
 
         private double servoPosition;
 
@@ -22,7 +22,7 @@ public class Turret extends BaseComponent {
             this.servoPosition = servoPostion;
         }
 
-        public double getServoPosition(){
+        public double getServoPosition() {
             return servoPosition;
         }
 
@@ -31,6 +31,14 @@ public class Turret extends BaseComponent {
     public Turret(RobotContext context) {
         super(context);
         servo = hardwareMap.servo.get("Turret");
+    }
+
+    public double getTurretPosition() {
+        return servo.getPosition();
+    }
+
+    public void stopTurret() {
+        servo.getController().pwmDisable();
     }
 
     public void moveToOrientation(Orientation orientation) {
@@ -50,19 +58,24 @@ public class Turret extends BaseComponent {
 
         @Override
         public void start() {
+            if (servoPosition > MAXIMUM) {
+                servoPosition = MAXIMUM;
+            } else if (servoPosition < MINIMUM) {
+                servoPosition = MINIMUM;
+            }
+
             servo.setPosition(servoPosition);
             servo.getController().pwmEnable();
         }
 
         @Override
         public void stop() {
-            servo.setPosition(servo.getPosition());
-            servo.getController().pwmEnable();
+
         }
 
         @Override
         public boolean updateStatus() {
-            return Math.abs(servo.getPosition() - servoPosition) < THRESHOLD;
+            return true;
         }
     }
 
