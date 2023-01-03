@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
+
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -7,6 +9,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
+
+import java.util.Arrays;
 
 
 public class Robot extends BaseComponent {
@@ -54,7 +58,13 @@ public class Robot extends BaseComponent {
         this.driveTrain = new DriveTrain(context, webCamSide);
         this.aprilTagDetector = new AprilTagDetector(context, webCamFront);
 
-        this.turret = new Turret(context);
+        this.turret = new Turret(context, new Turret.SafetyCheck() {
+            @Override
+            public boolean isSafeToMove() {
+                return slide.getMotorPosition() > SMALL_POLE.getTicks();
+            }
+        });
+
         this.slide = new LinearSlide(context);
         this.intake = new Intake(context);
 

@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Turret;
+import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
 
 @TeleOp
 public class TeleOpMain extends OpMode {
@@ -20,8 +21,8 @@ public class TeleOpMain extends OpMode {
     private Controller driver;
     private Controller deliverer;
     private double limiter;
-    double intakePower;
-    public static final double INTAKE_TIME = 3;
+    double INTAKE_POWER = .3;
+    public static final double INTAKE_TIME = 1;
 
 
     @Override
@@ -31,7 +32,7 @@ public class TeleOpMain extends OpMode {
 
         driver = new Controller(gamepad1);
         deliverer = new Controller(gamepad2);
-        intakePower = 0.5;
+        INTAKE_POWER = 0.5;
 
 
         limiter = 0.3;
@@ -60,53 +61,47 @@ public class TeleOpMain extends OpMode {
             robot.getDriveTrain().moveAlignedToTileCenter(-1, Y, limiter);
         } else if (driver.isPressed(DPAD_RIGHT)) {
             robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
-        } else if (driver.isPressed(RIGHT_BUMPER) && limiter<1){
-            limiter+=0.05;
-        }else if (driver.isPressed(RIGHT_BUMPER) && limiter>0){
-            limiter-=0.05;
+        } else if (driver.isPressed(RIGHT_BUMPER) && limiter < 1) {
+            limiter += 0.05;
+        } else if (driver.isPressed(RIGHT_BUMPER) && limiter > 0) {
+            limiter -= 0.05;
         }
 
         //Intake
         else if (driver.rightTrigger() > 0) {
-            robot.getIntake().intake(intakePower, INTAKE_TIME);
-        } else if (driver.isPressed(Button.Y) && intakePower < 1) {
-            intakePower += 0.1;
-        } else if (driver.isPressed(A) && intakePower > 0) {
-            intakePower -= 0.1;
+            robot.getSlide().moveToHeight(INTAKE);
+            robot.getIntake().intake(INTAKE_POWER, INTAKE_TIME);
+        } else if (driver.leftTrigger() > 0) {
+            robot.getIntake().outake(INTAKE_POWER, INTAKE_TIME);
         }
 
         //Lift
-        else if (driver.isPressed(RIGHT_STICK_BUTTON)) {
+        else if (deliverer.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(TRAVEL);
-        } else if (driver.isPressed(Button.X)) {
-            robot.getSlide().moveToHeight(INTAKE);
-        }
-
-        if (deliverer.isPressed(Button.Y)) {
+        } else if (deliverer.isPressed(SQUARE)) {
+            robot.getSlide().moveToHeight(GROUND_LEVEL);
+        } else if (deliverer.isPressed(TRIANGLE)) {
             robot.getSlide().moveToHeight(TOP_POLE);
-        } else if (deliverer.isPressed(B)) {
+        } else if (deliverer.isPressed(CIRCLE)) {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
-        } else if (deliverer.isPressed(Button.X)) {
+        } else if (deliverer.isPressed(CROSS)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
         } else if (deliverer.isPressed(A)) {
             robot.getSlide().moveToHeight(GROUND_LEVEL);
         }
 
-        //turret
-        else if (deliverer.isPressed(DPAD_UP)) {
-            turretPosition = FRONT.getServoPosition();
-        }else if (deliverer.isPressed(DPAD_LEFT)) {
-            turretPosition = LEFT_SIDE.getServoPosition();
-        }else if (deliverer.isPressed(DPAD_DOWN)) {
-            turretPosition = Turret.Orientation.BACK.getServoPosition();
-        }else if (nonZero(deliverer.rightStickY()) && turretPosition>0 && turretPosition<1){
-            turretPosition+=(deliverer.rightStickY()/20);
+        //Turret
+        if(robot.getSlide().getPosition() != INTAKE && robot.getSlide().getPosition() != CUSTOM && robot.) {
+            if (deliverer.isPressed(DPAD_UP)) {
+                robot.getTurret().moveToOrientation(Orientation.FRONT);
+            } else if (deliverer.isPressed(DPAD_LEFT) || deliverer.isPressed(DPAD_RIGHT)) {
+                robot.getTurret().moveToOrientation(Orientation.LEFT_SIDE);
+            } else if (deliverer.isPressed(DPAD_DOWN)) {
+                robot.getTurret().moveToOrientation(Orientation.BACK);
+            }
         }
-        robot.getTurret().moveToPosition(turretPosition);
 
-
-
-
+        robot.updateStatus();
     }
 
 

@@ -16,11 +16,17 @@ public class LinearSlide extends BaseComponent {
         SMALL_POLE(0),
         GROUND_LEVEL(0),
         TRAVEL(0),
-        INTAKE(0);
-        private int ticks;
+        INTAKE(0),
+        CUSTOM(-100);
+
+        private final int ticks;
 
         SlideHeight(int ticks) {
             this.ticks = ticks;
+        }
+
+        public int getTicks() {
+            return ticks;
         }
     }
 
@@ -39,9 +45,17 @@ public class LinearSlide extends BaseComponent {
     }
 
     /**
+     * Returns the current position of the slide
+     */
+    public double getMotorPosition() {
+        return motor.getCurrentPosition();
+    }
+
+    /**
      * Move the slide to the desired height
      */
     public void moveToHeight(SlideHeight position) {
+        this.position = position;
         executeCommand(new MoveToTicks(position.ticks));
     }
 
@@ -49,6 +63,7 @@ public class LinearSlide extends BaseComponent {
      * Move the slide to the set amount of ticks
      */
     public void moveToTicks(int ticks) {
+        this.position = SlideHeight.CUSTOM;
         executeCommand(new MoveToTicks(ticks));
     }
 
