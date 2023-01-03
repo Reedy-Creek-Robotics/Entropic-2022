@@ -6,8 +6,10 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -56,6 +58,9 @@ public class WebCam extends BaseComponent {
      */
     private OpenCvWebcam camera;
 
+    /**
+     * Used to set the exposure in ms for the webcam.
+     */
     private ExposureControl exposureControl;
 
     public WebCam(RobotContext context, String cameraName, boolean streamOutput, Size resolution) {
@@ -83,7 +88,6 @@ public class WebCam extends BaseComponent {
         }
 
         camera.setPipeline(new CameraPipeline());
-
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
@@ -152,6 +156,7 @@ public class WebCam extends BaseComponent {
     }
 
     private class CameraPipeline extends OpenCvPipeline {
+
         @Override
         public Mat processFrame(Mat input) {
 
@@ -175,9 +180,9 @@ public class WebCam extends BaseComponent {
                 }
 
                 return output;
-
             }
         }
+
     }
 
     public interface FrameProcessor {

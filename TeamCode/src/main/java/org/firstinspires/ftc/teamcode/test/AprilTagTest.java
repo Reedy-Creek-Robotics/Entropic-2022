@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.test;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,7 @@ import org.openftc.apriltag.AprilTagDetection;
 
 import java.util.List;
 
+@Disabled
 @TeleOp
 public class AprilTagTest extends OpMode {
     private Robot robot;

@@ -145,6 +145,10 @@ public class TileEdgeSolver {
             this.headingOffset = headingOffset;
             this.observationTime = new ElapsedTime();
         }
+
+        public void setObservationTime(ElapsedTime time) {
+            this.observationTime = time;
+        }
     }
 
 }

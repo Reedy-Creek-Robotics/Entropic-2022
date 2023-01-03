@@ -11,7 +11,7 @@ public class RobotDescriptor {
     /**
      * The diameter of the robot's wheels in mm.
      */
-    public double wheelSizeInMm = 100.0;
+    public double wheelSizeInMm = 96;
 
     /**
      * The number of encoder ticks that the robot's drive train motors count per full revolution.
@@ -82,29 +82,16 @@ public class RobotDescriptor {
     /**
      * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
      */
-    /*
-    public Position webCamImageTopLeftCornerCoordinates = new Position(-0.261, 9.185);
-    public Position webCamImageTopRightCornerCoordinates = new Position(13.888, 8.005);
-    public Position webCamImageBottomLeftCornerCoordinates = new Position(0.279, 0.852);
-    public Position webCamImageBottomRightCornerCoordinates = new Position(12.834, 0.427);
-     */
 
-    public Position webCamImageTopLeftCornerCoordinates = new Position(-0.064, 8.484);
-    public Position webCamImageTopRightCornerCoordinates = new Position(14.03, 8.122);
-    public Position webCamImageBottomLeftCornerCoordinates = new Position(0.49, 0.692);
-    public Position webCamImageBottomRightCornerCoordinates = new Position(12.967, 0.307);
-
-    /*
-    public Position webCamImageTopLeftCornerCoordinates = new Position(-0.1, 8.3);
-    public Position webCamImageTopRightCornerCoordinates = new Position(13.8, 8.2);
-    public Position webCamImageBottomLeftCornerCoordinates = new Position(0.5, 0.75);
-    public Position webCamImageBottomRightCornerCoordinates = new Position(12.9, 0.6);
-    */
+    public Position webCamImageTopLeftCornerCoordinates = new Position(14.732, -2.815);
+    public Position webCamImageTopRightCornerCoordinates = new Position(1.313, -3.323);
+    public Position webCamImageBottomLeftCornerCoordinates = new Position(15.005, 5.320);
+    public Position webCamImageBottomRightCornerCoordinates = new Position(0.543, 4.721);
 
     /**
      * The size of the robot in inches, with the x axis being left to right and the y axis being
      * back to front.
      */
-    public Size robotDimensionsInInches = new Size(16.5, 17.25);
+    public Size robotDimensionsInInches = new Size(15.5, 15.5);
 
 }

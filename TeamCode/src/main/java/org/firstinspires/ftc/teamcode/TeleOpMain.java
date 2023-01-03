@@ -27,7 +27,7 @@ public class TeleOpMain extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot(this);
+        robot = new Robot(this, Robot.CameraMode.ENABLED_AND_STREAMING_SIDE);
         robot.init();
 
         driver = new Controller(gamepad1);
@@ -91,15 +91,14 @@ public class TeleOpMain extends OpMode {
         }
 
         //Turret
-        if(robot.getSlide().getPosition() != INTAKE && robot.getSlide().getPosition() != CUSTOM && robot.) {
-            if (deliverer.isPressed(DPAD_UP)) {
-                robot.getTurret().moveToOrientation(Orientation.FRONT);
-            } else if (deliverer.isPressed(DPAD_LEFT) || deliverer.isPressed(DPAD_RIGHT)) {
-                robot.getTurret().moveToOrientation(Orientation.LEFT_SIDE);
-            } else if (deliverer.isPressed(DPAD_DOWN)) {
-                robot.getTurret().moveToOrientation(Orientation.BACK);
-            }
+        if (deliverer.isPressed(DPAD_UP)) {
+            robot.getTurret().moveToOrientation(Orientation.FRONT);
+        } else if (deliverer.isPressed(DPAD_LEFT) || deliverer.isPressed(DPAD_RIGHT)) {
+            robot.getTurret().moveToOrientation(Orientation.LEFT_SIDE);
+        } else if (deliverer.isPressed(DPAD_DOWN)) {
+            robot.getTurret().moveToOrientation(Orientation.BACK);
         }
+
 
         robot.updateStatus();
     }

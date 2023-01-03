@@ -134,8 +134,26 @@ public class TileEdgeDetector extends BaseComponent {
         @Override
         public void processFrame(Mat input, Mat output) {
 
+            // Remember the time of the current frame capture as early as possible (before all the math).
+            ElapsedTime beginFrameTime = new ElapsedTime();
+
             List<HoughLine> houghLines = new ArrayList<>();
-            houghLines.addAll(houghLineDetectorHorizontal.detectLines(input));
+
+            //////////////////////////////////////////////////////////////////////////////////////////
+            //HACK
+            List<HoughLine> filterLines = houghLineDetectorHorizontal.detectLines(input);
+            int threshold = 145;
+            for(HoughLine line : filterLines) {
+                Line webCamLine = line.toLine(robotDescriptor.webCamResolution);
+
+                if(webCamLine.getP1().getY() > threshold && webCamLine.getP2().getY() > threshold){
+                    houghLines.add(line);
+                }
+            }
+            //END HACK
+            //////////////////////////////////////////////////////////////////////////////////////////
+
+            //houghLines.addAll(houghLineDetectorHorizontal.detectLines(input));
             houghLines.addAll(houghLineDetectorVertical.detectLines(input));
 
             List<Line> lines = new ArrayList<>();
@@ -152,6 +170,7 @@ public class TileEdgeDetector extends BaseComponent {
             if (observation != null) {
                 // Remember the observation so that it can be used by the drivetrain.
                 TileEdgeDetector.this.observation = observation;
+                observation.setObservationTime(beginFrameTime);
 
             } else {
                 // Keep the previous detection results if they are still within the previous detection threshold,

@@ -24,7 +24,6 @@ import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
-import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 import org.firstinspires.ftc.teamcode.util.MecanumUtil;
 
 import java.util.Arrays;
@@ -82,6 +81,11 @@ public class DriveTrain extends BaseComponent {
      * The time of the previous update iteration.
      */
     private ElapsedTime previousUpdateTime;
+
+    /**
+     * The previously seen tile edge observation.  We don't want to apply the same observation twice.
+     */
+    private TileEdgeSolver.TileEdgeObservation previousObservation;
 
 
     public DriveTrain(RobotContext context, WebCam webCamSide) {
@@ -198,7 +202,14 @@ public class DriveTrain extends BaseComponent {
      * Updates the current position of the bot.
      */
     private void updateCurrentPosition() {
+        // Use the motor encoders to approximate the change in position.
+        updateCurrentPositionWithMotorTicks();
 
+        // Override this with a visual observation from hough code, if there is one.
+        updateCurrentPositionWithTileEdgeObservation();
+    }
+
+    private void updateCurrentPositionWithMotorTicks() {
         // Determine the number of ticks moved by each wheel.
         MotorTicks ticks = getCurrentMotorTicks();
 
@@ -228,10 +239,13 @@ public class DriveTrain extends BaseComponent {
 
         // Remember the current motor ticks for the next loop iteration
         previousMotorTicks = ticks;
+    }
 
-        // Override this with a visual observation from hough code, if there is one
+    private void updateCurrentPositionWithTileEdgeObservation() {
+        // Check whether there is an observation, and if we have not yet seen it.
         TileEdgeSolver.TileEdgeObservation observation = tileEdgeDetectorSide.getObservation();
-        if (observation != null) {
+        if (observation != null && previousObservation != observation) {
+            previousObservation = observation;
 
             // First, compute the expected robot space coordinates using our theoretical position.
             RobotSpaceCoordinates robotSpaceCoordinates = convertToRobotSpace(new FieldSpaceCoordinates(heading, position));
@@ -255,16 +269,27 @@ public class DriveTrain extends BaseComponent {
             // Convert back to field space.
             FieldSpaceCoordinates updatedFieldSpaceCoordinates = convertToFieldSpace(robotSpaceCoordinates);
 
+            // Apply the current velocity as well, taking into account how old this observation is.
+            double elapsed = observation.observationTime.seconds();
+            Vector2 velocityCorrection = velocity.multiply(elapsed);
+
+            Position updatedPosition = updatedFieldSpaceCoordinates.position.add(velocityCorrection);
+
             // Sanity check - make sure that the distance we would be correcting is less than a maximum.
             double maxHoughCorrectionDistance = inchesToTiles(12);
-            double correctionDistance = updatedFieldSpaceCoordinates.position.minus(position).magnitude();
+
+            Vector2 correction = updatedPosition.minus(position);
+            double correctionDistance = correction.magnitude();
+
             if (correctionDistance < maxHoughCorrectionDistance) {
-                // Finally update the current position to be the actual position
+                // Finally update the current position to be the actual position.
                 //heading = updatedFieldSpaceCoordinates.heading;
-                position = updatedFieldSpaceCoordinates.position;
+                position = updatedPosition;
+
+                // Also update the previous position by the same amount, so the velocity doesn't jump.
+                previousPosition = previousPosition.add(correction);
             }
         }
-
     }
 
     public void setPosition(Position position) {

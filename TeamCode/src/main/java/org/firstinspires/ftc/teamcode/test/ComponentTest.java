@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TOP_POLE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -20,6 +21,7 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 import java.util.Arrays;
 import java.util.List;
 
+@Disabled
 @TeleOp
 public class ComponentTest extends OpMode {
     public Robot robot;

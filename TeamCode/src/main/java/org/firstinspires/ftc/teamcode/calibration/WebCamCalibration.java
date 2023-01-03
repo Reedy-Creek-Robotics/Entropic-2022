@@ -52,7 +52,7 @@ public class WebCamCalibration extends OpMode {
 
     @Override
     public void init() {
-        robot = new Robot(this);
+        robot = new Robot(this, Robot.CameraMode.ENABLED_AND_STREAMING_SIDE);
         robot.init();
 
         RobotDescriptor descriptor = robot.getRobotContext().robotDescriptor;
