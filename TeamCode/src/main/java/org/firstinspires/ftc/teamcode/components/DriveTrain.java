@@ -167,8 +167,8 @@ public class DriveTrain extends BaseComponent {
     /**
      * Return the heading of the robot as an angle in degrees from (0 - 360).
      */
-    public double getHeading() {
-        return heading.getValue();
+    public Heading getHeading() {
+        return heading;
     }
 
     /**
@@ -191,8 +191,8 @@ public class DriveTrain extends BaseComponent {
         telemetry.addData("Position", position);
         telemetry.addData("Speed", String.format("%.3f", velocity.magnitude()));
 
-        telemetry.addData("Current Command", getCurrentCommand());
-        telemetry.addData("Next Commands", getNextCommands());
+        //telemetry.addData("Current Command", getCurrentCommand());
+        //telemetry.addData("Next Commands", getNextCommands());
 
         // Now allow any commands to run with the updated data
         super.updateStatus();
@@ -271,7 +271,9 @@ public class DriveTrain extends BaseComponent {
 
             // Apply the current velocity as well, taking into account how old this observation is.
             double elapsed = observation.observationTime.seconds();
-            Vector2 velocityCorrection = velocity.multiply(elapsed);
+            Vector2 velocityCorrection = velocity != null ?
+                    velocity.multiply(elapsed) :
+                    new Vector2(0, 0);
 
             Position updatedPosition = updatedFieldSpaceCoordinates.position.add(velocityCorrection);
 
@@ -287,14 +289,22 @@ public class DriveTrain extends BaseComponent {
                 position = updatedPosition;
 
                 // Also update the previous position by the same amount, so the velocity doesn't jump.
-                previousPosition = previousPosition.add(correction);
+                if (previousPosition != null) {
+                    previousPosition = previousPosition.add(correction);
+                }
             }
         }
     }
 
     public void setPosition(Position position) {
         this.position = position;
+
+        // Also null out the previous position so that the velocity doesn't jump unnaturally.
         previousPosition = null;
+    }
+
+    public void setHeading(Heading heading) {
+        this.heading = heading;
     }
 
     private MotorTicks getCurrentMotorTicks() {

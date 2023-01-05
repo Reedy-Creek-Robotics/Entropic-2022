@@ -11,11 +11,19 @@ public class Turret extends BaseComponent {
     private Servo servo;
     private SafetyCheck safetyCheck;
 
+    private Orientation targetOrientation = Orientation.FRONT;
+
+    /**
+     * Indicates if the turret has been started, meaning its safety check has passed (i.e. the linear slide has raised
+     * to the correct height), and a target position set.
+     */
+    private boolean turrentStarted = false;
+
     public enum Orientation {
-        FRONT(.31),
-        BACK(.95),
-        LEFT_SIDE(.64),
-        START(.4);
+        FRONT(0.31),
+        BACK(0.95),
+        LEFT_SIDE(0.64),
+        START(0.5);
 
         private double servoPosition;
 
@@ -53,6 +61,15 @@ public class Turret extends BaseComponent {
         if (isSafeToMove()) {
             executeCommand(new MoveToPosition(position));
         }
+    }
+
+    public void updateStatus() {
+        if (!turrentStarted && isSafeToMove()) {
+            turrentStarted = true;
+            moveToOrientation(targetOrientation);
+        }
+
+        super.updateStatus();
     }
 
     public boolean isSafeToMove() {

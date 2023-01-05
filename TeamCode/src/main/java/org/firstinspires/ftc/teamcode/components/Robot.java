@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import static android.os.Environment.getExternalStorageDirectory;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
 
 import android.annotation.SuppressLint;
@@ -8,9 +9,23 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.util.ErrorUtil;
+import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Scanner;
 
 
 public class Robot extends BaseComponent {
@@ -61,7 +76,7 @@ public class Robot extends BaseComponent {
         this.turret = new Turret(context, new Turret.SafetyCheck() {
             @Override
             public boolean isSafeToMove() {
-                return slide.getMotorPosition() > SMALL_POLE.getTicks();
+                return slide.isAtOrAbove(TRAVEL);
             }
         });
 
@@ -114,6 +129,7 @@ public class Robot extends BaseComponent {
 
         if (updateCount == 0) {
             firstUpdateTime = new ElapsedTime();
+            onStart();
         }
         updateCount++;
         double updatesPerSecond = updateCount / firstUpdateTime.seconds();
@@ -121,6 +137,13 @@ public class Robot extends BaseComponent {
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();
+    }
+
+    /**
+     * Runs once, the first time the robot's updateStatus is called in an OpMode.
+     */
+    public void onStart() {
+        slide.moveToHeight(TRAVEL);
     }
 
     /**
@@ -171,6 +194,49 @@ public class Robot extends BaseComponent {
 
     public AprilTagDetector getAprilTagDetector() {
         return aprilTagDetector;
+    }
+
+    public void savePositionToDisk() {
+        loadPositionFromDisk("robot-position");
+    }
+
+    public void savePositionToDisk(String filename) {
+        FileUtil.writeLines(
+                filename,
+                driveTrain.getPosition().getX(),
+                driveTrain.getPosition().getY(),
+                driveTrain.getHeading().getValue()
+        );
+    }
+
+    public void loadPositionFromDisk() {
+        loadPositionFromDisk("robot-position");
+    }
+
+    public void loadPositionFromDisk(String filename) {
+        List<String> lines = FileUtil.readLines(filename);
+        if (!lines.isEmpty()) {
+            try {
+                if (lines.size() != 3) {
+                    throw new IllegalArgumentException("Expected 3 lines but found [" + lines.size() + "]");
+                }
+
+                Position position = new Position(
+                        Double.parseDouble(lines.get(0)),
+                        Double.parseDouble(lines.get(1))
+                );
+                Heading heading = new Heading(Double.parseDouble(lines.get(2)));
+
+                driveTrain.setPosition(position);
+                driveTrain.setHeading(heading);
+
+            } catch (Exception e) {
+                telemetry.log().add("Error loading position: " + ErrorUtil.convertToString(e));
+            }
+
+            // Now that the position has been consumed, remove the file
+            FileUtil.removeFile(filename);
+        }
     }
 
 }

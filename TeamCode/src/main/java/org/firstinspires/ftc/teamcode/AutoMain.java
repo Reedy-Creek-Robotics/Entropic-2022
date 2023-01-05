@@ -4,14 +4,18 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.components.LinearSlide;
 import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.openftc.apriltag.AprilTagDetection;
 
 @Autonomous
 public abstract class AutoMain extends LinearOpMode {
 
     protected Robot robot;
     protected RobotDescriptor robotDescriptor;
+    protected AprilTagDetection aprilTagDetection;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -20,7 +24,22 @@ public abstract class AutoMain extends LinearOpMode {
 
         waitForStart();
 
+        aprilTagDetection = robot.getAprilTagDetector().waitForDetection(2);
+        robot.getAprilTagDetector().deactivate();
+
+        robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRAVEL);
+        robot.waitForCommandsToFinish();
+        robot.getTurret().moveToOrientation(Turret.Orientation.FRONT);
+        robot.waitForCommandsToFinish();
+
+        // Allow the child class to run its auto path.
+        runAutoPath();
+
+        // Save the position to disk, so it can be picked up by the teleop
+        robot.savePositionToDisk();
     }
+
+    protected abstract void runAutoPath();
 
     protected void initRobot() {
         robot = new Robot(this);
@@ -31,6 +50,10 @@ public abstract class AutoMain extends LinearOpMode {
     }
 
     protected abstract Position getStartPosition();
+
+    protected int getAprilTagPosition() {
+        return aprilTagDetection.id;
+    }
 
     public enum Pole {
         HIGH,

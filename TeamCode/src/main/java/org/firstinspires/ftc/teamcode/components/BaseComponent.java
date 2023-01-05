@@ -115,6 +115,8 @@ public abstract class BaseComponent implements Component {
     @Override
     public void updateStatus() {
 
+        //telemetry.addData("Current Command",currentCommand);
+
         // If there is not a current command, but there are commands in the queue, start the next one.
         if (currentCommand == null && !nextCommands.isEmpty()) {
             currentCommand = nextCommands.remove(0);

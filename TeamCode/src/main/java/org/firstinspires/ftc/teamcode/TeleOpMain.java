@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.Controller.*;
 import static org.firstinspires.ftc.teamcode.Controller.Button.*;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.*;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
@@ -11,8 +12,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 
 @TeleOp
 public class TeleOpMain extends OpMode {
@@ -23,6 +24,7 @@ public class TeleOpMain extends OpMode {
     private double limiter;
     double INTAKE_POWER = .3;
     public static final double INTAKE_TIME = 1;
+    public Orientation turretPosition;
 
 
     @Override
@@ -30,26 +32,30 @@ public class TeleOpMain extends OpMode {
         robot = new Robot(this, Robot.CameraMode.ENABLED_AND_STREAMING_SIDE);
         robot.init();
 
+        // Load the position from disk, so it can pick up the previous position from the auto path.
+        robot.loadPositionFromDisk();
+
         driver = new Controller(gamepad1);
         deliverer = new Controller(gamepad2);
         INTAKE_POWER = 0.5;
 
-
-        limiter = 0.3;
+        limiter = 0.7;
+        turretPosition = FRONT;
     }
 
     @Override
     public void loop() {
+
+
         RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
 
         //Driving
         double drive = driver.leftStickY();
         double strafe = driver.leftStickX();
         double turn = driver.rightStickX();
-        double turretPosition = FRONT.getServoPosition();
 
         if (nonZero(drive, turn, strafe) || !robot.getDriveTrain().isBusy()) {
-            robot.getDriveTrain().drive(drive, turn, strafe, limiter);
+            robot.getDriveTrain().driverRelative(drive, turn, strafe, limiter);
         }
 
         //Hough assisted driving
@@ -62,22 +68,30 @@ public class TeleOpMain extends OpMode {
         } else if (driver.isPressed(DPAD_RIGHT)) {
             robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
         } else if (driver.isPressed(RIGHT_BUMPER) && limiter < 1) {
-            limiter += 0.05;
-        } else if (driver.isPressed(RIGHT_BUMPER) && limiter > 0) {
-            limiter -= 0.05;
+            limiter += 0.1;
+        } else if (driver.isPressed(LEFT_BUMPER) && limiter > 0) {
+            limiter -= 0.1;
+        } else if (driver.isPressed(Button.START)) {
+            robot.getDriveTrain().setPosition(new Position(.5, .5));
         }
 
         //Intake
-        else if (driver.rightTrigger() > 0) {
-            robot.getSlide().moveToHeight(INTAKE);
-            robot.getIntake().intake(INTAKE_POWER, INTAKE_TIME);
-        } else if (driver.leftTrigger() > 0) {
-            robot.getIntake().outake(INTAKE_POWER, INTAKE_TIME);
+        if (nonZero(driver.rightTrigger())) {
+            if (robot.getSlide().getTargetPosition() != INTAKE) {
+                robot.getSlide().moveToIntake(1);
+            }
+            robot.getIntake().intakeManual();
+        } else if (nonZero(driver.leftTrigger())) {
+            robot.getIntake().outakeManual();
+        }else {
+            robot.getIntake().stopIntake();
         }
 
         //Lift
-        else if (deliverer.isPressed(RIGHT_STICK_BUTTON)) {
+        if (driver.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(TRAVEL);
+        } else if(driver.isPressed(LEFT_STICK_BUTTON)) {
+            robot.getSlide().moveToHeight(INTAKE);
         } else if (deliverer.isPressed(SQUARE)) {
             robot.getSlide().moveToHeight(GROUND_LEVEL);
         } else if (deliverer.isPressed(TRIANGLE)) {
@@ -86,19 +100,18 @@ public class TeleOpMain extends OpMode {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
         } else if (deliverer.isPressed(CROSS)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
-        } else if (deliverer.isPressed(A)) {
-            robot.getSlide().moveToHeight(GROUND_LEVEL);
         }
 
         //Turret
         if (deliverer.isPressed(DPAD_UP)) {
-            robot.getTurret().moveToOrientation(Orientation.FRONT);
+            turretPosition = FRONT;
         } else if (deliverer.isPressed(DPAD_LEFT) || deliverer.isPressed(DPAD_RIGHT)) {
-            robot.getTurret().moveToOrientation(Orientation.LEFT_SIDE);
+            turretPosition = LEFT_SIDE;
         } else if (deliverer.isPressed(DPAD_DOWN)) {
-            robot.getTurret().moveToOrientation(Orientation.BACK);
+            turretPosition = Orientation.BACK;
         }
-
+        robot.getTurret().moveToOrientation(turretPosition);
+        telemetry.addData("Is it safe for the turret to move: ",robot.getTurret().isSafeToMove()?"yes":"no");
 
         robot.updateStatus();
     }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import androidx.annotation.NonNull;
+
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
@@ -12,6 +14,22 @@ public class Intake extends BaseComponent {
         super(context);
         intakeServo = hardwareMap.crservo.get("Intake");
         touchSensor = hardwareMap.touchSensor.get("IntakeTouchSensor");
+    }
+
+    @Override
+    public void updateStatus() {
+        super.updateStatus();
+        telemetry.addData("Next Commands",getNextCommands());
+    }
+
+    public void intakeManual() {
+        stopAllCommands();
+        intakeServo.setPower(1);
+    }
+
+    public void outakeManual() {
+        stopAllCommands();
+        intakeServo.setPower(-1);
     }
 
     /**
@@ -33,8 +51,8 @@ public class Intake extends BaseComponent {
     }
 
     private abstract class BaseCommand implements Command {
-        double power;
-        double time;
+        private double power;
+        private double time;
 
         public BaseCommand(double power, double time) {
             this.power = power;
@@ -50,16 +68,22 @@ public class Intake extends BaseComponent {
         public void stop() {
             stopIntake();
         }
+
+        public double getTime() {
+            return time;
+        }
     }
 
     private class IntakeCone extends BaseCommand {
+
         public IntakeCone(double power, double time) {
             super(power, time);
         }
 
         @Override
         public boolean updateStatus() {
-            return time > commandTime.seconds() || (touchSensor != null ? touchSensor.isPressed() : false);
+            telemetry.addData("Am I beeping and booping:","yes I am");
+            return commandTime.seconds() > getTime();//|| (touchSensor != null ? touchSensor.isPressed() : false);
         }
     }
 
@@ -70,7 +94,8 @@ public class Intake extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            return time > commandTime.seconds();
+            telemetry.addData("Am I beeping and booping:","yes I am");
+            return commandTime.seconds() > getTime();
         }
     }
 

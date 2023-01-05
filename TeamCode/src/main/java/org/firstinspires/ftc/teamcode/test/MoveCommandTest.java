@@ -54,7 +54,7 @@ public class MoveCommandTest extends OpMode {
         double turn = controller.rightStickX();
 
         if (nonZero(drive, turn, strafe) || !robot.getDriveTrain().isBusy()) {
-            robot.getDriveTrain().drive(drive, turn, strafe, limiter);
+            robot.getDriveTrain().driverRelative(drive, turn, strafe, limiter);
         }
 
         if (controller.isPressed(DPAD_UP)) {

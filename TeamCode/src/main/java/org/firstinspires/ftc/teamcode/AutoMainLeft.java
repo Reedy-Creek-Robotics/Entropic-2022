@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.*;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
@@ -8,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.teamcode.components.LinearSlide;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
@@ -25,7 +25,7 @@ public class AutoMainLeft extends AutoMain {
     }
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runAutoPath() {
 
         initRobot();
 
@@ -34,7 +34,7 @@ public class AutoMainLeft extends AutoMain {
         //move to medium pole and prepare to drop off
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5,2),new Heading(0),BASE_SPEED);
         robot.getTurret().moveToOrientation(FRONT);
-        robot.getSlide().moveToHeight(MEDIUM_POLE);
+        robot.getSlide().moveToHeight(LinearSlide.SlideHeight.MEDIUM_POLE);
         robot.waitForCommandsToFinish();
 
         //drop off pole
@@ -62,12 +62,13 @@ public class AutoMainLeft extends AutoMain {
         getNewCone();
         deliverToPole(Pole.GROUND);
 
+        park();
+
         //get a new cone(loop*5)
         //getNewCone();
 
         //deliver to pole(loop*5)
         //deliverToPole(Pole.HIGH);
-
     }
 
     //Used after recentered
@@ -76,7 +77,8 @@ public class AutoMainLeft extends AutoMain {
         robot.getTurret().moveToOrientation(BACK);
         robot.waitForCommandsToFinish();
 
-        robot.getSlide().moveToHeight(INTAKE);
+        robot.getSlide().moveToIntake(coneCount);
+        coneCount--;
         robot.getIntake().intake(.5,.5);
         robot.waitForCommandsToFinish();
 
@@ -86,7 +88,7 @@ public class AutoMainLeft extends AutoMain {
 
     protected void deliverToPole(Pole pole) {
         if(pole == Pole.HIGH) {
-            robot.getSlide().moveToHeight(TOP_POLE);
+            robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TOP_POLE);
             robot.getTurret().moveToOrientation(FRONT);
             robot.getDriveTrain().moveToTargetPosition(new Position(1.5,2.5),new Heading(45),BASE_SPEED);
             robot.getDriveTrain().moveToTargetPosition(new Position(1+inchesToTiles(19),2+inchesToTiles(18.5)),BASE_SPEED);
@@ -137,8 +139,8 @@ public class AutoMainLeft extends AutoMain {
         robot.waitForCommandsToFinish();
     }
 
-    private void park(int aprilTagValue) {
-        robot.getDriveTrain().moveToTargetPosition(new Position(.5 + aprilTagValue, 1.5),BASE_SPEED);
+    private void park() {
+        robot.getDriveTrain().moveToTargetPosition(new Position(.5 + getAprilTagPosition(), 1.5),BASE_SPEED);
         robot.waitForCommandsToFinish();
     }
 

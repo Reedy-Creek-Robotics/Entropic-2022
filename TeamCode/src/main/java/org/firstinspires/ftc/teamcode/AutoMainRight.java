@@ -31,7 +31,7 @@ public class AutoMainRight extends AutoMain {
     }
 
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void runAutoPath() {
 
         initRobot();
 
@@ -68,12 +68,13 @@ public class AutoMainRight extends AutoMain {
         getNewCone();
         deliverToPole(GROUND);
 
+        park();
+
 
         //get a new cone(loop*5)
         //getNewCone();
         //deliver to pole(loop*5)
         //deliverToPole(Pole.HIGH);
-
     }
 
     //Used after recentered
@@ -82,7 +83,7 @@ public class AutoMainRight extends AutoMain {
         robot.getTurret().moveToOrientation(BACK);
         robot.waitForCommandsToFinish();
 
-        robot.getSlide().moveToTicks(INTAKE.getTicks() + AutoMain.PoleStackOffset.forConesRemaining(coneCount).getTicks());
+        robot.getSlide().moveToIntake(coneCount);
         coneCount--;
         robot.getIntake().intake(.5, .5);
         robot.waitForCommandsToFinish();
@@ -144,8 +145,8 @@ public class AutoMainRight extends AutoMain {
         robot.waitForCommandsToFinish();
     }
 
-    private void park(int aprilTagValue) {
-        robot.getDriveTrain().moveToTargetPosition(new Position(3.5 + aprilTagValue, 1.5), BASE_SPEED);
+    private void park() {
+        robot.getDriveTrain().moveToTargetPosition(new Position(3.5 + getAprilTagPosition(), 1.5), BASE_SPEED);
         robot.waitForCommandsToFinish();
     }
 
