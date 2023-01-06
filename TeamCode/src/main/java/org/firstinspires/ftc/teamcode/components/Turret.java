@@ -6,12 +6,11 @@ public class Turret extends BaseComponent {
 
     private static double MAXIMUM = 1;
     private static double MINIMUM = .3;
-    private static double THRESHOLD = 0.05;
 
     private Servo servo;
     private SafetyCheck safetyCheck;
 
-    private Orientation targetOrientation = Orientation.FRONT;
+    private double targetPosition = Orientation.FRONT.servoPosition;
 
     /**
      * Indicates if the turret has been started, meaning its safety check has passed (i.e. the linear slide has raised
@@ -43,8 +42,8 @@ public class Turret extends BaseComponent {
         this.safetyCheck = safetyCheck;
     }
 
-    public double getTurretPosition() {
-        return servo.getPosition();
+    public double getTargetPosition() {
+        return targetPosition;
     }
 
     public void stopTurret() {
@@ -59,6 +58,7 @@ public class Turret extends BaseComponent {
 
     public void moveToPosition(double position) {
         if (isSafeToMove()) {
+            this.targetPosition = position;
             executeCommand(new MoveToPosition(position));
         }
     }
@@ -66,7 +66,7 @@ public class Turret extends BaseComponent {
     public void updateStatus() {
         if (!turrentStarted && isSafeToMove()) {
             turrentStarted = true;
-            moveToOrientation(targetOrientation);
+            moveToPosition(targetPosition);
         }
 
         super.updateStatus();

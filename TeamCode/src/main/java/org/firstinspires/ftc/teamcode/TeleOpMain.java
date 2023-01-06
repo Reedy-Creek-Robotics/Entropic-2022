@@ -6,12 +6,12 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.*;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
-import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.*;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 
@@ -24,8 +24,7 @@ public class TeleOpMain extends OpMode {
     private double limiter;
     double INTAKE_POWER = .3;
     public static final double INTAKE_TIME = 1;
-    public Orientation turretPosition;
-
+    public int slideTicks;
 
     @Override
     public void init() {
@@ -40,12 +39,12 @@ public class TeleOpMain extends OpMode {
         INTAKE_POWER = 0.5;
 
         limiter = 0.7;
-        turretPosition = FRONT;
     }
 
     @Override
     public void loop() {
-
+        //@todo: manual control of the slide
+        //@todo: manual control of the turret
 
         RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
 
@@ -103,15 +102,19 @@ public class TeleOpMain extends OpMode {
         }
 
         //Turret
+        Turret.Orientation turretPosition = null;
         if (deliverer.isPressed(DPAD_UP)) {
-            turretPosition = FRONT;
+            turretPosition = Orientation.FRONT;
         } else if (deliverer.isPressed(DPAD_LEFT) || deliverer.isPressed(DPAD_RIGHT)) {
-            turretPosition = LEFT_SIDE;
+            turretPosition = Orientation.LEFT_SIDE;
         } else if (deliverer.isPressed(DPAD_DOWN)) {
             turretPosition = Orientation.BACK;
         }
-        robot.getTurret().moveToOrientation(turretPosition);
-        telemetry.addData("Is it safe for the turret to move: ",robot.getTurret().isSafeToMove()?"yes":"no");
+        if (turretPosition != null) {
+            robot.getTurret().moveToOrientation(turretPosition);
+        }
+
+        telemetry.addData("Turret Safe to Move",robot.getTurret().isSafeToMove()?"yes":"no");
 
         robot.updateStatus();
     }

@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.view.View;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -52,6 +54,21 @@ public class LinearSlide extends BaseComponent {
     public void init() {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
+    }
+
+    /**
+     * Moves the motor to the given ticks.
+     */
+    public void manualArmMovement(int ticks) {
+        stopAllCommands();
+
+        if(ticks > SlideHeight.TOP_POLE.getTicks()) {
+            ticks = SlideHeight.TOP_POLE.getTicks();
+        }else if(ticks < SlideHeight.INTAKE.getTicks()) {
+            ticks = SlideHeight.INTAKE.getTicks();
+        }
+
+        motor.setTargetPosition(ticks);
     }
 
     /**

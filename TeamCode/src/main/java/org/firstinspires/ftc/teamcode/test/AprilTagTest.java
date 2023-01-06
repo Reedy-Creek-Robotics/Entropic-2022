@@ -27,21 +27,16 @@ public class AprilTagTest extends OpMode {
 
     @Override
     public void loop() {
-        double drive = gamepad1.left_stick_y;
-        double turn = gamepad1.right_stick_x;
-        double strafe = gamepad1.left_stick_x;
-
-        //sets the power to the drivetrain
-        robot.getDriveTrain().drive(drive, turn, strafe,1);
-
         List<AprilTagDetection> currentDetections = robot.getAprilTagDetector().getDetections();
 
-        if (currentDetections.size() != 0) {
-            AprilTagDetection tagOfInterest = currentDetections.get(0);
-            telemetry.addData("Tag", tagOfInterest.id);
+        if (!currentDetections.isEmpty()) {
+            AprilTagDetection detection = currentDetections.get(0);
+            telemetry.addData("Tag", detection.id);
         } else {
             telemetry.addData("No tag", null);
         }
         telemetry.update();
+
+        robot.updateStatus();
     }
 }
