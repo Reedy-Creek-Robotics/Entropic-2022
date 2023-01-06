@@ -112,7 +112,7 @@ public class RobotFieldConversionUtil {
         assert backLeft != null;
         assert backRight != null;
 
-        double headingOffset = frontLeft.minus(backLeft).toHeading().delta(heading);
+        double headingOffset = heading.delta(frontLeft.minus(backLeft).toHeading());
         double distanceFront = position.distance(new Line(frontLeft, frontRight));
         double distanceRight = position.distance(new Line(backRight, frontRight));
 

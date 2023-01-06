@@ -40,7 +40,7 @@ public class RobotFieldConversionUtilTest {
 
         assertRobotSpaceCoordinates(
                 new RobotSpaceCoordinates(
-                        30.0, 0.5, 0.5,
+                        -30.0, 0.5, 0.5,
                         new Position(0, 1), new Position(1, 1),
                         new Position(0, 0), new Position(1, 0)
                 ),
@@ -112,7 +112,7 @@ public class RobotFieldConversionUtilTest {
 
         assertRobotSpaceCoordinates(
                 new RobotSpaceCoordinates(
-                        -30, 0.3, 0.3,
+                        30, 0.3, 0.3,
                         new Position(1, 1), new Position(1, 0),
                         new Position(0, 1), new Position(0, 0)
                 ),
