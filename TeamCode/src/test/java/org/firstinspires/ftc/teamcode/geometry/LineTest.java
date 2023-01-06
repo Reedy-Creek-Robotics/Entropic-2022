@@ -45,7 +45,7 @@ public class LineTest {
     }
 
     @Test
-    public void getAngle() {
+    public void getAngleToX() {
         assertEquals(0.0,
                 new Line(new Position(0, 0), new Position(1, 0)
                 ).getAngleToX(), E);
@@ -86,13 +86,64 @@ public class LineTest {
                 new Line(new Position(0, 0), new Position(-1, -1)
                 ).getAngleToX(), E);
 
-        assertEquals(-90.0,
+        assertEquals(90.0,
                 new Line(new Position(0, 0), new Position(0, -1)
                 ).getAngleToX(), E);
 
         assertEquals(-45.0,
                 new Line(new Position(0, 0), new Position(1, -1)
                 ).getAngleToX(), E);
+    }
+
+    @Test
+    public void getAngleToY() {
+        assertEquals(90.0,
+                new Line(new Position(0, 0), new Position(1, 0)
+                ).getAngleToY(), E);
+
+        assertEquals(-60,
+                new Line(new Position(0, 0), new Position(Math.sqrt(3), 1)
+                ).getAngleToY(), E);
+
+        assertEquals(-45.0,
+                new Line(new Position(0, 0), new Position(1, 1)
+                ).getAngleToY(), E);
+
+        assertEquals(-30,
+                new Line(new Position(0, 0), new Position(1, Math.sqrt(3))
+                ).getAngleToY(), E);
+
+        assertEquals(0.0,
+                new Line(new Position(0, 0), new Position(0, 1)
+                ).getAngleToY(), E);
+
+        assertEquals(30,
+                new Line(new Position(0, 0), new Position(-1, Math.sqrt(3))
+                ).getAngleToY(), E);
+
+        assertEquals(45.0,
+                new Line(new Position(0, 0), new Position(-1, 1)
+                ).getAngleToY(), E);
+
+        assertEquals(60,
+                new Line(new Position(0, 0), new Position(Math.sqrt(3), -1)
+                ).getAngleToY(), E);
+
+        assertEquals(90.0,
+                new Line(new Position(0, 0), new Position(-1, 0)
+                ).getAngleToY(), E);
+
+        assertEquals(-45.0,
+                new Line(new Position(0, 0), new Position(-1, -1)
+                ).getAngleToY(), E);
+
+        assertEquals(0.0,
+                new Line(new Position(0, 0), new Position(0, -1)
+                ).getAngleToY(), E);
+
+        assertEquals(45.0,
+                new Line(new Position(0, 0), new Position(1, -1)
+                ).getAngleToY(), E);
     }
 
     @Test

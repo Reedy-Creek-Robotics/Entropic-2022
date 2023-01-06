@@ -82,7 +82,8 @@ public class Line {
     }
 
     /**
-     * Returns the angle in degrees between the line and the positive X axis, in the range (-90,90).
+     * Returns the angle in degrees between the line and the positive X axis, in the range
+     * (-90 < angle <= 90).
      */
     public double getAngleToX() {
         // Convert to a vector
@@ -92,6 +93,23 @@ public class Line {
         // Because line is normalized in x direction, heading should be from (0-90), or (270-360).
         double theta = offset.toHeading().getValue();
         if (theta >= 270) theta = -(360 - theta);
+        if (theta <= -90) theta += 180;
+
+        return theta;
+    }
+
+    /**
+     * Returns the angle in degrees between the line and the positive Y axis, in the range
+     * (-90 < angle <= 90).
+     */
+    public double getAngleToY() {
+        // Convert to a vector
+        Line normalized = normalizeY();
+        Vector2 offset = normalized.p2.minus(normalized.p1);
+
+        // Because line is normalized in y direction, heading should be from (0-90), or (90-180).
+        double theta = offset.toHeading().getValue() - 90;
+        if (theta <= -90) theta += 180;
 
         return theta;
     }
