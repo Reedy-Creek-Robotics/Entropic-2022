@@ -12,8 +12,7 @@ import org.openftc.apriltag.AprilTagDetection;
 
 public abstract class AutoMain extends LinearOpMode {
 
-    protected static final double BASE_SPEED = 0.3;
-    protected static final double INTAKE_SPEED = 1;
+    protected static final double BASE_SPEED = 0.7;
 
     protected int coneCount = 5;
 

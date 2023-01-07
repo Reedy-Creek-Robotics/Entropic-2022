@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 
 @TeleOp
@@ -73,6 +74,8 @@ public class TeleOpMain extends OpMode {
             limiter -= 0.1;
         } else if (driver.isPressed(Button.START)) {
             robot.getDriveTrain().setPosition(new Position(.5, .5));
+        } else if (driver.isPressed(BACK)) {
+            robot.getDriveTrain().setHeading(new Heading(90));
         }
 
         //Intake
@@ -83,17 +86,17 @@ public class TeleOpMain extends OpMode {
             robot.getIntake().intakeManual();
         } else if (nonZero(driver.leftTrigger())) {
             robot.getIntake().outakeManual();
-        }else {
+        } else {
             robot.getIntake().stopIntake();
         }
 
         //Lift
-        if(nonZero(deliverer.leftStickY())){
+        if (nonZero(deliverer.leftStickY())) {
             slideTicks += 20 * deliverer.leftStickY();
             robot.getSlide().manualSlideMovement(slideTicks);
         } else if (driver.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(TRAVEL);
-        } else if(driver.isPressed(LEFT_STICK_BUTTON)) {
+        } else if (driver.isPressed(LEFT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(INTAKE);
         } else if (deliverer.isPressed(SQUARE)) {
             robot.getSlide().moveToHeight(GROUND_LEVEL);
@@ -107,7 +110,7 @@ public class TeleOpMain extends OpMode {
         slideTicks = robot.getSlide().getTargetPosition().getTicks();
 
         //Turret
-        if(nonZero(deliverer.rightStickX())){
+        if (nonZero(deliverer.rightStickX())) {
             turretPosition += deliverer.rightStickX() * 0.05;
         } else if (deliverer.isPressed(DPAD_UP)) {
             turretPosition = Orientation.FRONT.getServoPosition();
@@ -120,7 +123,7 @@ public class TeleOpMain extends OpMode {
         robot.getTurret().moveToPosition(turretPosition);
 
 
-        telemetry.addData("Turret Safe to Move",robot.getTurret().isSafeToMove()?"yes":"no");
+        telemetry.addData("Turret Safe to Move", robot.getTurret().isSafeToMove() ? "yes" : "no");
 
         robot.updateStatus();
     }

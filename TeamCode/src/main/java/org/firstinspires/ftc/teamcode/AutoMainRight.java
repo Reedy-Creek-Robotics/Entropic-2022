@@ -147,6 +147,7 @@ public class AutoMainRight extends AutoMain {
 
     private void park() {
         robot.getDriveTrain().moveToTargetPosition(new Position(3.5 + (getAprilTagPosition() - 1), 1.5), BASE_SPEED);
+        robot.getSlide().moveToHeight(INTAKE);
         robot.waitForCommandsToFinish();
     }
 
