@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import static org.firstinspires.ftc.teamcode.RobotDescriptor.EmpiricalStrafeCorrection;
+
 import android.annotation.SuppressLint;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -8,6 +10,11 @@ import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.firstinspires.ftc.teamcode.geometry.VectorN;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class MecanumUtil {
 
@@ -49,39 +56,94 @@ public class MecanumUtil {
             int deltaBackRight,
             int deltaFrontLeft,
             int deltaFrontRight,
-            Heading heading
+            Heading heading,
+            MotorPowers motorPowers
     ) {
+        // Use vectors at 45 degree angles, u and v, to calculate the overall mecanum movement.
         double du = (deltaBackRight + deltaFrontLeft) / 2.0;
         double dv = (deltaBackLeft + deltaFrontRight) / 2.0;
 
-        double length = 1.0; // Math.sqrt(2);
+        double length = 1.0;
         Vector2 u = new Vector2(length, length);
         Vector2 v = new Vector2(-length, length);
 
         Vector2 deltaPositionInTicks = u.multiply(du).add(v.multiply(dv)).multiply(0.5);
 
-        Vector2 deltaPositionInTiles = new Vector2(
+        // Calculate the delta position in tiles based on the above tick movement.
+        Vector2 deltaPosition = new Vector2(
                 ticksToTiles(robotDescriptor, deltaPositionInTicks.getX()),
                 ticksToTiles(robotDescriptor, deltaPositionInTicks.getY())
         );
 
-        Vector2 deltaPositionRelativeToRobot = deltaPositionInTiles.rotate(-90);
+        // Calculate the empirical strafe correction to use for the currently applied motor powers.
+        double strafeCorrection = calculateStrafeCorrectionForMotorPower(robotDescriptor, motorPowers);
 
-        // todo: scale by motor power
-        //double atPoint7 = 0.92004;
-        //double atPoint3 = 0.93004;
-
-        double strafeCorrection = 1.0;
-
-        //double strafeAmount = Math.abs(deltaPositionRelativeToRobot.withMagnitude(1.0).getX());
-        Vector2 deltaPositionRelativeToRobotWithStrafeCorrection = new Vector2(
-                deltaPositionRelativeToRobot.getX() * strafeCorrection,
-                deltaPositionRelativeToRobot.getY()
+        // Apply the strafe correction to the lateral movement of the robot, while leaving the
+        // forward and backward movement unaffected.
+        Vector2 deltaPositionWithStrafeCorrection = new Vector2(
+                deltaPosition.getX() * strafeCorrection,
+                deltaPosition.getY()
         );
 
-        Vector2 deltaPositionRelativeToField = deltaPositionRelativeToRobotWithStrafeCorrection.rotate(heading.getValue());
+        // Translate the movement from robot space into field space coordinates by rotating by the
+        // robot's current heading.
+        Vector2 deltaPositionRelativeToField = deltaPositionWithStrafeCorrection
+                .rotate(heading.getValue() - 90);
 
         return deltaPositionRelativeToField;
+    }
+
+    private static double calculateStrafeCorrectionForMotorPower(
+            RobotDescriptor robotDescriptor,
+            MotorPowers motorPowers
+    ) {
+        List<EmpiricalStrafeCorrection> strafeCorrections = robotDescriptor.empiricalStrafeCorrections;
+        boolean enabled = robotDescriptor.enableEmpiricalStrafeCorrection;
+
+        if (motorPowers == null || !enabled || strafeCorrections.isEmpty()) {
+            // No measurements, or correction is disabled, so don't apply strafe correction.
+            return 1.0;
+
+        } else if (strafeCorrections.size() == 1) {
+            // Only one measurement, so use that without scaling.
+            return strafeCorrections.get(0).strafeCorrection;
+
+        } else {
+            // Multiple measurements, use interpolation to scale between them.
+            strafeCorrections = new ArrayList<>(strafeCorrections);
+
+            // Determine the average positive motor power.
+            double averageMotorPower = (Math.abs(motorPowers.frontLeft) +
+                    Math.abs(motorPowers.frontRight) +
+                    Math.abs(motorPowers.backLeft) +
+                    Math.abs(motorPowers.backRight)) / 4.0;
+
+            // Find the two closest empirical measurements for this motor power.
+            Collections.sort(strafeCorrections, new Comparator<EmpiricalStrafeCorrection>() {
+                @Override
+                public int compare(EmpiricalStrafeCorrection first, EmpiricalStrafeCorrection second) {
+                    return Double.compare(
+                            Math.abs(first.motorPower - averageMotorPower),
+                            Math.abs(second.motorPower - averageMotorPower)
+                    );
+                }
+            });
+
+            EmpiricalStrafeCorrection low = strafeCorrections.get(0);
+            EmpiricalStrafeCorrection high = strafeCorrections.get(1);
+            if (low.motorPower > high.motorPower) {
+                EmpiricalStrafeCorrection swap = low;
+                low = high;
+                high = swap;
+            }
+
+            // Interpolate between the two measured values.
+            return ScalingUtil.scaleLinear(
+                    averageMotorPower,
+                    low.motorPower, high.motorPower,
+                    low.strafeCorrection, high.strafeCorrection
+            );
+        }
     }
 
     /**
