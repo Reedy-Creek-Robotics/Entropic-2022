@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
+import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.convertToFieldSpace;
@@ -190,7 +191,7 @@ public class DriveTrain extends BaseComponent {
 
         telemetry.addData("Heading", heading);
         telemetry.addData("Position", position);
-        telemetry.addData("Speed", String.format("%.3f", velocity.magnitude()));
+        telemetry.addData("Speed", format(velocity.magnitude()));
 
         //telemetry.addData("Current Command", getCurrentCommand());
         //telemetry.addData("Next Commands", getNextCommands());

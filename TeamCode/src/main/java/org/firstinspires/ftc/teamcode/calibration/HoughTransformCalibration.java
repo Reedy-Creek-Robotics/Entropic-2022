@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -79,10 +80,10 @@ public class HoughTransformCalibration extends BaseTeleOp {
         }
 
         telemetry.addData("Exposure (ms)", robot.getWebCamSide().getExposure());
-        telemetry.addData("Horizontal Similar Line Rho Threshold", parametersHorizontal.similarLineRhoThreshold);
-        telemetry.addData("Horizontal Similar Line Theta Threshold", parametersHorizontal.similarLineThetaThreshold);
-        telemetry.addData("Vertical Similar Line Rho Threshold", parametersVertical.similarLineRhoThreshold);
-        telemetry.addData("Vertical Similar Line Theta Threshold", parametersVertical.similarLineThetaThreshold);
+        telemetry.addData("Horizontal Similar Line Rho Threshold", format(parametersHorizontal.similarLineRhoThreshold, 1));
+        telemetry.addData("Horizontal Similar Line Theta Threshold", format(parametersHorizontal.similarLineThetaThreshold, 2));
+        telemetry.addData("Vertical Similar Line Rho Threshold", format(parametersVertical.similarLineRhoThreshold, 1));
+        telemetry.addData("Vertical Similar Line Theta Threshold", format(parametersVertical.similarLineThetaThreshold, 2));
 
         telemetry.addData("Horizontal Pixel Voters", tileEdgeDetector.getHoughLineDetectorHorizontal().getParameters().pixelVoterThreshold);
         telemetry.addData("Vertical Pixel Voters", tileEdgeDetector.getHoughLineDetectorVertical().getParameters().pixelVoterThreshold);

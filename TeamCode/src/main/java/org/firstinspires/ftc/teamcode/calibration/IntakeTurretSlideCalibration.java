@@ -12,6 +12,7 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.LEFT_SIDE;
+import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -67,11 +68,11 @@ public class IntakeTurretSlideCalibration extends BaseTeleOp {
         }
 
         telemetry.addData("Slide Ticks", slideTicks);
-        telemetry.addData("Target Turret Position", turretPosition);
-        telemetry.addData("Turret Position", robot.getTurret().getTargetPosition());
+        telemetry.addData("Target Turret Position", format(turretPosition));
+        telemetry.addData("Turret Position", format(robot.getTurret().getTargetPosition()));
 
-        telemetry.addData("Intake Power", intakePower);
-        telemetry.addData("Intake Time", intakeTime);
+        telemetry.addData("Intake Power", format(intakePower));
+        telemetry.addData("Intake Time", format(intakeTime));
 
         robot.updateStatus();
     }
