@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.components.LinearSlide;
@@ -52,6 +51,7 @@ public abstract class AutoMain extends LinearOpMode {
         robot.init();
         robotDescriptor = robot.getRobotContext().robotDescriptor;
 
+        robot.getWebCamFront().waitUntilReady();
         robot.getAprilTagDetector().activate();
 
         robot.getDriveTrain().setPosition(getStartPosition());

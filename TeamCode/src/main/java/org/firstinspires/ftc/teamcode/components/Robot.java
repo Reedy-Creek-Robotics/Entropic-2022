@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static android.os.Environment.getExternalStorageDirectory;
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
 
 import android.annotation.SuppressLint;
 
@@ -15,17 +14,7 @@ import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
-import java.util.Scanner;
 
 
 public class Robot extends BaseComponent {
@@ -193,6 +182,10 @@ public class Robot extends BaseComponent {
 
     public WebCam getWebCamSide() {
         return webCamSide;
+    }
+
+    public WebCam getWebCamFront() {
+        return webCamFront;
     }
 
     public AprilTagDetector getAprilTagDetector() {

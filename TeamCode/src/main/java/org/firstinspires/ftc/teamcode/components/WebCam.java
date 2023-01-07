@@ -6,10 +6,8 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.opencv.core.Mat;
-import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -100,10 +98,6 @@ public class WebCam extends BaseComponent {
             }
         });
 
-        while (!isReady() && !isStopRequested()) {
-            sleep(100);
-        }
-
         camera.showFpsMeterOnViewport(false);
 
         exposureControl = camera.getExposureControl();
@@ -136,6 +130,12 @@ public class WebCam extends BaseComponent {
 
     public boolean isReady() {
         return frameCount > 0;
+    }
+
+    public void waitUntilReady() {
+        while (!isReady() && !isStopRequested()) {
+            sleep(50);
+        }
     }
 
     public void setFrameProcessor(FrameProcessor frameProcessor) {
