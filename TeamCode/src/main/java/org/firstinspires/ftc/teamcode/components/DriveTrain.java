@@ -104,8 +104,6 @@ public class DriveTrain extends BaseComponent {
         tileEdgeDetectorSide = new TileEdgeDetector(context, webCamSide);
         addSubComponents(tileEdgeDetectorSide);
 
-        //todo: Decide how we are going to determine starting position
-
         // For now starting position is to be assumed the origin (0, 0)
         position = new Position(.5, .5);
         heading = new Heading(90);
@@ -1020,7 +1018,6 @@ public class DriveTrain extends BaseComponent {
         private double progress;
         ////////////////////////////////////////////////
 
-        // todo check distance multiplied by strafe modifier
         public Strafe(double distance, double speed) {
             this.distance = distance;
             this.speed = speed;

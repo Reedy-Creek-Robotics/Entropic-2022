@@ -50,9 +50,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
     @Override
     public void loop() {
-        // todo: manual control of the slide
-        // todo: manual control of the turret
-
         // Driving
         applyDriving();
 

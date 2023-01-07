@@ -94,7 +94,7 @@ public class WebCam extends BaseComponent {
 
             @Override
             public void onError(int errorCode) {
-                //todo handle error
+                telemetry.log().add("Error opening " + cameraName + ": " + errorCode);
             }
         });
 
