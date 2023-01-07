@@ -2,11 +2,10 @@ package org.firstinspires.ftc.teamcode.calibration;
 
 import static org.firstinspires.ftc.teamcode.Controller.Button;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.Controller;
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.firstinspires.ftc.teamcode.geometry.Line;
@@ -22,19 +21,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 @TeleOp(group = "Calibration")
-public class WebCamCalibration extends OpMode {
+public class WebCamCalibration extends BaseTeleOp {
 
     /**
      * The center of the calibration mat (in inches), marked with intersecting diagonal lines.
      */
     private static final Position MAT_CENTER = new Position(8.5, 6.5); // inches
 
-    private Robot robot;
-
     private Size resolution;
     private Position viewCenter;
-
-    private Controller controller;
 
     private boolean calibrationMode = false;
     private boolean showGrid = false;
@@ -51,11 +46,14 @@ public class WebCamCalibration extends OpMode {
     private AnchorPoint activeCornerPoint;
 
     @Override
-    public void init() {
-        robot = new Robot(this, Robot.CameraMode.ENABLED_AND_STREAMING_SIDE);
-        robot.init();
+    protected Robot.CameraMode getCameraMode() {
+        return Robot.CameraMode.ENABLED_AND_STREAMING_SIDE;
+    }
 
-        RobotDescriptor descriptor = robot.getRobotContext().robotDescriptor;
+    @Override
+    public void init() {
+        super.init();
+
         resolution = descriptor.webCamResolution;
         viewCenter = new Position(resolution.width / 2, resolution.height / 2);
         controller = new Controller(gamepad1);

@@ -13,41 +13,21 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.LEFT_SIDE;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Controller;
-import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.BaseTeleOp;
 
 @TeleOp(group = "Calibration")
-public class IntakeTurretSlideCalibration extends OpMode {
+public class IntakeTurretSlideCalibration extends BaseTeleOp {
 
-    private Robot robot;
-    private Controller controller;
+    private int slideTicks = 0;
+    private double turretPosition = LEFT_SIDE.getServoPosition();
 
-    private int slideTicks;
-    private double turretPosition;
-
-    private double intakeTime;
-    private double intakePower;
-
-    @Override
-    public void init() {
-        robot = new Robot(this);
-        robot.init();
-
-        controller = new Controller(gamepad1);
-
-        slideTicks = 0;
-        turretPosition = LEFT_SIDE.getServoPosition();
-
-        intakeTime = 1.0;
-        intakePower = 1.0;
-    }
+    private double intakeTime = 1.0;
+    private double intakePower = 1.0;
 
     @Override
     public void loop() {
-
 
         if (controller.isPressed(LEFT_STICK_X)) {
             slideTicks += controller.leftStickY() * 5;

@@ -9,28 +9,20 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
-import static org.firstinspires.ftc.teamcode.components.Robot.CameraMode.ENABLED_AND_STREAMING_SIDE;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Controller;
+import org.firstinspires.ftc.teamcode.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.TileEdgeDetector;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 
 @TeleOp(group = "Calibration")
-public class HoughTransformCalibration extends OpMode {
-
-    private Robot robot;
-    private Controller controller;
+public class HoughTransformCalibration extends BaseTeleOp {
 
     @Override
-    public void init() {
-        robot = new Robot(this, ENABLED_AND_STREAMING_SIDE);
-        robot.init();
-
-        controller = new Controller(gamepad1);
+    protected Robot.CameraMode getCameraMode() {
+        return Robot.CameraMode.ENABLED_AND_STREAMING_SIDE;
     }
 
     @Override

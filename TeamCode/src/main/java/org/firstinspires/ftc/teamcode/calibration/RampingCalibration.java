@@ -10,29 +10,14 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.Controller;
-import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.BaseTeleOp;
 
 @TeleOp(group = "Calibration")
-public class RampingCalibration extends OpMode {
+public class RampingCalibration extends BaseTeleOp {
 
-    private Robot robot;
-    private Controller controller;
-
-    private double limiter;
-
-    @Override
-    public void init() {
-        robot = new Robot(this);
-        robot.init();
-
-        limiter = .3;
-
-        controller = new Controller(gamepad1);
-    }
+    private double limiter = 0.3;
 
     @Override
     public void loop() {

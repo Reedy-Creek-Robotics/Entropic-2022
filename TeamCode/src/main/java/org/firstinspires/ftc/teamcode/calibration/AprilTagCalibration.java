@@ -1,25 +1,28 @@
 package org.firstinspires.ftc.teamcode.calibration;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.openftc.apriltag.AprilTagDetection;
 
 import java.util.List;
 
 @TeleOp(group = "Calibration")
-public class AprilTagCalibration extends OpMode {
-
-    private Robot robot;
+public class AprilTagCalibration extends BaseTeleOp {
 
     @Override
     public void init() {
-        robot = new Robot(this, Robot.CameraMode.ENABLED_AND_STREAMING_FRONT);
-        robot.init();
+        super.init();
 
         // Activate the AprilTag detector
         robot.getAprilTagDetector().activate();
+    }
+
+    @Override
+    protected Robot.CameraMode getCameraMode() {
+        // For AprilTagCalibration stream the front web cam
+        return Robot.CameraMode.ENABLED_AND_STREAMING_FRONT;
     }
 
     @Override

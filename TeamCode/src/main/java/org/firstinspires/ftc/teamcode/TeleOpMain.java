@@ -68,8 +68,6 @@ public class TeleOpMain extends OpMode {
         //@todo: manual control of the slide
         //@todo: manual control of the turret
 
-        RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
-
         //Driving
         if (driver.isPressed(LEFT_STICK_X, LEFT_STICK_Y, RIGHT_STICK_X) || !robot.getDriveTrain().isBusy()) {
             double drive = driver.leftStickY();
