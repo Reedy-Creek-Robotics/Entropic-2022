@@ -16,6 +16,9 @@ public class LinearSlide extends BaseComponent {
     private static final double DESCENDING_ARM_POWER = 0.2;
     private static final double IDLE_ARM_POWER = 0.25;
 
+    private static final int MAX_HEIGHT = SlideHeight.TOP_POLE.ticks;
+    private static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
+
     public enum SlideHeight {
         TOP_POLE(4125),
         MEDIUM_POLE(2950),
@@ -59,15 +62,10 @@ public class LinearSlide extends BaseComponent {
     /**
      * Moves the motor to the given ticks.
      */
-    public void manualArmMovement(int ticks) {
+    public void manualSlideMovement(int ticks) {
         stopAllCommands();
 
-        if(ticks > SlideHeight.TOP_POLE.getTicks()) {
-            ticks = SlideHeight.TOP_POLE.getTicks();
-        }else if(ticks < SlideHeight.INTAKE.getTicks()) {
-            ticks = SlideHeight.INTAKE.getTicks();
-        }
-
+        ticks = ensureSafeTicks(ticks);
         motor.setTargetPosition(ticks);
     }
 
@@ -90,6 +88,11 @@ public class LinearSlide extends BaseComponent {
      * Move the slide to the desired height
      */
     public void moveToHeight(SlideHeight position) {
+        if (position == SlideHeight.CUSTOM) {
+            // Invalid to set it to custom height here, use moveToTicks instead.
+            return;
+        }
+
         stopAllCommands();
         executeCommand(new MoveToTicks(position.ticks));
     }
@@ -101,7 +104,9 @@ public class LinearSlide extends BaseComponent {
         int offsetTicks = (conesInStack - 1) * TICKS_PER_STACKED_CONE;
         this.targetPosition = SlideHeight.INTAKE;
         stopAllCommands();
-        executeCommand(new MoveToTicks(SlideHeight.INTAKE.ticks + offsetTicks));
+        int ticks = SlideHeight.INTAKE.ticks + offsetTicks;
+        ticks = ensureSafeTicks(ticks);
+        executeCommand(new MoveToTicks(ticks));
     }
 
     /**
@@ -110,7 +115,18 @@ public class LinearSlide extends BaseComponent {
     public void moveToTicks(int ticks) {
         this.targetPosition = SlideHeight.CUSTOM;
         stopAllCommands();
+        ticks = ensureSafeTicks(ticks);
         executeCommand(new MoveToTicks(ticks));
+    }
+
+    private int ensureSafeTicks(int ticks) {
+        if (ticks > SlideHeight.TOP_POLE.getTicks() + 100) {
+            ticks = SlideHeight.TOP_POLE.getTicks() + 100;
+        } else if (ticks < SlideHeight.INTAKE.getTicks()) {
+            ticks = SlideHeight.INTAKE.getTicks();
+        }
+
+        return ticks;
     }
 
     private class MoveToTicks implements Command {

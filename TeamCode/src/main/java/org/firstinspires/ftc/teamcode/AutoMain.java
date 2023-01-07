@@ -10,8 +10,12 @@ import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.openftc.apriltag.AprilTagDetection;
 
-@Autonomous
 public abstract class AutoMain extends LinearOpMode {
+
+    protected static final double BASE_SPEED = 0.3;
+    protected static final double INTAKE_SPEED = 1;
+
+    protected int coneCount = 5;
 
     protected Robot robot;
     protected RobotDescriptor robotDescriptor;
@@ -25,6 +29,9 @@ public abstract class AutoMain extends LinearOpMode {
         waitForStart();
 
         aprilTagDetection = robot.getAprilTagDetector().waitForDetection(2);
+        telemetry.log().add("Detected Tag: " + (aprilTagDetection != null ? aprilTagDetection.id : null));
+        telemetry.update();
+
         robot.getAprilTagDetector().deactivate();
 
         robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRAVEL);
@@ -46,13 +53,15 @@ public abstract class AutoMain extends LinearOpMode {
         robot.init();
         robotDescriptor = robot.getRobotContext().robotDescriptor;
 
+        robot.getAprilTagDetector().activate();
+
         robot.getDriveTrain().setPosition(getStartPosition());
     }
 
     protected abstract Position getStartPosition();
 
     protected int getAprilTagPosition() {
-        return aprilTagDetection.id;
+        return aprilTagDetection != null ? aprilTagDetection.id : 2;
     }
 
     public enum Pole {

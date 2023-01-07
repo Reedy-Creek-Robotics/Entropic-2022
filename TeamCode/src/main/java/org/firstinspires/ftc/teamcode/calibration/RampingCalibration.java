@@ -20,7 +20,7 @@ import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.TileEdgeDetector;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 
-@TeleOp
+@TeleOp(group = "Calibration")
 public class RampingCalibration extends OpMode {
 
     private Robot robot;

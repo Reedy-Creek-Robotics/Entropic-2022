@@ -314,7 +314,7 @@ public class AprilTagDetector extends BaseComponent {
         public double cx = 402.145;
         public double cy = 221.506;
 
-        public float decimation;
+        public float decimation = 3.0f;
     }
 
 }

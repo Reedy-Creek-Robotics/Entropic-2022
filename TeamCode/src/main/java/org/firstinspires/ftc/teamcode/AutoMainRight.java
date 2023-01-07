@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.AutoMain.Pole.*;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.INTAKE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.SMALL_POLE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TOP_POLE;
@@ -14,16 +13,11 @@ import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 
 @Autonomous
 public class AutoMainRight extends AutoMain {
-
-    protected Robot robot;
-    private int coneCount=5;
-    public static final double BASE_SPEED = 0.3;
 
     @Override
     protected Position getStartPosition() {
@@ -32,10 +26,6 @@ public class AutoMainRight extends AutoMain {
 
     @Override
     public void runAutoPath() {
-
-        initRobot();
-
-        waitForStart();
 
         //move to medium pole and prepare to drop off
         robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2), new Heading(180), BASE_SPEED);
@@ -46,7 +36,7 @@ public class AutoMainRight extends AutoMain {
         //drop off pole
         robot.getDriveTrain().moveToTargetPosition(new Position(4.3, 2), BASE_SPEED);
         robot.waitForCommandsToFinish();
-        robot.getIntake().outake(.5, .5);
+        robot.getIntake().outtake( .5);
         robot.waitForCommandsToFinish();
 
         //recenter
@@ -85,7 +75,7 @@ public class AutoMainRight extends AutoMain {
 
         robot.getSlide().moveToIntake(coneCount);
         coneCount--;
-        robot.getIntake().intake(.5, .5);
+        robot.getIntake().intake( .5);
         robot.waitForCommandsToFinish();
 
         robot.getDriveTrain().moveToTargetPosition(new Position(5.5, 2.5), BASE_SPEED);
@@ -100,7 +90,7 @@ public class AutoMainRight extends AutoMain {
             robot.getDriveTrain().moveToTargetPosition(new Position(4.3, 2.7), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getIntake().outake(.5, .5);
+            robot.getIntake().outtake(.5);
             robot.waitForCommandsToFinish();
 
             robot.getSlide().moveToHeight(TRAVEL);
@@ -112,7 +102,7 @@ public class AutoMainRight extends AutoMain {
             robot.getDriveTrain().moveToTargetPosition(new Position(4.3, 2.3), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getIntake().outake(.5, .5);
+            robot.getIntake().outtake(.5);
             robot.waitForCommandsToFinish();
 
             robot.getSlide().moveToHeight(TRAVEL);
@@ -124,7 +114,7 @@ public class AutoMainRight extends AutoMain {
             robot.getDriveTrain().moveToTargetPosition(new Position(5.3, 2.3), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getIntake().outake(.5, .5);
+            robot.getIntake().outtake( .5);
             robot.waitForCommandsToFinish();
 
             robot.getSlide().moveToHeight(TRAVEL);
@@ -136,7 +126,7 @@ public class AutoMainRight extends AutoMain {
             robot.getDriveTrain().moveToTargetPosition(new Position(5.3, 2.7), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getIntake().outake(.5, .5);
+            robot.getIntake().outtake( .5);
             robot.waitForCommandsToFinish();
 
             robot.getSlide().moveToHeight(TRAVEL);
@@ -146,7 +136,7 @@ public class AutoMainRight extends AutoMain {
     }
 
     private void park() {
-        robot.getDriveTrain().moveToTargetPosition(new Position(3.5 + getAprilTagPosition(), 1.5), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(3.5 + (getAprilTagPosition() - 1), 1.5), BASE_SPEED);
         robot.waitForCommandsToFinish();
     }
 

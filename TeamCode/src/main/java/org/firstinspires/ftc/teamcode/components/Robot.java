@@ -62,13 +62,11 @@ public class Robot extends BaseComponent {
                 cameraMode == CameraMode.ENABLED_AND_STREAMING_SIDE,
                 robotDescriptor.webCamResolution
         );
-        /*
-        this.webCamSide = new WebCam(
+        this.webCamFront = new WebCam(
                 context, "WebCamFront",
                 cameraMode == CameraMode.ENABLED_AND_STREAMING_FRONT,
                 robotDescriptor.webCamResolution
         );
-         */
 
         this.driveTrain = new DriveTrain(context, webCamSide);
         this.aprilTagDetector = new AprilTagDetector(context, webCamFront);
@@ -87,7 +85,7 @@ public class Robot extends BaseComponent {
 
         if (cameraMode.isEnabled()) {
             addSubComponents(webCamSide);
-            //addSubComponents(webCamFront);
+            addSubComponents(webCamFront);
             addSubComponents(aprilTagDetector);
         }
 
@@ -143,7 +141,12 @@ public class Robot extends BaseComponent {
      * Runs once, the first time the robot's updateStatus is called in an OpMode.
      */
     public void onStart() {
-        slide.moveToHeight(TRAVEL);
+        // todo: Commenting this out for now since we no longer need to worry about moving the turrent from a diagonal
+        // todo: start position to the front.  We may need to revisit this since the turret won't "lock" in place
+        // todo: until the slide moves above a specific height.
+        //slide.moveToHeight(TRAVEL);
+
+        telemetry.log().clear();
     }
 
     /**
@@ -197,7 +200,7 @@ public class Robot extends BaseComponent {
     }
 
     public void savePositionToDisk() {
-        loadPositionFromDisk("robot-position");
+        savePositionToDisk("robot-position");
     }
 
     public void savePositionToDisk(String filename) {

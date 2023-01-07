@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.opencv.core.Size;
 
 /**
@@ -82,11 +83,10 @@ public class RobotDescriptor {
     /**
      * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
      */
-
-    public Position webCamImageTopLeftCornerCoordinates = new Position(14.732, -2.815);
-    public Position webCamImageTopRightCornerCoordinates = new Position(1.313, -3.323);
-    public Position webCamImageBottomLeftCornerCoordinates = new Position(15.005, 5.320);
-    public Position webCamImageBottomRightCornerCoordinates = new Position(0.543, 4.721);
+    public Position webCamImageTopLeftCornerCoordinates = new Position(0.892, 10.370);
+    public Position webCamImageTopRightCornerCoordinates = new Position(18.069, 10.385);
+    public Position webCamImageBottomLeftCornerCoordinates = new Position(1.971, 0.899);
+    public Position webCamImageBottomRightCornerCoordinates = new Position(16.12, 0.686);
 
     /**
      * The size of the robot in inches, with the x axis being left to right and the y axis being

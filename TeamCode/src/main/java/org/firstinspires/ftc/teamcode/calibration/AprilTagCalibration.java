@@ -1,27 +1,24 @@
-package org.firstinspires.ftc.teamcode.test;
+package org.firstinspires.ftc.teamcode.calibration;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.components.AprilTagDetector;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.openftc.apriltag.AprilTagDetection;
 
 import java.util.List;
 
-@Disabled
-@TeleOp
-public class AprilTagTest extends OpMode {
+@TeleOp(group = "Calibration")
+public class AprilTagCalibration extends OpMode {
+
     private Robot robot;
 
     @Override
     public void init() {
-        robot = new Robot(this);
+        robot = new Robot(this, Robot.CameraMode.ENABLED_AND_STREAMING_FRONT);
         robot.init();
 
         // Activate the AprilTag detector
-        // todo: have a way to deactivate this as well
         robot.getAprilTagDetector().activate();
     }
 
@@ -35,7 +32,6 @@ public class AprilTagTest extends OpMode {
         } else {
             telemetry.addData("No tag", null);
         }
-        telemetry.update();
 
         robot.updateStatus();
     }

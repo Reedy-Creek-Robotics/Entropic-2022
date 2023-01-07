@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.TileEdgeObservation;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
 import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.HoughLine;
 import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.HoughParameters;
 
@@ -9,8 +10,10 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.geometry.Line;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.util.Color;
+import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 import org.opencv.core.Mat;
@@ -62,26 +65,26 @@ public class TileEdgeDetector extends BaseComponent {
     public void init() {
         Size resolution = robotDescriptor.webCamResolution;
 
-        double verticalInches = robotDescriptor.webCamImageTopLeftCornerCoordinates.minus(
-                robotDescriptor.webCamImageBottomLeftCornerCoordinates).getY();
-        double horizontalInches = robotDescriptor.webCamImageTopRightCornerCoordinates.minus(
-                robotDescriptor.webCamImageTopLeftCornerCoordinates).getX();
+        double verticalInches = Math.abs(robotDescriptor.webCamImageTopLeftCornerCoordinates.minus(
+                robotDescriptor.webCamImageBottomLeftCornerCoordinates).getY());
+        double horizontalInches = Math.abs(robotDescriptor.webCamImageTopRightCornerCoordinates.minus(
+                robotDescriptor.webCamImageTopLeftCornerCoordinates).getX());
         double verticalPixelsPerInch = resolution.height / verticalInches;
         double horizontalPixelsPerInch = resolution.width / horizontalInches;
 
         HoughParameters horizontalParameters = new HoughParameters();
         horizontalParameters.similarLineRhoThreshold = 1.2 * horizontalPixelsPerInch;
         horizontalParameters.similarLineThetaThreshold = 4.0;  // degrees
-        horizontalParameters.minTheta = -45;
-        horizontalParameters.maxTheta = 45;
+        horizontalParameters.minTheta = 45;
+        horizontalParameters.maxTheta = 135;
         horizontalParameters.pixelVoterThreshold = (int) (resolution.width * (1.0 / 4.0));
         this.houghLineDetectorHorizontal = new HoughLineDetector(horizontalParameters);
 
         HoughParameters verticalParameters = new HoughParameters();
         verticalParameters.similarLineRhoThreshold = 1.2 * verticalPixelsPerInch;
         verticalParameters.similarLineThetaThreshold = 4.0;  // degrees
-        verticalParameters.minTheta = 45;
-        verticalParameters.maxTheta = 135;
+        verticalParameters.minTheta = -45;
+        verticalParameters.maxTheta = 45;
         verticalParameters.pixelVoterThreshold = (int) (resolution.height * (1.0 / 4.0));
         this.houghLineDetectorVertical = new HoughLineDetector(verticalParameters);
 
@@ -109,6 +112,7 @@ public class TileEdgeDetector extends BaseComponent {
 
     /**
      * Waits for some amount of time for a successful tile edge detection.
+     *
      * @param maxTime the maximum time to wait in seconds.
      * @return true if an edge was detected, false if maxTime was exceeded without detection.
      */
@@ -137,35 +141,19 @@ public class TileEdgeDetector extends BaseComponent {
             // Remember the time of the current frame capture as early as possible (before all the math).
             ElapsedTime beginFrameTime = new ElapsedTime();
 
-            List<HoughLine> houghLines = new ArrayList<>();
-
-            //////////////////////////////////////////////////////////////////////////////////////////
-            //HACK
-            List<HoughLine> filterLines = houghLineDetectorHorizontal.detectLines(input);
-            int threshold = 145;
-            for(HoughLine line : filterLines) {
-                Line webCamLine = line.toLine(robotDescriptor.webCamResolution);
-
-                if(webCamLine.getP1().getY() > threshold && webCamLine.getP2().getY() > threshold){
-                    houghLines.add(line);
-                }
-            }
-            //END HACK
-            //////////////////////////////////////////////////////////////////////////////////////////
-
-            //houghLines.addAll(houghLineDetectorHorizontal.detectLines(input));
-            houghLines.addAll(houghLineDetectorVertical.detectLines(input));
-
             List<Line> lines = new ArrayList<>();
-            for (HoughLine houghline : houghLines) {
-                lines.add(houghline.toLine(robotDescriptor.webCamResolution));
+            for (HoughLine houghLine : houghLineDetectorHorizontal.detectLines(input)) {
+                Line line = houghLine.toLine(robotDescriptor.webCamResolution);
+                lines.add(line);
+                DrawUtil.drawLine(output, line, Color.ORANGE);
+            }
+            for (HoughLine houghLine : houghLineDetectorVertical.detectLines(input)) {
+                Line line = houghLine.toLine(robotDescriptor.webCamResolution);
+                lines.add(line);
+                DrawUtil.drawLine(output, line, Color.BLUE);
             }
 
             TileEdgeObservation observation = tileEdgeSolver.solve(lines);
-
-            for (Line line : lines) {
-                DrawUtil.drawLine(output, line, Color.ORANGE);
-            }
 
             if (observation != null) {
                 // Remember the observation so that it can be used by the drivetrain.

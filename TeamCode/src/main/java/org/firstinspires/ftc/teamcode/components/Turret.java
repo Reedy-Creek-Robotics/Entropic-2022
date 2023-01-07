@@ -50,6 +50,10 @@ public class Turret extends BaseComponent {
         servo.getController().pwmDisable();
     }
 
+    public void moveTurretManually(double targetPosition){
+        servo.setPosition(targetPosition);
+    }
+
     public void moveToOrientation(Orientation orientation) {
         if (isSafeToMove()) {
             executeCommand(new MoveToOrientation(orientation));

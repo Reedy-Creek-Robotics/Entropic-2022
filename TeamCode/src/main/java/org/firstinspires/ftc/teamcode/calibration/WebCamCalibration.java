@@ -21,7 +21,7 @@ import org.opencv.core.Size;
 import java.util.HashMap;
 import java.util.Map;
 
-@TeleOp
+@TeleOp(group = "Calibration")
 public class WebCamCalibration extends OpMode {
 
     /**

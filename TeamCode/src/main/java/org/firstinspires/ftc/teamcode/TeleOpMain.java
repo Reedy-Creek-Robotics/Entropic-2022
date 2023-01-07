@@ -25,6 +25,7 @@ public class TeleOpMain extends OpMode {
     double INTAKE_POWER = .3;
     public static final double INTAKE_TIME = 1;
     public int slideTicks;
+    double turretPosition = Orientation.FRONT.getServoPosition();
 
     @Override
     public void init() {
@@ -87,7 +88,10 @@ public class TeleOpMain extends OpMode {
         }
 
         //Lift
-        if (driver.isPressed(RIGHT_STICK_BUTTON)) {
+        if(nonZero(deliverer.leftStickY())){
+            slideTicks += 20 * deliverer.leftStickY();
+            robot.getSlide().manualSlideMovement(slideTicks);
+        } else if (driver.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(TRAVEL);
         } else if(driver.isPressed(LEFT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(INTAKE);
@@ -100,19 +104,21 @@ public class TeleOpMain extends OpMode {
         } else if (deliverer.isPressed(CROSS)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
         }
+        slideTicks = robot.getSlide().getTargetPosition().getTicks();
 
         //Turret
-        Turret.Orientation turretPosition = null;
-        if (deliverer.isPressed(DPAD_UP)) {
-            turretPosition = Orientation.FRONT;
+        if(nonZero(deliverer.rightStickX())){
+            turretPosition += deliverer.rightStickX() * 0.05;
+        } else if (deliverer.isPressed(DPAD_UP)) {
+            turretPosition = Orientation.FRONT.getServoPosition();
         } else if (deliverer.isPressed(DPAD_LEFT) || deliverer.isPressed(DPAD_RIGHT)) {
-            turretPosition = Orientation.LEFT_SIDE;
+            turretPosition = Orientation.LEFT_SIDE.getServoPosition();
         } else if (deliverer.isPressed(DPAD_DOWN)) {
-            turretPosition = Orientation.BACK;
+            turretPosition = Orientation.BACK.getServoPosition();
         }
-        if (turretPosition != null) {
-            robot.getTurret().moveToOrientation(turretPosition);
-        }
+        // todo: move manual based on deliverer right stick.
+        robot.getTurret().moveToPosition(turretPosition);
+
 
         telemetry.addData("Turret Safe to Move",robot.getTurret().isSafeToMove()?"yes":"no");
 

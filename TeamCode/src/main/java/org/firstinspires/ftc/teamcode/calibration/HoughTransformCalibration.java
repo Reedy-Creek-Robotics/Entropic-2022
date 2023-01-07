@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.TileEdgeDetector;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 
-@TeleOp
+@TeleOp(group = "Calibration")
 public class HoughTransformCalibration extends OpMode {
 
     private Robot robot;
@@ -40,9 +40,9 @@ public class HoughTransformCalibration extends OpMode {
             } else if(controller.isPressed(DPAD_DOWN)) {
                 parametersVertical.similarLineRhoThreshold -= .05;
             } else if(controller.isPressed(DPAD_RIGHT)) {
-                parametersVertical.similarLineThetaThreshold -= .05;
+                parametersVertical.similarLineThetaThreshold += 1;
             }else if(controller.isPressed(DPAD_LEFT)) {
-                parametersVertical.similarLineThetaThreshold -= .05;
+                parametersVertical.similarLineThetaThreshold -= 1;
             }
         } else if (controller.nonZero(controller.rightStickY())) {
             if(controller.isPressed(DPAD_UP)) {
@@ -50,9 +50,9 @@ public class HoughTransformCalibration extends OpMode {
             } else if(controller.isPressed(DPAD_DOWN)) {
                 parametersHorizontal.similarLineRhoThreshold -= .05;
             } else if(controller.isPressed(DPAD_RIGHT)) {
-                parametersHorizontal.similarLineThetaThreshold -= .05;
+                parametersHorizontal.similarLineThetaThreshold += 1;
             }else if(controller.isPressed(DPAD_LEFT)) {
-                parametersHorizontal.similarLineThetaThreshold -= .05;
+                parametersHorizontal.similarLineThetaThreshold -= 1;
             }
         } else if (controller.leftTrigger() > 0) {
             // Adjust horizontal voter pixels

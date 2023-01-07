@@ -106,8 +106,8 @@ public abstract class BaseComponent implements Component {
     @Override
     public void init() {
         for (Component subComponent : subComponents) {
-            //telemetry.log().add("Init SubComponent: " + subComponent);
-            //telemetry.update();
+            telemetry.log().add("Init SubComponent: " + subComponent);
+            telemetry.update();
             subComponent.init();
         }
     }
@@ -164,6 +164,10 @@ public abstract class BaseComponent implements Component {
             opMode.sleep(millis);
             opMode.idle();
         }
+    }
+
+    public String toString() {
+        return getClass().getSimpleName();
     }
 
 }

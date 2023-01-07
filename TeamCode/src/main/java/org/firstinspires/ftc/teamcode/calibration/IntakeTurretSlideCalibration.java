@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.components.Robot;
 
-@TeleOp
+@TeleOp(group = "Calibration")
 public class IntakeTurretSlideCalibration extends OpMode {
 
     private Robot robot;
@@ -69,7 +69,7 @@ public class IntakeTurretSlideCalibration extends OpMode {
         if (controller.isPressed(A)) {
             robot.getIntake().intake(intakePower, intakeTime);
         } else if (controller.isPressed(B)) {
-            robot.getIntake().outake(intakePower, intakeTime);
+            robot.getIntake().outtake(intakePower, intakeTime);
         }
 
         if (controller.isPressed(X)) {
