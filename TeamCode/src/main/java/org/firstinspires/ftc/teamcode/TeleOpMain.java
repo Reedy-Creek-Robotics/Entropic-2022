@@ -1,12 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_X;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.Controller.Button;
-import static org.firstinspires.ftc.teamcode.Controller.Button.BACK;
 import static org.firstinspires.ftc.teamcode.Controller.Button.CIRCLE;
 import static org.firstinspires.ftc.teamcode.Controller.Button.CROSS;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
@@ -19,8 +16,6 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.SQUARE;
 import static org.firstinspires.ftc.teamcode.Controller.Button.TRIANGLE;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.INTAKE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
@@ -31,11 +26,9 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
-import org.firstinspires.ftc.teamcode.geometry.Heading;
-import org.firstinspires.ftc.teamcode.geometry.Position;
 
 @TeleOp
-public class TeleOpMain extends BaseTeleOp {
+public class TeleOpMain extends BaseDrivingTeleOp {
 
     private Controller driver;
     private Controller deliverer;
@@ -61,31 +54,14 @@ public class TeleOpMain extends BaseTeleOp {
         // todo: manual control of the turret
 
         // Driving
-        if (driver.isPressed(LEFT_STICK_X, LEFT_STICK_Y, RIGHT_STICK_X) || !robot.getDriveTrain().isBusy()) {
-            double drive = driver.leftStickY();
-            double strafe = driver.leftStickX();
-            double turn = driver.rightStickX();
+        applyDriving();
 
-            robot.getDriveTrain().driverRelative(drive, turn, strafe, limiter);
-        }
-
-        // Hough assisted driving
-        if (driver.isPressed(DPAD_UP)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(1, Y, limiter);
-        } else if (driver.isPressed(DPAD_LEFT)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(-1, X, limiter);
-        } else if (driver.isPressed(DPAD_DOWN)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(-1, Y, limiter);
-        } else if (driver.isPressed(DPAD_RIGHT)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
-        } else if (driver.isPressed(RIGHT_BUMPER) && limiter < 1) {
+        // Adjust the limiter
+        // todo: replace this with slow mode?
+        if (driver.isPressed(RIGHT_BUMPER) && limiter < 1) {
             limiter += 0.1;
         } else if (driver.isPressed(LEFT_BUMPER) && limiter > 0) {
             limiter -= 0.1;
-        } else if (driver.isPressed(Button.START)) {
-            robot.getDriveTrain().setPosition(new Position(.5, .5));
-        } else if (driver.isPressed(BACK)) {
-            robot.getDriveTrain().setHeading(new Heading(90));
         }
 
         // Intake

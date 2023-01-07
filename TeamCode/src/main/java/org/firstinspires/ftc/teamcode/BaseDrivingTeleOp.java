@@ -3,12 +3,16 @@ package org.firstinspires.ftc.teamcode;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_X;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
+import static org.firstinspires.ftc.teamcode.Controller.Button.BACK;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
+
+import org.firstinspires.ftc.teamcode.geometry.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 
 public abstract class BaseDrivingTeleOp extends BaseTeleOp {
 
@@ -26,7 +30,7 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
     /**
      * Should be called in the child class loop method to apply basic driving functionality.
      */
-    public void drive() {
+    public void applyDriving() {
 
         // Driving
         if (driver.isPressed(LEFT_STICK_X, LEFT_STICK_Y, RIGHT_STICK_X) || !robot.getDriveTrain().isBusy()) {
@@ -46,9 +50,12 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             robot.getDriveTrain().moveAlignedToTileCenter(-1, Y, limiter);
         } else if (driver.isPressed(DPAD_RIGHT)) {
             robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
+        } else if (driver.isPressed(Controller.Button.START)) {
+            robot.getDriveTrain().setPosition(new Position(.5, .5));
+        } else if (driver.isPressed(BACK)) {
+            robot.getDriveTrain().setHeading(new Heading(90));
         }
 
-        robot.updateStatus();
     }
 
 }

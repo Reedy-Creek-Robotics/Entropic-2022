@@ -14,6 +14,7 @@ import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 
 import android.annotation.SuppressLint;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -23,6 +24,7 @@ import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 
 @TeleOp
+@Disabled
 public class MoveCommandTest extends OpMode {
 
     private Robot robot;
@@ -38,7 +40,6 @@ public class MoveCommandTest extends OpMode {
         robot.init();
 
         controller = new Controller(gamepad1);
-
 
         limiter = 0.3;
     }

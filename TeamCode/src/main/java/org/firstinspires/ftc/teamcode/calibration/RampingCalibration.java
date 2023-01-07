@@ -89,7 +89,7 @@ public class RampingCalibration extends BaseDrivingTeleOp {
             }
 
             // Apply driving
-            drive();
+            applyDriving();
         }
 
         // Overwrite the empirical strafe corrections with a single value to force it to be used.
