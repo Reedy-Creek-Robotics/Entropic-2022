@@ -28,47 +28,39 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TOP_POLE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 
 @TeleOp
-public class TeleOpMain extends OpMode {
+public class TeleOpMain extends BaseTeleOp {
 
-    private Robot robot;
     private Controller driver;
     private Controller deliverer;
-    private double limiter;
-    double INTAKE_POWER = .3;
-    public static final double INTAKE_TIME = 1;
-    public int slideTicks;
+
+    private double limiter = 0.7;
+    private int slideTicks;
     double turretPosition = Orientation.FRONT.getServoPosition();
 
     @Override
     public void init() {
-        robot = new Robot(this, Robot.CameraMode.ENABLED_AND_STREAMING_SIDE);
-        robot.init();
+        super.init();
 
         // Load the position from disk, so it can pick up the previous position from the auto path.
         robot.loadPositionFromDisk();
 
-        driver = new Controller(gamepad1);
+        driver = controller;
         deliverer = new Controller(gamepad2);
-        INTAKE_POWER = 0.5;
-
-        limiter = 0.7;
     }
 
     @Override
     public void loop() {
-        //@todo: manual control of the slide
-        //@todo: manual control of the turret
+        // todo: manual control of the slide
+        // todo: manual control of the turret
 
-        //Driving
+        // Driving
         if (driver.isPressed(LEFT_STICK_X, LEFT_STICK_Y, RIGHT_STICK_X) || !robot.getDriveTrain().isBusy()) {
             double drive = driver.leftStickY();
             double strafe = driver.leftStickX();
@@ -77,7 +69,7 @@ public class TeleOpMain extends OpMode {
             robot.getDriveTrain().driverRelative(drive, turn, strafe, limiter);
         }
 
-        //Hough assisted driving
+        // Hough assisted driving
         if (driver.isPressed(DPAD_UP)) {
             robot.getDriveTrain().moveAlignedToTileCenter(1, Y, limiter);
         } else if (driver.isPressed(DPAD_LEFT)) {
@@ -96,7 +88,7 @@ public class TeleOpMain extends OpMode {
             robot.getDriveTrain().setHeading(new Heading(90));
         }
 
-        //Intake
+        // Intake
         if (driver.isPressed(RIGHT_TRIGGER)) {
             if (robot.getSlide().getTargetPosition() != INTAKE) {
                 robot.getSlide().moveToIntake(1);
@@ -108,7 +100,7 @@ public class TeleOpMain extends OpMode {
             robot.getIntake().stopIntake();
         }
 
-        //Lift
+        // Lift
         if (deliverer.isPressed(LEFT_STICK_Y)) {
             slideTicks += 20 * deliverer.leftStickY();
             robot.getSlide().manualSlideMovement(slideTicks);
@@ -127,7 +119,7 @@ public class TeleOpMain extends OpMode {
         }
         slideTicks = robot.getSlide().getTargetPosition().getTicks();
 
-        //Turret
+        // Turret
         if (deliverer.isPressed(RIGHT_STICK_X)) {
             turretPosition += deliverer.rightStickX() * 0.05;
         } else if (deliverer.isPressed(DPAD_UP)) {
@@ -139,7 +131,6 @@ public class TeleOpMain extends OpMode {
         }
         // todo: move manual based on deliverer right stick.
         robot.getTurret().moveToPosition(turretPosition);
-
 
         telemetry.addData("Turret Safe to Move", robot.getTurret().isSafeToMove() ? "yes" : "no");
 
