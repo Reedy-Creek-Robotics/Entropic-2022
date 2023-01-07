@@ -1,12 +1,18 @@
 package org.firstinspires.ftc.teamcode.calibration;
 
-import static org.firstinspires.ftc.teamcode.Controller.Button.*;
-import static org.firstinspires.ftc.teamcode.components.Robot.CameraMode.*;
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_Y;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.B;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.components.Robot.CameraMode.ENABLED_AND_STREAMING_SIDE;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.components.Robot;
@@ -34,36 +40,35 @@ public class HoughTransformCalibration extends OpMode {
         HoughLineDetector.HoughParameters parametersVertical = tileEdgeDetector.getHoughLineDetectorVertical().getParameters();
         HoughLineDetector.HoughParameters parametersHorizontal = tileEdgeDetector.getHoughLineDetectorHorizontal().getParameters();
 
-        if(Controller.nonZero(controller.leftStickY())) {
-            if(controller.isPressed(DPAD_UP)) {
+        if (controller.isPressed(LEFT_STICK_Y)) {
+            if (controller.isPressed(DPAD_UP)) {
                 parametersVertical.similarLineRhoThreshold += .05;
-            } else if(controller.isPressed(DPAD_DOWN)) {
+            } else if (controller.isPressed(DPAD_DOWN)) {
                 parametersVertical.similarLineRhoThreshold -= .05;
-            } else if(controller.isPressed(DPAD_RIGHT)) {
+            } else if (controller.isPressed(DPAD_RIGHT)) {
                 parametersVertical.similarLineThetaThreshold += 1;
-            }else if(controller.isPressed(DPAD_LEFT)) {
+            } else if (controller.isPressed(DPAD_LEFT)) {
                 parametersVertical.similarLineThetaThreshold -= 1;
             }
-        } else if (controller.nonZero(controller.rightStickY())) {
-            if(controller.isPressed(DPAD_UP)) {
+        } else if (controller.isPressed(RIGHT_STICK_Y)) {
+            if (controller.isPressed(DPAD_UP)) {
                 parametersHorizontal.similarLineRhoThreshold += .05;
-            } else if(controller.isPressed(DPAD_DOWN)) {
+            } else if (controller.isPressed(DPAD_DOWN)) {
                 parametersHorizontal.similarLineRhoThreshold -= .05;
-            } else if(controller.isPressed(DPAD_RIGHT)) {
+            } else if (controller.isPressed(DPAD_RIGHT)) {
                 parametersHorizontal.similarLineThetaThreshold += 1;
-            }else if(controller.isPressed(DPAD_LEFT)) {
+            } else if (controller.isPressed(DPAD_LEFT)) {
                 parametersHorizontal.similarLineThetaThreshold -= 1;
             }
-        } else if (controller.leftTrigger() > 0) {
+        } else if (controller.isPressed(LEFT_TRIGGER)) {
             // Adjust horizontal voter pixels
-
             if (controller.isPressed(DPAD_DOWN)) {
                 parametersHorizontal.pixelVoterThreshold -= 5;
             } else if (controller.isPressed(DPAD_UP)) {
                 parametersHorizontal.pixelVoterThreshold += 5;
             }
 
-        } else if (controller.rightTrigger() > 0) {
+        } else if (controller.isPressed(RIGHT_TRIGGER)) {
             // Adjust vertical voter pixels
             if (controller.isPressed(DPAD_DOWN)) {
                 parametersVertical.pixelVoterThreshold -= 5;
@@ -82,10 +87,10 @@ public class HoughTransformCalibration extends OpMode {
         }
 
         telemetry.addData("Exposure (ms)", robot.getWebCamSide().getExposure());
-        telemetry.addData("Horizontal Similar Line Rho Threshold",parametersHorizontal.similarLineRhoThreshold);
-        telemetry.addData("Horizontal Similar Line Theta Threshold",parametersHorizontal.similarLineThetaThreshold);
-        telemetry.addData("Vertical Similar Line Rho Threshold",parametersVertical.similarLineRhoThreshold);
-        telemetry.addData("Vertical Similar Line Theta Threshold",parametersVertical.similarLineThetaThreshold);
+        telemetry.addData("Horizontal Similar Line Rho Threshold", parametersHorizontal.similarLineRhoThreshold);
+        telemetry.addData("Horizontal Similar Line Theta Threshold", parametersHorizontal.similarLineThetaThreshold);
+        telemetry.addData("Vertical Similar Line Rho Threshold", parametersVertical.similarLineRhoThreshold);
+        telemetry.addData("Vertical Similar Line Theta Threshold", parametersVertical.similarLineThetaThreshold);
 
         telemetry.addData("Horizontal Pixel Voters", tileEdgeDetector.getHoughLineDetectorHorizontal().getParameters().pixelVoterThreshold);
         telemetry.addData("Vertical Pixel Voters", tileEdgeDetector.getHoughLineDetectorVertical().getParameters().pixelVoterThreshold);

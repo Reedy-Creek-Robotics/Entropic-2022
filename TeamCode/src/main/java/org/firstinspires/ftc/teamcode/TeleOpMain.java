@@ -1,17 +1,37 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.Controller.*;
-import static org.firstinspires.ftc.teamcode.Controller.Button.*;
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.*;
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_X;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.Controller.Button;
+import static org.firstinspires.ftc.teamcode.Controller.Button.BACK;
+import static org.firstinspires.ftc.teamcode.Controller.Button.CIRCLE;
+import static org.firstinspires.ftc.teamcode.Controller.Button.CROSS;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
+import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_STICK_BUTTON;
+import static org.firstinspires.ftc.teamcode.Controller.Button.SQUARE;
+import static org.firstinspires.ftc.teamcode.Controller.Button.TRIANGLE;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.INTAKE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.SMALL_POLE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TOP_POLE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
@@ -51,11 +71,11 @@ public class TeleOpMain extends OpMode {
         RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
 
         //Driving
-        double drive = driver.leftStickY();
-        double strafe = driver.leftStickX();
-        double turn = driver.rightStickX();
+        if (driver.isPressed(LEFT_STICK_X, LEFT_STICK_Y, RIGHT_STICK_X) || !robot.getDriveTrain().isBusy()) {
+            double drive = driver.leftStickY();
+            double strafe = driver.leftStickX();
+            double turn = driver.rightStickX();
 
-        if (nonZero(drive, turn, strafe) || !robot.getDriveTrain().isBusy()) {
             robot.getDriveTrain().driverRelative(drive, turn, strafe, limiter);
         }
 
@@ -79,19 +99,19 @@ public class TeleOpMain extends OpMode {
         }
 
         //Intake
-        if (nonZero(driver.rightTrigger())) {
+        if (driver.isPressed(RIGHT_TRIGGER)) {
             if (robot.getSlide().getTargetPosition() != INTAKE) {
                 robot.getSlide().moveToIntake(1);
             }
             robot.getIntake().intakeManual();
-        } else if (nonZero(driver.leftTrigger())) {
+        } else if (driver.isPressed(LEFT_TRIGGER)) {
             robot.getIntake().outakeManual();
         } else {
             robot.getIntake().stopIntake();
         }
 
         //Lift
-        if (nonZero(deliverer.leftStickY())) {
+        if (deliverer.isPressed(LEFT_STICK_Y)) {
             slideTicks += 20 * deliverer.leftStickY();
             robot.getSlide().manualSlideMovement(slideTicks);
         } else if (driver.isPressed(RIGHT_STICK_BUTTON)) {
@@ -110,7 +130,7 @@ public class TeleOpMain extends OpMode {
         slideTicks = robot.getSlide().getTargetPosition().getTicks();
 
         //Turret
-        if (nonZero(deliverer.rightStickX())) {
+        if (deliverer.isPressed(RIGHT_STICK_X)) {
             turretPosition += deliverer.rightStickX() * 0.05;
         } else if (deliverer.isPressed(DPAD_UP)) {
             turretPosition = Orientation.FRONT.getServoPosition();

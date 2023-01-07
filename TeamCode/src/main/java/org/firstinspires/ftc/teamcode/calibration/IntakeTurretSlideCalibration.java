@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.calibration;
 
-import static org.firstinspires.ftc.teamcode.Controller.Button.*;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_X;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.Button.A;
 import static org.firstinspires.ftc.teamcode.Controller.Button.B;
 import static org.firstinspires.ftc.teamcode.Controller.Button.BACK;
@@ -9,8 +10,8 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
-import static org.firstinspires.ftc.teamcode.Controller.nonZero;
-import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.*;
+import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
+import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.LEFT_SIDE;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -48,11 +49,11 @@ public class IntakeTurretSlideCalibration extends OpMode {
     public void loop() {
 
 
-        if (nonZero(controller.leftStickY())) {
+        if (controller.isPressed(LEFT_STICK_X)) {
             slideTicks += controller.leftStickY() * 5;
         }
 
-        if (nonZero(controller.rightStickY())) {
+        if (controller.isPressed(RIGHT_STICK_Y)) {
             turretPosition += controller.rightStickY() * .01;
         }
 
@@ -79,7 +80,7 @@ public class IntakeTurretSlideCalibration extends OpMode {
             robot.getSlide().moveToTicks(slideTicks);
         }
 
-        if(controller.isPressed(BACK)) {
+        if (controller.isPressed(BACK)) {
             robot.getSlide().stopAllCommands();
             robot.getTurret().stopTurret();
             robot.getIntake().stopIntake();

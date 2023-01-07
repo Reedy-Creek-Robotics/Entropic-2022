@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.calibration;
 
-import static org.firstinspires.ftc.teamcode.Controller.Button.B;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
@@ -9,16 +9,12 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
-import static org.firstinspires.ftc.teamcode.components.Robot.CameraMode.ENABLED_AND_STREAMING_SIDE;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Controller;
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.components.TileEdgeDetector;
-import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 
 @TeleOp(group = "Calibration")
 public class RampingCalibration extends OpMode {
@@ -57,7 +53,7 @@ public class RampingCalibration extends OpMode {
         }
 
         //changing ramping values
-        if(Controller.nonZero(controller.leftStickY())) {
+        if (controller.isPressed(LEFT_STICK_Y)) {
             robot.getRobotContext().robotDescriptor.rampingUpMinMotorPower += controller.leftStickY() * 0.01;
         }
 

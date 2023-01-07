@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import android.view.View;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -95,6 +93,13 @@ public class LinearSlide extends BaseComponent {
 
         stopAllCommands();
         executeCommand(new MoveToTicks(position.ticks));
+    }
+
+    /**
+     * Move to the intake position.
+     */
+    public void moveToIntake() {
+        moveToIntake(1);
     }
 
     /**
