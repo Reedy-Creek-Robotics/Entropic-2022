@@ -1,9 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.SMALL_POLE;
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.BACK;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.FRONT;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
@@ -37,7 +34,6 @@ public class AutoMainLeft extends AutoMain {
         robot.getSlide().moveToHeight(LinearSlide.SlideHeight.MEDIUM_POLE);
         robot.waitForCommandsToFinish();
 
-
         robot.getDriveTrain().setPosition(new Position(1.5, 2));
 
         //drop off pole
@@ -48,17 +44,20 @@ public class AutoMainLeft extends AutoMain {
 
         //recenter
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
+
         //robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 1.4), BASE_SPEED);
+
         robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
-        robot.getDriveTrain().setPosition(new Position(1.5,1.5));
+        robot.getDriveTrain().setPosition(new Position(1.5, 1.5));
 
         park();
 
-       /* //test
+        /*
+        //test
         getNewCone();
         deliverToPole(Pole.HIGH);
 
