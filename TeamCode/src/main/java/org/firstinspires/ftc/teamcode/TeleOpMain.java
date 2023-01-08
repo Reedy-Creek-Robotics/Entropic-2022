@@ -45,6 +45,9 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         driver = controller;
         deliverer = new Controller(gamepad2);
+
+        deliverer.analogConfig(LEFT_STICK_Y)
+                .withMaxValue(robot.getSlide().getAscendingPower());
     }
 
     @Override
@@ -74,8 +77,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         // Lift
         if (deliverer.isPressed(LEFT_STICK_Y)) {
-            int ticks = (int) Math.round(20 * deliverer.leftStickY());
-            robot.getSlide().manualSlideMovement(ticks);
+            robot.getSlide().manualSlideMove(deliverer.leftStickY());
         } else if (driver.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(TRAVEL);
         } else if (driver.isPressed(LEFT_STICK_BUTTON)) {

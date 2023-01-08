@@ -8,14 +8,14 @@ public class LinearSlide extends BaseComponent {
 
     private static final int TICKS_PER_STACKED_CONE = 20; // todo: calibrate
 
-    private static final int THRESHOLD = 5;
-
-    private static final double ASCENDING_ARM_POWER = 0.5;
-    private static final double DESCENDING_ARM_POWER = 0.2;
-    private static final double IDLE_ARM_POWER = 0.25;
+    private static final int TARGET_REACHED_THRESHOLD = 5;
 
     private static final int MAX_HEIGHT = SlideHeight.TOP_POLE.ticks + 100;
     private static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
+
+    private double idlePower = 0.25;
+    private double ascendingPower = 0.5;
+    private double descendingPower = 0.2;
 
     public enum SlideHeight {
         TOP_POLE(4125),
@@ -29,10 +29,6 @@ public class LinearSlide extends BaseComponent {
 
         SlideHeight(int ticks) {
             this.ticks = ticks;
-        }
-
-        public int getTicks() {
-            return ticks;
         }
     }
 
@@ -58,25 +54,47 @@ public class LinearSlide extends BaseComponent {
     }
 
     /**
-     * Moves the motor by the given number of ticks, relative to the current target position.
+     * Moves the slide with the given power, in the range (-1, 1).
      */
-    public void manualSlideMovement(int ticks) {
+    public void manualSlideMove(double power) {
+        stopAllCommands();
+
+        if (getPosition() <= MIN_HEIGHT && power < 0.0) {
+            stopMotor();
+        } else if (getPosition() >= MAX_HEIGHT && power > 0.0) {
+            stopMotor();
+        } else {
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setPower(power);
+        }
+    }
+
+    /**
+     * Adjusts the position of the slide by the given number of ticks.  Positive ticks moves the
+     * slide up, negative ticks moves the slide down.
+     */
+    public void manualSlideAdjustPosition(int ticks) {
         moveToTicks(targetPosition + ticks);
     }
 
     /**
      * Returns the current position of the slide
      */
-    public double getMotorPosition() {
+    public double getPosition() {
         return motor.getCurrentPosition();
     }
 
-    public boolean isAtOrAbove(SlideHeight position) {
-        return getMotorPosition() >= (position.ticks - THRESHOLD);
+    public void stopMotor() {
+        motor.setTargetPosition(motor.getCurrentPosition());
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(idlePower);
     }
 
-    public int getTargetPosition() {
-        return targetPosition;
+    /**
+     * Indicates whether the slide is currently at or above the given known position.
+     */
+    public boolean isAtOrAbove(SlideHeight position) {
+        return getPosition() >= (position.ticks - TARGET_REACHED_THRESHOLD);
     }
 
     /**
@@ -122,6 +140,30 @@ public class LinearSlide extends BaseComponent {
         return ticks;
     }
 
+    public double getIdlePower() {
+        return idlePower;
+    }
+
+    public void setIdlePower(double idlePower) {
+        this.idlePower = idlePower;
+    }
+
+    public double getAscendingPower() {
+        return ascendingPower;
+    }
+
+    public void setAscendingPower(double ascendingPower) {
+        this.ascendingPower = ascendingPower;
+    }
+
+    public double getDescendingPower() {
+        return descendingPower;
+    }
+
+    public void setDescendingPower(double descendingPower) {
+        this.descendingPower = descendingPower;
+    }
+
     private class MoveToTicks implements Command {
         private int ticks;
 
@@ -134,21 +176,21 @@ public class LinearSlide extends BaseComponent {
             motor.setTargetPosition(ticks);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            double power = ticks > getMotorPosition() ?
-                    ASCENDING_ARM_POWER :
-                    DESCENDING_ARM_POWER;
+            double power = ticks > getPosition() ?
+                    ascendingPower :
+                    descendingPower;
 
             motor.setPower(power);
         }
 
         @Override
         public void stop() {
-            motor.setPower(IDLE_ARM_POWER);
+            stopMotor();
         }
 
         @Override
         public boolean updateStatus() {
-            return Math.abs(motor.getCurrentPosition() - ticks) <= THRESHOLD;
+            return Math.abs(motor.getCurrentPosition() - ticks) <= TARGET_REACHED_THRESHOLD;
         }
     }
 }
