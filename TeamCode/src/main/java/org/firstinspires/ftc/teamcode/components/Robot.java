@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
@@ -18,6 +19,8 @@ import java.util.List;
 
 
 public class Robot extends BaseComponent {
+
+    private static final double VOLTAGE_WARNING_THRESHOLD = 12.1;
 
     private DriveTrain driveTrain;
     private WebCam webCamSide;
@@ -102,6 +105,12 @@ public class Robot extends BaseComponent {
     @Override
     public void init() {
         super.init();
+
+        double voltage = computeBatteryVoltage();
+        if (voltage < VOLTAGE_WARNING_THRESHOLD) {
+            telemetry.log().add("LOW BATTERY WARNING");
+            telemetry.log().add("My battery is low and it's getting dark -Opportunity");
+        }
 
         telemetry.log().add("Robot is initialized");
         telemetry.update();
@@ -233,6 +242,17 @@ public class Robot extends BaseComponent {
             // Now that the position has been consumed, remove the file
             FileUtil.removeFile(filename);
         }
+    }
+
+    private double computeBatteryVoltage() {
+        double result = Double.POSITIVE_INFINITY;
+        for (VoltageSensor sensor : hardwareMap.voltageSensor) {
+            double voltage = sensor.getVoltage();
+            if (voltage > 0) {
+                result = Math.min(result, voltage);
+            }
+        }
+        return result;
     }
 
 }

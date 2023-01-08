@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.TileEdgeObservation;
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
 import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.HoughLine;
 import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.HoughParameters;
 
@@ -10,10 +9,8 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.geometry.Line;
-import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.util.Color;
-import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 import org.opencv.core.Mat;
@@ -54,6 +51,9 @@ public class TileEdgeDetector extends BaseComponent {
      * The most recently acquired observation, or null if nothing has been observed yet.
      */
     private TileEdgeObservation observation;
+
+
+    private FrameProcessor frameProcessor;
 
     public TileEdgeDetector(RobotContext context, WebCam webCam) {
         super(context);
@@ -100,7 +100,18 @@ public class TileEdgeDetector extends BaseComponent {
     }
 
     public void activate() {
-        webCam.setFrameProcessor(new TileEdgeDetector.FrameProcessor());
+        frameProcessor = new FrameProcessor();
+        webCam.setFrameProcessor(frameProcessor);
+    }
+
+    public boolean isActive() {
+        return frameProcessor != null;
+    }
+
+    public void deactivate() {
+        webCam.setFrameProcessor(null);
+        frameProcessor = null;
+        observation = null;
     }
 
     /**

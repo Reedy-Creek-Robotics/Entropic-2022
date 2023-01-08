@@ -126,7 +126,7 @@ public class DriveTrain extends BaseComponent {
         }
 
         // Activate the side tile edge detector immediately
-        //tileEdgeDetectorSide.activate();
+        tileEdgeDetectorSide.activate();
 
         previousUpdateTime = new ElapsedTime();
     }
@@ -355,6 +355,34 @@ public class DriveTrain extends BaseComponent {
         }
 
         previousPosition = position;
+    }
+
+    /**
+     * Waits for a tile edge detection up to the given number of seconds.
+     *
+     * Note that this method will block, and should only be called when the robot is not doing
+     * anything else.  Otherwise, the effects are unpredictable.
+     */
+    public void waitForTileEdgeDetection(double maxTime) {
+        boolean active = tileEdgeDetectorSide.isActive();
+        if (!active) {
+            // Activate the tile edge detector if it's not turned on.
+            tileEdgeDetectorSide.activate();
+        }
+
+        // Wait for up to the requested time until we have a valid observation.
+        ElapsedTime waitTime = new ElapsedTime();
+        while (!isStopRequested() && waitTime.seconds() < maxTime) {
+            TileEdgeSolver.TileEdgeObservation observation = tileEdgeDetectorSide.getObservation();
+            if (observation != null && observation.distanceRight != null) {
+                sleep(5);
+            }
+        }
+
+        if (!active) {
+            // If we turned on edge detection just for this method, now disable it.
+            tileEdgeDetectorSide.deactivate();
+        }
     }
 
     /**

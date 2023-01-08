@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.*;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.INTAKE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.SMALL_POLE;
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.BACK;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.FRONT;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
@@ -35,6 +39,9 @@ public class AutoMainLeft extends AutoMain {
         robot.waitForCommandsToFinish();
 
         robot.getDriveTrain().setPosition(new Position(1.5, 2));
+
+        // Wait until we get an observation to make sure we are where we expect
+        //robot.getDriveTrain().waitForTileEdgeDetection(2.0);
 
         //drop off pole
         robot.getDriveTrain().moveToTargetPosition(new Position(1.55, 2), BASE_SPEED);
