@@ -14,7 +14,7 @@ public class LinearSlide extends BaseComponent {
     private static final double DESCENDING_ARM_POWER = 0.2;
     private static final double IDLE_ARM_POWER = 0.25;
 
-    private static final int MAX_HEIGHT = SlideHeight.TOP_POLE.ticks;
+    private static final int MAX_HEIGHT = SlideHeight.TOP_POLE.ticks + 100;
     private static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
 
     public enum SlideHeight {
@@ -23,8 +23,7 @@ public class LinearSlide extends BaseComponent {
         SMALL_POLE(1800),
         GROUND_LEVEL(200),
         TRAVEL(500),
-        INTAKE(0),
-        CUSTOM(-100);
+        INTAKE(0);
 
         private final int ticks;
 
@@ -40,31 +39,29 @@ public class LinearSlide extends BaseComponent {
     private DcMotorEx motor;
 
     /**
-     * The target position that the slide is trying to achieve.
+     * The target position in motor ticks that the slide is trying to achieve.
      */
-    private SlideHeight targetPosition;
+    private int targetPosition;
 
     public LinearSlide(RobotContext context) {
         super(context);
         motor = (DcMotorEx) hardwareMap.dcMotor.get("Slide");
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        targetPosition = SlideHeight.INTAKE;
     }
 
     @Override
     public void init() {
+        targetPosition = SlideHeight.INTAKE.ticks;
+
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     /**
-     * Moves the motor to the given ticks.
+     * Moves the motor by the given number of ticks, relative to the current target position.
      */
     public void manualSlideMovement(int ticks) {
-        stopAllCommands();
-
-        ticks = ensureSafeTicks(ticks);
-        motor.setTargetPosition(ticks);
+        moveToTicks(targetPosition + ticks);
     }
 
     /**
@@ -78,7 +75,7 @@ public class LinearSlide extends BaseComponent {
         return getMotorPosition() >= (position.ticks - THRESHOLD);
     }
 
-    public SlideHeight getTargetPosition() {
+    public int getTargetPosition() {
         return targetPosition;
     }
 
@@ -86,13 +83,7 @@ public class LinearSlide extends BaseComponent {
      * Move the slide to the desired height
      */
     public void moveToHeight(SlideHeight position) {
-        if (position == SlideHeight.CUSTOM) {
-            // Invalid to set it to custom height here, use moveToTicks instead.
-            return;
-        }
-
-        stopAllCommands();
-        executeCommand(new MoveToTicks(position.ticks));
+        moveToTicks(position.ticks);
     }
 
     /**
@@ -106,29 +97,26 @@ public class LinearSlide extends BaseComponent {
      * Move to the intake position, with the intake aligned to the top cone in a stack with the given number of cones.
      */
     public void moveToIntake(int conesInStack) {
-        int offsetTicks = (conesInStack - 1) * TICKS_PER_STACKED_CONE;
-        this.targetPosition = SlideHeight.INTAKE;
-        stopAllCommands();
-        int ticks = SlideHeight.INTAKE.ticks + offsetTicks;
-        ticks = ensureSafeTicks(ticks);
-        executeCommand(new MoveToTicks(ticks));
+        int coneOffsetTicks = (conesInStack - 1) * TICKS_PER_STACKED_CONE;
+        int ticks = SlideHeight.INTAKE.ticks + coneOffsetTicks;
+        moveToTicks(ticks);
     }
 
     /**
      * Move the slide to the set amount of ticks
      */
     public void moveToTicks(int ticks) {
-        this.targetPosition = SlideHeight.CUSTOM;
-        stopAllCommands();
         ticks = ensureSafeTicks(ticks);
+        this.targetPosition = ticks;
+        stopAllCommands();
         executeCommand(new MoveToTicks(ticks));
     }
 
     private int ensureSafeTicks(int ticks) {
-        if (ticks > SlideHeight.TOP_POLE.getTicks() + 100) {
-            ticks = SlideHeight.TOP_POLE.getTicks() + 100;
-        } else if (ticks < SlideHeight.INTAKE.getTicks()) {
-            ticks = SlideHeight.INTAKE.getTicks();
+        if (ticks > MAX_HEIGHT) {
+            ticks = MAX_HEIGHT;
+        } else if (ticks < MIN_HEIGHT) {
+            ticks = MIN_HEIGHT;
         }
 
         return ticks;

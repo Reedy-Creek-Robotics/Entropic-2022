@@ -34,7 +34,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
     private Controller deliverer;
 
     private double limiter = 0.7;
-    private int slideTicks;
     double turretPosition = Orientation.FRONT.getServoPosition();
 
     @Override
@@ -63,8 +62,8 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         // Intake
         if (driver.isPressed(RIGHT_TRIGGER)) {
-            if (robot.getSlide().getTargetPosition() != INTAKE) {
-                robot.getSlide().moveToIntake(1);
+            if (robot.getSlide().isAtOrAbove(GROUND_LEVEL)) {
+                robot.getSlide().moveToIntake();
             }
             robot.getIntake().intakeManual();
         } else if (driver.isPressed(LEFT_TRIGGER)) {
@@ -75,8 +74,8 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         // Lift
         if (deliverer.isPressed(LEFT_STICK_Y)) {
-            slideTicks += 20 * deliverer.leftStickY();
-            robot.getSlide().manualSlideMovement(slideTicks);
+            int ticks = (int) Math.round(20 * deliverer.leftStickY());
+            robot.getSlide().manualSlideMovement(ticks);
         } else if (driver.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(TRAVEL);
         } else if (driver.isPressed(LEFT_STICK_BUTTON)) {
@@ -90,7 +89,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         } else if (deliverer.isPressed(CROSS)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
         }
-        slideTicks = robot.getSlide().getTargetPosition().getTicks();
 
         // Turret
         if (deliverer.isPressed(RIGHT_STICK_X)) {
