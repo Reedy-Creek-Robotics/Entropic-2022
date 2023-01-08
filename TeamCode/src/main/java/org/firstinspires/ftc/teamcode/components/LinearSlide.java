@@ -12,6 +12,7 @@ public class LinearSlide extends BaseComponent {
 
     private static final int MAX_HEIGHT = SlideHeight.TOP_POLE.ticks + 100;
     private static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
+    private static final double MIN_POWER = 0.01;
 
     private double idlePower = 0.25;
     private double ascendingPower = 0.5;
@@ -59,9 +60,10 @@ public class LinearSlide extends BaseComponent {
     public void manualSlideMove(double power) {
         stopAllCommands();
 
-        if (getPosition() <= MIN_HEIGHT && power < 0.0) {
-            stopMotor();
-        } else if (getPosition() >= MAX_HEIGHT && power > 0.0) {
+        if (Math.abs(power) < MIN_POWER ||
+                (power < 0.0 && getPosition() <= MIN_HEIGHT) ||
+                (power > 0.0 && getPosition() >= MAX_HEIGHT)
+        ) {
             stopMotor();
         } else {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

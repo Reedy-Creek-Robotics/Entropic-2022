@@ -18,7 +18,6 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.SMALL_POLE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TOP_POLE;
-import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.LEFT_SIDE;
 import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -28,11 +27,6 @@ import org.firstinspires.ftc.teamcode.components.LinearSlide;
 
 @TeleOp(group = "Calibration")
 public class SlideCalibration extends BaseTeleOp {
-
-    private double turretPosition = LEFT_SIDE.getServoPosition();
-
-    private double intakeTime = 1.0;
-    private double intakePower = 1.0;
 
     @Override
     public void init() {
@@ -45,9 +39,9 @@ public class SlideCalibration extends BaseTeleOp {
         LinearSlide slide = robot.getSlide();
 
         // Manual slide movement
-        if (controller.isPressed(LEFT_STICK_Y)) {
+        if (controller.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
             controller.analogConfig(LEFT_STICK_Y).withMaxValue(slide.getAscendingPower());
-            slide.manualSlideMove(controller.leftStickY() * 20);
+            slide.manualSlideMove(controller.leftStickY());
         }
 
         // Adjust slide power

@@ -67,8 +67,8 @@ public abstract class BaseComponent implements Component {
     public void stopAllCommands() {
         if (currentCommand != null) {
             currentCommand.stop();
+            currentCommand = null;
         }
-        currentCommand = null;
         nextCommands.clear();
     }
 
