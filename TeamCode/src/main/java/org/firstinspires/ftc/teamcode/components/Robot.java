@@ -1,18 +1,27 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
+
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.util.ErrorUtil;
+import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
+
+import java.util.List;
 
 
 public class Robot extends BaseComponent {
 
     private DriveTrain driveTrain;
     private WebCam webCamSide;
+    private WebCam webCamFront;
     private AprilTagDetector aprilTagDetector;
 
     private Turret turret;
@@ -21,22 +30,51 @@ public class Robot extends BaseComponent {
 
     private int updateCount;
     private ElapsedTime initTime;
+    private ElapsedTime firstUpdateTime;
 
-    public Robot(OpMode opMode, boolean initWithCamera) {
+    public enum CameraMode {
+        DISABLED,
+        ENABLED,
+        ENABLED_AND_STREAMING_SIDE,
+        ENABLED_AND_STREAMING_FRONT;
+
+        public boolean isEnabled() {
+            return this != DISABLED;
+        }
+    }
+
+    public Robot(OpMode opMode, CameraMode cameraMode) {
         super(createRobotContext(opMode));
 
-        this.webCamSide = new WebCam(context, "WebcamFront", initWithCamera);
+        this.webCamSide = new WebCam(
+                context, "WebCamSide",
+                cameraMode == CameraMode.ENABLED_AND_STREAMING_SIDE,
+                robotDescriptor.webCamResolution
+        );
+        this.webCamFront = new WebCam(
+                context, "WebCamFront",
+                cameraMode == CameraMode.ENABLED_AND_STREAMING_FRONT,
+                robotDescriptor.webCamResolution
+        );
+
         this.driveTrain = new DriveTrain(context, webCamSide);
-        this.aprilTagDetector = new AprilTagDetector(context, webCamSide);
+        this.aprilTagDetector = new AprilTagDetector(context, webCamFront);
 
-        //this.turret = new Turret(context);
-        //this.slide = new LinearSlide(context);
-        //this.intake = new Intake(context);
+        this.turret = new Turret(context, new Turret.SafetyCheck() {
+            @Override
+            public boolean isSafeToMove() {
+                return slide.isAtOrAbove(TRAVEL);
+            }
+        });
 
-        addSubComponents(driveTrain);  //, turret, slide, intake);
+        this.slide = new LinearSlide(context);
+        this.intake = new Intake(context);
 
-        if (initWithCamera) {
+        addSubComponents(driveTrain, turret, slide, intake);
+
+        if (cameraMode.isEnabled()) {
             addSubComponents(webCamSide);
+            addSubComponents(webCamFront);
             addSubComponents(aprilTagDetector);
         }
 
@@ -58,7 +96,7 @@ public class Robot extends BaseComponent {
      * Inits with default settings.
      */
     public Robot(OpMode opMode) {
-        this(opMode, true);
+        this(opMode, CameraMode.ENABLED);
     }
 
     @Override
@@ -76,12 +114,28 @@ public class Robot extends BaseComponent {
     public void updateStatus() {
         super.updateStatus();
 
+        if (updateCount == 0) {
+            firstUpdateTime = new ElapsedTime();
+            onStart();
+        }
         updateCount++;
-        double updatesPerSecond = updateCount / initTime.seconds();
+        double updatesPerSecond = updateCount / firstUpdateTime.seconds();
         telemetry.addData("Updates / sec", String.format("%.1f", updatesPerSecond));
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();
+    }
+
+    /**
+     * Runs once, the first time the robot's updateStatus is called in an OpMode.
+     */
+    public void onStart() {
+        // todo: Commenting this out for now since we no longer need to worry about moving the turrent from a diagonal
+        // todo: start position to the front.  We may need to revisit this since the turret won't "lock" in place
+        // todo: until the slide moves above a specific height.
+        //slide.moveToHeight(TRAVEL);
+
+        telemetry.log().clear();
     }
 
     /**
@@ -126,12 +180,59 @@ public class Robot extends BaseComponent {
         return intake;
     }
 
-    public WebCam getFrontWebCam() {
+    public WebCam getWebCamSide() {
         return webCamSide;
+    }
+
+    public WebCam getWebCamFront() {
+        return webCamFront;
     }
 
     public AprilTagDetector getAprilTagDetector() {
         return aprilTagDetector;
+    }
+
+    public void savePositionToDisk() {
+        savePositionToDisk("robot-position");
+    }
+
+    public void savePositionToDisk(String filename) {
+        FileUtil.writeLines(
+                filename,
+                driveTrain.getPosition().getX(),
+                driveTrain.getPosition().getY(),
+                driveTrain.getHeading().getValue()
+        );
+    }
+
+    public void loadPositionFromDisk() {
+        loadPositionFromDisk("robot-position");
+    }
+
+    public void loadPositionFromDisk(String filename) {
+        List<String> lines = FileUtil.readLines(filename);
+        if (!lines.isEmpty()) {
+            try {
+                if (lines.size() != 3) {
+                    throw new IllegalArgumentException("Expected 3 lines but found [" + lines.size() + "]");
+                }
+
+                Position position = new Position(
+                        Double.parseDouble(lines.get(0)),
+                        Double.parseDouble(lines.get(1))
+                );
+                Heading heading = new Heading(Double.parseDouble(lines.get(2)));
+
+                driveTrain.setPosition(position);
+                driveTrain.setHeading(heading);
+
+            } catch (Exception e) {
+                telemetry.log().add("Error loading position: " + ErrorUtil.convertToString(e));
+            }
+
+            // Now that the position has been consumed, remove the file
+            FileUtil.removeFile(filename);
+        }
     }
 
 }

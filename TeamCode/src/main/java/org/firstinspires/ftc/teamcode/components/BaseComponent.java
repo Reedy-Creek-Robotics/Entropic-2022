@@ -67,8 +67,8 @@ public abstract class BaseComponent implements Component {
     public void stopAllCommands() {
         if (currentCommand != null) {
             currentCommand.stop();
+            currentCommand = null;
         }
-        currentCommand = null;
         nextCommands.clear();
     }
 
@@ -106,14 +106,16 @@ public abstract class BaseComponent implements Component {
     @Override
     public void init() {
         for (Component subComponent : subComponents) {
-            //telemetry.log().add("Init SubComponent: " + subComponent);
-            //telemetry.update();
+            telemetry.log().add("Init SubComponent: " + subComponent);
+            telemetry.update();
             subComponent.init();
         }
     }
 
     @Override
     public void updateStatus() {
+
+        //telemetry.addData("Current Command",currentCommand);
 
         // If there is not a current command, but there are commands in the queue, start the next one.
         if (currentCommand == null && !nextCommands.isEmpty()) {
@@ -162,6 +164,10 @@ public abstract class BaseComponent implements Component {
             opMode.sleep(millis);
             opMode.idle();
         }
+    }
+
+    public String toString() {
+        return getClass().getSimpleName();
     }
 
 }

@@ -1,14 +1,21 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.test;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.gamepad1;
-import static org.firstinspires.ftc.teamcode.Controller.Button.*;
+import static org.firstinspires.ftc.teamcode.Controller.Button.A;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.Controller;
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.util.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
 
+@Disabled
 @TeleOp
 public class ImageCaptureTest extends OpMode {
     public Robot robot;
@@ -28,7 +35,7 @@ public class ImageCaptureTest extends OpMode {
 
     public void loop() {
         if (controller.isPressed(A)) {
-            robot.getFrontWebCam().saveLastFrame();
+            robot.getWebCamSide().saveLastFrame();
             robot.waitForCommandsToFinish();
         } else if (controller.isPressed(DPAD_UP)) {
             robot.getDriveTrain().moveToHeading(new Heading(45),.3);

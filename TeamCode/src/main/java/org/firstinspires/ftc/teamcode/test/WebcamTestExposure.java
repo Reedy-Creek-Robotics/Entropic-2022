@@ -23,6 +23,7 @@ package org.firstinspires.ftc.teamcode.test;
 
 import static android.os.Environment.getExternalStorageDirectory;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -43,6 +44,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+@Disabled
 @TeleOp
 public class WebcamTestExposure extends LinearOpMode
 {

@@ -1,29 +1,38 @@
 package org.firstinspires.ftc.teamcode.test;
 
-import static org.firstinspires.ftc.teamcode.Controller.Button.*;
+import static org.firstinspires.ftc.teamcode.Controller.Button.A;
+import static org.firstinspires.ftc.teamcode.Controller.Button.B;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
 import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
 
 import android.annotation.SuppressLint;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.util.Position;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 
 @TeleOp
+@Disabled
 public class MoveCommandTest extends OpMode {
 
-    public Robot robot;
+    private Robot robot;
 
-    public double limiter;
+    private Controller controller;
 
-    public Controller controller;
+    private double limiter;
 
-    RobotDescriptor robotDescriptor;
 
     @Override
     public void init() {
@@ -32,8 +41,6 @@ public class MoveCommandTest extends OpMode {
 
         controller = new Controller(gamepad1);
 
-        robotDescriptor = robot.getRobotContext().robotDescriptor;
-
         limiter = 0.3;
     }
 
@@ -41,12 +48,14 @@ public class MoveCommandTest extends OpMode {
     @Override
     public void loop() {
 
+        RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
+
         double drive = controller.leftStickY();
         double strafe = controller.leftStickX();
         double turn = controller.rightStickX();
 
         if (nonZero(drive, turn, strafe) || !robot.getDriveTrain().isBusy()) {
-            robot.getDriveTrain().drive(drive, turn, strafe, limiter);
+            robot.getDriveTrain().driverRelative(drive, turn, strafe, limiter);
         }
 
         if (controller.isPressed(DPAD_UP)) {

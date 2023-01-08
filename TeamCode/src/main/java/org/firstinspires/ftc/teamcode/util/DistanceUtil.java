@@ -16,6 +16,10 @@ public class DistanceUtil {
         return inchesToTiles(DistanceUnit.INCH.fromUnit(unit, distance));
     }
 
+    public static double tilesToInches(double distance) {
+        return distance * INCHES_PER_TILE;
+    }
+
     /**
      * Converts inches to tiles.
      */

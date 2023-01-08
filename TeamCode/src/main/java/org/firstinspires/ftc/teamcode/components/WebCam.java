@@ -8,7 +8,6 @@ import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgcodecs.Imgcodecs;
-import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -38,11 +37,6 @@ public class WebCam extends BaseComponent {
     private Size size;
 
     /**
-     * The frame that is currently being processed (in BGR format).
-     */
-    private Mat frame = new Mat();
-
-    /**
      * The output that will be rendered to the viewport (in RGBA format).
      */
     private Mat output = new Mat();
@@ -62,6 +56,9 @@ public class WebCam extends BaseComponent {
      */
     private OpenCvWebcam camera;
 
+    /**
+     * Used to set the exposure in ms for the webcam.
+     */
     private ExposureControl exposureControl;
 
     public WebCam(RobotContext context, String cameraName, boolean streamOutput, Size resolution) {
@@ -89,26 +86,23 @@ public class WebCam extends BaseComponent {
         }
 
         camera.setPipeline(new CameraPipeline());
-
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
                 camera.startStreaming((int) size.width, (int) size.height, OpenCvCameraRotation.UPRIGHT);
+                camera.showFpsMeterOnViewport(false);
+
+                // Now that the camera is open the exposure can be adjusted.
+                exposureControl = camera.getExposureControl();
+                exposureControl.setMode(ExposureControl.Mode.Manual);
+                setExposure(robotDescriptor.webCamExposureMs);
             }
 
             @Override
             public void onError(int errorCode) {
-                //todo handle error
+                telemetry.log().add("Error opening " + cameraName + ": " + errorCode);
             }
         });
-
-        while (!isReady() && !isStopRequested()) {
-            sleep(100);
-        }
-
-        exposureControl = camera.getExposureControl();
-        exposureControl.setMode(ExposureControl.Mode.Manual);
-        setExposure(32L);
     }
 
     public synchronized void saveLastFrame() {
@@ -130,12 +124,18 @@ public class WebCam extends BaseComponent {
         return streamOutput;
     }
 
-    public Long getExposure() {
+    public long getExposure() {
         return exposureControl.getExposure(TimeUnit.MILLISECONDS);
     }
 
     public boolean isReady() {
         return frameCount > 0;
+    }
+
+    public void waitUntilReady() {
+        while (!isReady() && !isStopRequested()) {
+            sleep(50);
+        }
     }
 
     public void setFrameProcessor(FrameProcessor frameProcessor) {
@@ -147,7 +147,7 @@ public class WebCam extends BaseComponent {
      *
      * @param duration how long the exposure is set to in milliseconds
      */
-    public void setExposure(Long duration) {
+    public void setExposure(long duration) {
         exposureControl.setExposure(duration, TimeUnit.MILLISECONDS);
     }
 
@@ -156,6 +156,7 @@ public class WebCam extends BaseComponent {
     }
 
     private class CameraPipeline extends OpenCvPipeline {
+
         @Override
         public Mat processFrame(Mat input) {
 
@@ -166,11 +167,6 @@ public class WebCam extends BaseComponent {
                 // Make sure it is RGBA, and the size that we expect.
                 assert input.width() == (int) size.width && input.height() == (int) size.height;
                 assert input.channels() == 4 : "Expected RGBA image from webcam";
-
-                // Convert to BGR before handing input frame to processors.
-                Imgproc.cvtColor(input, frame, Imgproc.COLOR_RGBA2BGR);
-
-                assert frame.channels() == 3 : "Expected BGR image after conversion";
 
                 frameCount++;
 
@@ -184,9 +180,9 @@ public class WebCam extends BaseComponent {
                 }
 
                 return output;
-
             }
         }
+
     }
 
     public interface FrameProcessor {
@@ -195,7 +191,7 @@ public class WebCam extends BaseComponent {
          * Will be invoked on each frame, giving the processor a chance to analyze the input image
          * and, if desired, update the output image.
          *
-         * @param input  the input frame image, in BGR.
+         * @param input  the input frame image, in RGBA.
          * @param output the output image, in RGBA.
          */
         void processFrame(Mat input, Mat output);

@@ -2,23 +2,31 @@ package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class LinearSlide extends BaseComponent {
 
-    public static final double ARMPOWER = 0.4;
-    public static final double IDLEARMPOWER = 0.25;
-    public SlideHeight position;
-    public static final int THRESHOLD = 5;
+    private static final int TICKS_PER_STACKED_CONE = 20; // todo: calibrate
+
+    private static final int TARGET_REACHED_THRESHOLD = 5;
+
+    private static final int MAX_HEIGHT = SlideHeight.TOP_POLE.ticks + 100;
+    private static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
+    private static final double MIN_POWER = 0.01;
+
+    private double idlePower = 0.25;
+    private double ascendingPower = 0.5;
+    private double descendingPower = 0.2;
 
     public enum SlideHeight {
-        TOP_POLE(0),
-        MEDIUM_POLE(0),
-        SMALL_POLE(0),
-        GROUND_LEVEL(0),
-        TRAVEL(0),
-        INTAKE(0)
-        ;
-        private int ticks;
+        TOP_POLE(4125),
+        MEDIUM_POLE(2950),
+        SMALL_POLE(1800),
+        GROUND_LEVEL(200),
+        TRAVEL(500),
+        INTAKE(0);
+
+        private final int ticks;
 
         SlideHeight(int ticks) {
             this.ticks = ticks;
@@ -27,62 +35,164 @@ public class LinearSlide extends BaseComponent {
 
     private DcMotorEx motor;
 
+    /**
+     * The target position in motor ticks that the slide is trying to achieve.
+     */
+    private int targetPosition;
+
     public LinearSlide(RobotContext context) {
         super(context);
         motor = (DcMotorEx) hardwareMap.dcMotor.get("Slide");
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        position = SlideHeight.INTAKE;
     }
 
     @Override
     public void init() {
+        targetPosition = SlideHeight.INTAKE.ticks;
+
+        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     /**
-     * Move the are to the desired position
+     * Moves the slide with the given power, in the range (-1, 1).
      */
-    public void moveToHeight(SlideHeight position) {
-        executeCommand(new MoveToPosition(position));
+    public void manualSlideMove(double power) {
+        stopAllCommands();
+
+        if (Math.abs(power) < MIN_POWER ||
+                (power < 0.0 && getPosition() <= MIN_HEIGHT) ||
+                (power > 0.0 && getPosition() >= MAX_HEIGHT)
+        ) {
+            stopMotor();
+        } else {
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setPower(power);
+        }
     }
 
-    private class MoveToPosition implements Command {
-        private SlideHeight desiredPosition;
+    /**
+     * Adjusts the position of the slide by the given number of ticks.  Positive ticks moves the
+     * slide up, negative ticks moves the slide down.
+     */
+    public void manualSlideAdjustPosition(int ticks) {
+        moveToTicks(targetPosition + ticks);
+    }
 
-        public MoveToPosition(SlideHeight desiredPosition) {
-            this.desiredPosition = desiredPosition;
+    /**
+     * Returns the current position of the slide
+     */
+    public double getPosition() {
+        return motor.getCurrentPosition();
+    }
+
+    public void stopMotor() {
+        motor.setTargetPosition(motor.getCurrentPosition());
+        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        motor.setPower(idlePower);
+    }
+
+    /**
+     * Indicates whether the slide is currently at or above the given known position.
+     */
+    public boolean isAtOrAbove(SlideHeight position) {
+        return getPosition() >= (position.ticks - TARGET_REACHED_THRESHOLD);
+    }
+
+    /**
+     * Move the slide to the desired height
+     */
+    public void moveToHeight(SlideHeight position) {
+        moveToTicks(position.ticks);
+    }
+
+    /**
+     * Move to the intake position.
+     */
+    public void moveToIntake() {
+        moveToIntake(1);
+    }
+
+    /**
+     * Move to the intake position, with the intake aligned to the top cone in a stack with the given number of cones.
+     */
+    public void moveToIntake(int conesInStack) {
+        int coneOffsetTicks = (conesInStack - 1) * TICKS_PER_STACKED_CONE;
+        int ticks = SlideHeight.INTAKE.ticks + coneOffsetTicks;
+        moveToTicks(ticks);
+    }
+
+    /**
+     * Move the slide to the set amount of ticks
+     */
+    public void moveToTicks(int ticks) {
+        ticks = ensureSafeTicks(ticks);
+        this.targetPosition = ticks;
+        stopAllCommands();
+        executeCommand(new MoveToTicks(ticks));
+    }
+
+    private int ensureSafeTicks(int ticks) {
+        if (ticks > MAX_HEIGHT) {
+            ticks = MAX_HEIGHT;
+        } else if (ticks < MIN_HEIGHT) {
+            ticks = MIN_HEIGHT;
+        }
+
+        return ticks;
+    }
+
+    public double getIdlePower() {
+        return idlePower;
+    }
+
+    public void setIdlePower(double idlePower) {
+        this.idlePower = idlePower;
+    }
+
+    public double getAscendingPower() {
+        return ascendingPower;
+    }
+
+    public void setAscendingPower(double ascendingPower) {
+        this.ascendingPower = ascendingPower;
+    }
+
+    public double getDescendingPower() {
+        return descendingPower;
+    }
+
+    public void setDescendingPower(double descendingPower) {
+        this.descendingPower = descendingPower;
+    }
+
+    private class MoveToTicks implements Command {
+        private int ticks;
+
+        public MoveToTicks(int ticks) {
+            this.ticks = ticks;
         }
 
         @Override
         public void start() {
-            position = desiredPosition;
-            motor.setTargetPosition(desiredPosition.ticks);
+            motor.setTargetPosition(ticks);
             motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motor.setPower(ARMPOWER);
+
+            double power = ticks > getPosition() ?
+                    ascendingPower :
+                    descendingPower;
+
+            motor.setPower(power);
         }
 
         @Override
         public void stop() {
-            motor.setPower(IDLEARMPOWER);
+            stopMotor();
         }
 
         @Override
         public boolean updateStatus() {
-            // todo: try to maintain the desired position, fight against gravity
-            // todo: ramping
-            telemetry.addData("Slide encoder ticks", motor.getCurrentPosition());
-            telemetry.addData("Slide encoder target ticks", motor.getTargetPosition());
-            telemetry.update();
-
-            if(isAtDesiredPosition()) {
-                stop();
-                return true;
-            }
-            return false;
-        }
-
-        private boolean isAtDesiredPosition() {
-            return Math.abs(motor.getCurrentPosition() - desiredPosition.ticks) <= THRESHOLD;
+            return Math.abs(motor.getCurrentPosition() - ticks) <= TARGET_REACHED_THRESHOLD;
         }
     }
 }

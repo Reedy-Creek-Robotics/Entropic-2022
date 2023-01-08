@@ -1,8 +1,6 @@
-package org.firstinspires.ftc.teamcode.util;
+package org.firstinspires.ftc.teamcode.geometry;
 
 import android.annotation.SuppressLint;
-
-import org.opencv.core.Point;
 
 public class Position {
     private double x, y;
@@ -50,9 +48,9 @@ public class Position {
     /**
      * Calculates the distance between this position and the line that passes through the given points.
      */
-    public double distance(Position p1, Position p2) {
-        double x1 = p1.x, y1 = p1.y;
-        double x2 = p2.x, y2 = p2.y;
+    public double distance(Line line) {
+        double x1 = line.getP1().x, y1 = line.getP1().y;
+        double x2 = line.getP2().x, y2 = line.getP2().y;
         double top = Math.abs((x2 - x1) * (y1 - y) - (x1 - x) * (y2 - y1));
         double bottom = Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
         return top / bottom;
@@ -61,7 +59,7 @@ public class Position {
     /**
      * Calculates the offset between this position and another.
      */
-    public Vector2 offset(Position other) {
+    public Vector2 minus(Position other) {
         double dx = this.getX() - other.getX();
         double dy = this.getY() - other.getY();
         return new Vector2(dx, dy);
@@ -80,6 +78,10 @@ public class Position {
     @SuppressLint("DefaultLocale")
     public String toString() {
         return String.format("(%.3f, %.3f)", x, y);
+    }
+
+    public String toString(int precision) {
+        return String.format("(%." + precision + "f, %." + precision + "f)", x, y);
     }
 
 }

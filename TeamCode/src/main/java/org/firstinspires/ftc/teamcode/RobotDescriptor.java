@@ -1,6 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.teamcode.util.Vector2;
+import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.opencv.core.Size;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Variables that indicate the physical characteristics of the robot.
@@ -8,9 +12,15 @@ import org.firstinspires.ftc.teamcode.util.Vector2;
 public class RobotDescriptor {
 
     /**
+     * The size of the robot in inches, with the x axis being left to right and the y axis being
+     * back to front.
+     */
+    public Size robotDimensionsInInches = new Size(15.5, 15.5);
+
+    /**
      * The diameter of the robot's wheels in mm.
      */
-    public double wheelSizeInMm = 100.0;
+    public double wheelSizeInMm = 96;
 
     /**
      * The number of encoder ticks that the robot's drive train motors count per full revolution.
@@ -69,54 +79,66 @@ public class RobotDescriptor {
     public double rampingTurnExponent = 2.0;
 
     /**
-     * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
+     * Empirically measured strafe correction values, for more accurate encoder position tracking.
+     * Note that these should be measured after calibrating ramping values above.
      */
-    public Vector2 webCamImageTopLeftCornerCoordinates = new Vector2(-0.1, 8.3);
-    public Vector2 webCamImageTopRightCornerCoordinates = new Vector2(13.8, 8.2);
-    public Vector2 webCamImageBottomLeftCornerCoordinates = new Vector2(0.5, 0.75);
-    public Vector2 webCamImageBottomRightCornerCoordinates = new Vector2(12.9, 0.6);
+    public List<EmpiricalStrafeCorrection> empiricalStrafeCorrections = Arrays.asList(
+            new EmpiricalStrafeCorrection(0.0, 0.99),
+            new EmpiricalStrafeCorrection(0.3, 0.95),
+            new EmpiricalStrafeCorrection(0.7, 0.93),
+            new EmpiricalStrafeCorrection(1.0, 0.92)
+    );
 
     /**
-     * The width and height of the robot in inches.
+     * Indicates whether empirical strafe correction using the above measurements should be enabled.
      */
-    public Vector2 robotDimensionsInInches = new Vector2(16.5, 17.25);
+    public boolean enableEmpiricalStrafeCorrection = true;
 
-    ///**
-    // * When detecting lines for tile edges, the rho threshold to use when grouping similar lines.
-    // */
-    //public double tileEdgeDetectionSimilarLineRhoThreshold = ;
-    //
-    ///**
-    // * When detecting lines for tile edges, the theta threshold to use when grouping similar lines.
-    // */
-    //public double tileEdgeDetectionSimilarLineThetaThreshold = ;
-    //
-    //
-    ///**
-    // * The height at which the webcam is mounted above the ground.
-    // */
-    //public double webCamHeightInInches = 14.25;
-    //
-    ///**
-    // * The angle in degrees between the webcam and the side of the robot (to account for skew in mounting).
-    // */
-    //public double webCamAngleToRightSideOfRobot = 0.0;
-    //
-    ///**
-    // * The angle in degrees between the webcam and ground.
-    // *
-    // * For example, 90 means pointing straight down.  100 means pointing degrees away from the robot.
-    // */
-    //public double webCamAngleToGround = 100.0;
-    //
-    ///**
-    // * The horizontal fiel
-    // */
-    //public double webCamFieldOfViewHorizontal = 60;  // 30 cm horizontal, 20 cm vertical
-    //
-    ///**
-    // * The vertical field of view for the webcam, in degrees.
-    // */
-    //public double webCamFieldOfViewVertical = 45;
+    /**
+     * The resolution of the side web cam, in pixels.
+     */
+    public Size webCamResolution = new Size(640, 360);
+
+    /**
+     * The exposure duration for the webcam in milliseconds.
+     */
+    public long webCamExposureMs = 25;
+
+    /**
+     * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
+     */
+    public Position webCamImageTopLeftCornerCoordinates = new Position(0.892, 10.370);
+    public Position webCamImageTopRightCornerCoordinates = new Position(18.069, 10.385);
+    public Position webCamImageBottomLeftCornerCoordinates = new Position(1.971, 0.899);
+    public Position webCamImageBottomRightCornerCoordinates = new Position(16.12, 0.686);
+
+    /**
+     * An empirically measured strafe correction value for a given motor power.
+     *
+     * Using encoder ticks to track position will lead to inaccuracy for lateral movement due to
+     * wheel slippage inherent in mecanum wheels.  This slippage tends to be higher with higher
+     * motor power.  By measuring the amount of slippage at various motor powers we can correct
+     * for this and get better position tracking.
+     */
+    public static class EmpiricalStrafeCorrection {
+
+        /**
+         * The motor power at which the empirical strafe correction was measured.
+         */
+        public double motorPower;
+
+        /**
+         * The strafe correction amount - any lateral movement indicated by encoder ticks will be
+         * multipied by this fraction to account for wheel slippage while strafing.  For example,
+         * if the encoders indicate strafing movement of 1 tile, a value of 0.95 will result in
+         * the robot's position only being updated by 0.95 tiles.
+         */
+        public double strafeCorrection;
+
+        public EmpiricalStrafeCorrection(double motorPower, double strafeCorrection) {
+            this.motorPower = motorPower;
+            this.strafeCorrection = strafeCorrection;
+        }
+    }
 
 }

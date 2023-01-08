@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.*;
-import static org.junit.Assert.*;
+import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
+import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
+import static org.junit.Assert.assertEquals;
 
-import org.junit.Ignore;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.junit.Test;
 
 public class RobotFieldConversionUtilTest {
@@ -38,7 +40,7 @@ public class RobotFieldConversionUtilTest {
 
         assertRobotSpaceCoordinates(
                 new RobotSpaceCoordinates(
-                        30.0, 0.5, 0.5,
+                        -30.0, 0.5, 0.5,
                         new Position(0, 1), new Position(1, 1),
                         new Position(0, 0), new Position(1, 0)
                 ),
@@ -110,7 +112,7 @@ public class RobotFieldConversionUtilTest {
 
         assertRobotSpaceCoordinates(
                 new RobotSpaceCoordinates(
-                        -30, 0.3, 0.3,
+                        30, 0.3, 0.3,
                         new Position(1, 1), new Position(1, 0),
                         new Position(0, 1), new Position(0, 0)
                 ),
@@ -280,15 +282,71 @@ public class RobotFieldConversionUtilTest {
         );
     }
 
+    @Test
+    public void convertRoundTrip_Heading100() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                10,.3,.4,
+                new Position(0,1), new Position(1,1),
+                new Position(0,0), new Position(1,0)
+        );
+
+        FieldSpaceCoordinates fieldSpaceCoordinates = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+        RobotSpaceCoordinates result = RobotFieldConversionUtil.convertToRobotSpace(fieldSpaceCoordinates);
+
+        assertRobotSpaceCoordinates(robotSpaceCoordinates, result);
+    }
+
+    @Test
+    public void convertRoundTrip_Heading30() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                30,.3,.4,
+                new Position(1,1), new Position(1,0),
+                new Position(0,1), new Position(0,0)
+        );
+
+        FieldSpaceCoordinates fieldSpaceCoordinates = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+        RobotSpaceCoordinates result = RobotFieldConversionUtil.convertToRobotSpace(fieldSpaceCoordinates);
+
+        assertRobotSpaceCoordinates(robotSpaceCoordinates, result);
+    }
+
+    @Test
+    public void convertRoundTrip_Heading260() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                -10,.3,.4,
+                new Position(1,0), new Position(0,0),
+                new Position(1,1), new Position(0,1)
+        );
+
+        FieldSpaceCoordinates fieldSpaceCoordinates = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+        RobotSpaceCoordinates result = RobotFieldConversionUtil.convertToRobotSpace(fieldSpaceCoordinates);
+
+        assertRobotSpaceCoordinates(robotSpaceCoordinates, result);
+    }
+
+    @Test
+    public void convertRoundTrip_Heading170() {
+        RobotSpaceCoordinates robotSpaceCoordinates = new RobotSpaceCoordinates(
+                -10,.3,.4,
+                new Position(1,0), new Position(0,0),
+                new Position(1,1), new Position(0,1)
+        );
+
+        FieldSpaceCoordinates fieldSpaceCoordinates = RobotFieldConversionUtil.convertToFieldSpace(robotSpaceCoordinates);
+        RobotSpaceCoordinates result = RobotFieldConversionUtil.convertToRobotSpace(fieldSpaceCoordinates);
+
+        assertRobotSpaceCoordinates(robotSpaceCoordinates, result);
+    }
+
     private void assertRobotSpaceCoordinates(RobotSpaceCoordinates expected, RobotSpaceCoordinates actual) {
         assertPosition(expected.frontLeftTileVertex, actual.frontLeftTileVertex);
         assertPosition(expected.frontRightTileVertex, actual.frontRightTileVertex);
         assertPosition(expected.backLeftTileVertex, actual.backLeftTileVertex);
         assertPosition(expected.backRightTileVertex, actual.backRightTileVertex);
 
-        assertEquals(expected.offsetHeading, actual.offsetHeading, E);
-        assertEquals(expected.offsetRight, actual.offsetRight, E);
-        assertEquals(expected.offsetFront, actual.offsetFront, E);
+        assertEquals(expected.headingOffset, actual.headingOffset, E);
+        assertEquals(expected.distanceRight, actual.distanceRight, E);
+        assertEquals(expected.distanceFront, actual.distanceFront, E);
     }
 
     private void assertFieldSpaceCoordinate(FieldSpaceCoordinates expected, FieldSpaceCoordinates actual) {
