@@ -90,6 +90,12 @@ public class WebCam extends BaseComponent {
             @Override
             public void onOpened() {
                 camera.startStreaming((int) size.width, (int) size.height, OpenCvCameraRotation.UPRIGHT);
+                camera.showFpsMeterOnViewport(false);
+
+                // Now that the camera is open the exposure can be adjusted.
+                exposureControl = camera.getExposureControl();
+                exposureControl.setMode(ExposureControl.Mode.Manual);
+                setExposure(robotDescriptor.webCamExposureMs);
             }
 
             @Override
@@ -97,12 +103,6 @@ public class WebCam extends BaseComponent {
                 telemetry.log().add("Error opening " + cameraName + ": " + errorCode);
             }
         });
-
-        camera.showFpsMeterOnViewport(false);
-
-        exposureControl = camera.getExposureControl();
-        exposureControl.setMode(ExposureControl.Mode.Manual);
-        setExposure(robotDescriptor.webCamExposureMs);
     }
 
     public synchronized void saveLastFrame() {
