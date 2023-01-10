@@ -9,6 +9,8 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -30,11 +32,13 @@ public class HoughTransformCalibration extends BaseDrivingTeleOp {
     @Override
     public void loop() {
 
+        applyBasicDriving();
+
         TileEdgeDetector tileEdgeDetector = robot.getDriveTrain().getTileEdgeDetectorSide();
         HoughLineDetector.HoughParameters parametersVertical = tileEdgeDetector.getHoughLineDetectorVertical().getParameters();
         HoughLineDetector.HoughParameters parametersHorizontal = tileEdgeDetector.getHoughLineDetectorHorizontal().getParameters();
 
-        if (controller.isPressed(LEFT_STICK_Y)) {
+        if (controller.isButtonDown(RIGHT_BUMPER)) {
             if (controller.isPressed(DPAD_UP)) {
                 parametersVertical.similarLineRhoThreshold += .05;
             } else if (controller.isPressed(DPAD_DOWN)) {
@@ -44,7 +48,8 @@ public class HoughTransformCalibration extends BaseDrivingTeleOp {
             } else if (controller.isPressed(DPAD_LEFT)) {
                 parametersVertical.similarLineThetaThreshold -= 1;
             }
-        } else if (controller.isPressed(RIGHT_STICK_Y)) {
+
+        } else if (controller.isButtonDown(LEFT_BUMPER)) {
             if (controller.isPressed(DPAD_UP)) {
                 parametersHorizontal.similarLineRhoThreshold += .05;
             } else if (controller.isPressed(DPAD_DOWN)) {
@@ -54,6 +59,7 @@ public class HoughTransformCalibration extends BaseDrivingTeleOp {
             } else if (controller.isPressed(DPAD_LEFT)) {
                 parametersHorizontal.similarLineThetaThreshold -= 1;
             }
+
         } else if (controller.isPressed(LEFT_TRIGGER)) {
             // Adjust horizontal voter pixels
             if (controller.isPressed(DPAD_DOWN)) {

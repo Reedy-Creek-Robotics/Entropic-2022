@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.TileEdgeObservation;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
+import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.HoughLine;
 import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.HoughParameters;
 
@@ -9,9 +11,11 @@ import android.annotation.SuppressLint;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.geometry.Line;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
+import org.firstinspires.ftc.teamcode.util.FormatUtil;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -77,7 +81,7 @@ public class TileEdgeDetector extends BaseComponent {
         horizontalParameters.similarLineThetaThreshold = 4.0;  // degrees
         horizontalParameters.minTheta = 45;
         horizontalParameters.maxTheta = 135;
-        horizontalParameters.pixelVoterThreshold = (int) (resolution.width * (1.0 / 4.0));
+        horizontalParameters.pixelVoterThreshold = 100; //(int) (resolution.width * (1.0 / 4.0));
         this.houghLineDetectorHorizontal = new HoughLineDetector(horizontalParameters);
 
         HoughParameters verticalParameters = new HoughParameters();
@@ -85,7 +89,7 @@ public class TileEdgeDetector extends BaseComponent {
         verticalParameters.similarLineThetaThreshold = 4.0;  // degrees
         verticalParameters.minTheta = -45;
         verticalParameters.maxTheta = 45;
-        verticalParameters.pixelVoterThreshold = (int) (resolution.height * (1.0 / 4.0));
+        verticalParameters.pixelVoterThreshold = 90; //(int) (resolution.height * (1.0 / 4.0));
         this.houghLineDetectorVertical = new HoughLineDetector(verticalParameters);
 
         this.tileEdgeSolver = new TileEdgeSolver(robotDescriptor);
@@ -170,6 +174,21 @@ public class TileEdgeDetector extends BaseComponent {
                 // Remember the observation so that it can be used by the drivetrain.
                 TileEdgeDetector.this.observation = observation;
                 observation.setObservationTime(beginFrameTime);
+
+                String distanceRightInches = observation.distanceRight != null ?
+                        format(tilesToInches(observation.distanceRight) - robotDescriptor.robotDimensionsInInches.width / 2, 1) + " in" :
+                        "___";
+                String distanceFrontInches = observation.distanceFront != null ?
+                        format(tilesToInches(observation.distanceFront) - robotDescriptor.robotDimensionsInInches.height / 2, 1) + " in" :
+                        "___";
+                String headingOffset = observation.headingOffset != null ?
+                        format(observation.headingOffset, 1) + " s" :
+                        "___";
+
+                DrawUtil.drawText(output, "DR " + distanceRightInches, new Position(50, 20), Color.ORANGE, 0.5, 1);
+                DrawUtil.drawText(output, "DF " + distanceFrontInches, new Position(50, 50), Color.ORANGE, 0.5, 1);
+                DrawUtil.drawText(output, "Heading " + headingOffset, new Position(50, 80), Color.ORANGE, 0.5, 1);
+                DrawUtil.drawText(output, format(observation.observationTime.seconds()) + " s", new Position(50, 110), Color.ORANGE, 0.5, 1);
 
             } else {
                 // Keep the previous detection results if they are still within the previous detection threshold,

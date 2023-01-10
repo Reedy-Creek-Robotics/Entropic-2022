@@ -79,7 +79,7 @@ public class DriveTrain extends BaseComponent {
      * The previous iteration's motor powers.
      */
     private MotorPowers previousMotorPowers;
-    
+
     /**
      * The previous iteration's tick counts for the motors.
      */
@@ -259,17 +259,12 @@ public class DriveTrain extends BaseComponent {
 
             // Then using the observation overwrite the expected with the actual values.
             if (observation.distanceRight != null) {
-                double distanceRightInches = tilesToInches(observation.distanceRight) - robotDescriptor.robotDimensionsInInches.width / 2;
-                telemetry.addData("Distance Right", String.format("%.2f in", distanceRightInches));
                 robotSpaceCoordinates.distanceRight = observation.distanceRight;
             }
             if (observation.distanceFront != null) {
-                double distanceFrontInches = tilesToInches(observation.distanceFront) - robotDescriptor.robotDimensionsInInches.height / 2;
-                telemetry.addData("Distance Front", String.format("%.2f in", distanceFrontInches));
                 robotSpaceCoordinates.distanceFront = observation.distanceFront;
             }
             if (observation.headingOffset != null) {
-                telemetry.addData("Heading Offset", observation.headingOffset);
                 robotSpaceCoordinates.headingOffset = observation.headingOffset;
             }
 
@@ -365,7 +360,7 @@ public class DriveTrain extends BaseComponent {
 
     /**
      * Waits for a tile edge detection up to the given number of seconds.
-     *
+     * <p>
      * Note that this method will block, and should only be called when the robot is not doing
      * anything else.  Otherwise, the effects are unpredictable.
      */

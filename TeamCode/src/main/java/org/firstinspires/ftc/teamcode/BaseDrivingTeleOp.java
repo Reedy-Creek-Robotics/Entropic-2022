@@ -39,16 +39,10 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
      */
     public void applyDriving() {
 
-        // Driving
         DriveTrain driveTrain = robot.getDriveTrain();
 
-        if (driver.isPressed(LEFT_STICK_X, LEFT_STICK_Y, RIGHT_STICK_X) || !driveTrain.isBusy()) {
-            double drive = driver.leftStickY();
-            double strafe = driver.leftStickX();
-            double turn = driver.rightStickX();
-
-            driveTrain.driverRelative(drive, turn, strafe, limiter);
-        }
+        // Basic driving
+        applyBasicDriving();
 
         // Hough assisted driving
         double driverAssistDistance = driver.isButtonDown(Controller.Button.Y) ? 0.5 : 1.0;
@@ -81,7 +75,19 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
         }
 
         telemetry.addData("Limiter", format(limiter));
-        telemetry.addData("Postion", driveTrain.getPosition());
+    }
+
+    public void applyBasicDriving() {
+        DriveTrain driveTrain = robot.getDriveTrain();
+
+        // Basic driving
+        if (driver.isPressed(LEFT_STICK_X, LEFT_STICK_Y, RIGHT_STICK_X) || !driveTrain.isBusy()) {
+            double drive = driver.leftStickY();
+            double strafe = driver.leftStickX();
+            double turn = driver.rightStickX();
+
+            driveTrain.driverRelative(drive, turn, strafe, limiter);
+        }
     }
 
     public void toggleDriveMode() {
@@ -101,8 +107,9 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
         }
     }
 
-    public void setMovementMode(MovementMode mode) {
-        limiter = mode.power;
+    public void setMovementMode(MovementMode movementMode) {
+        this.movementMode = movementMode;
+        limiter = movementMode.power;
     }
 
 }

@@ -100,7 +100,7 @@ public class WebCam extends BaseComponent {
 
             @Override
             public void onError(int errorCode) {
-                telemetry.log().add("Error opening " + cameraName + ": " + errorCode);
+                //telemetry.log().add("Error opening " + cameraName + ": " + errorCode);
             }
         });
     }
@@ -124,8 +124,10 @@ public class WebCam extends BaseComponent {
         return streamOutput;
     }
 
-    public long getExposure() {
-        return exposureControl.getExposure(TimeUnit.MILLISECONDS);
+    public Long getExposure() {
+        return exposureControl != null ?
+                exposureControl.getExposure(TimeUnit.MILLISECONDS) :
+                null;
     }
 
     public boolean isReady() {

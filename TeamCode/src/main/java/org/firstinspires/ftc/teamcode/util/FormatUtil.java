@@ -7,6 +7,7 @@ public class FormatUtil {
     }
 
     public static String format(Double value, int precision) {
+        if (value == null) return "";
         return String.format("%." + precision + "f", value);
     }
 

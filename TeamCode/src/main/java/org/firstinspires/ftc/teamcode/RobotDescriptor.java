@@ -104,7 +104,7 @@ public class RobotDescriptor {
     /**
      * The exposure duration for the webcam in milliseconds.
      */
-    public long webCamExposureMs = 25;
+    public long webCamExposureMs = 15;
 
     /**
      * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.

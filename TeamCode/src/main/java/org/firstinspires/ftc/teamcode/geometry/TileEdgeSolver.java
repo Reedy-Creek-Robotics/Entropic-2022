@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.geometry;
 
+import static org.firstinspires.ftc.teamcode.util.FormatUtil.*;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.util.DistanceUtil;
+import org.firstinspires.ftc.teamcode.util.FormatUtil;
 import org.opencv.core.Size;
 
 import java.util.ArrayList;
@@ -151,6 +154,12 @@ public class TileEdgeSolver {
 
         public void setObservationTime(ElapsedTime time) {
             this.observationTime = time;
+        }
+
+        public String toString() {
+            return "DR " + format(distanceRight) + ", DF " + format(distanceFront) + "\n" +
+                    "Heading " + format(headingOffset, 1) + " deg\n" +
+                    format(observationTime.seconds()) + " sec";
         }
     }
 
