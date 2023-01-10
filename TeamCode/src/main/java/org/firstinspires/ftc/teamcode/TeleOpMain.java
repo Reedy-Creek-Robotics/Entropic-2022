@@ -4,15 +4,14 @@ import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.A;
 import static org.firstinspires.ftc.teamcode.Controller.Button.CIRCLE;
 import static org.firstinspires.ftc.teamcode.Controller.Button.CROSS;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
-import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
-import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.SQUARE;
 import static org.firstinspires.ftc.teamcode.Controller.Button.TRIANGLE;
@@ -28,12 +27,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
 
 @TeleOp
-public class TeleOpMain extends BaseDrivingTeleOp {
+public class  TeleOpMain extends BaseDrivingTeleOp {
 
     private Controller driver;
     private Controller deliverer;
 
-    private double limiter = 0.7;
     double turretPosition = Orientation.FRONT.getServoPosition();
 
     @Override
@@ -55,14 +53,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         // Driving
         applyDriving();
 
-        // Adjust the limiter
-        // todo: replace this with slow mode?
-        if (driver.isPressed(RIGHT_BUMPER) && limiter < 1) {
-            limiter += 0.1;
-        } else if (driver.isPressed(LEFT_BUMPER) && limiter > 0) {
-            limiter -= 0.1;
-        }
-
         // Intake
         if (driver.isPressed(RIGHT_TRIGGER)) {
             if (robot.getSlide().isAtOrAbove(GROUND_LEVEL)) {
@@ -78,9 +68,9 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         // Lift
         if (deliverer.isPressed(LEFT_STICK_Y)) {
             robot.getSlide().manualSlideMove(deliverer.leftStickY());
-        } else if (driver.isPressed(RIGHT_STICK_BUTTON)) {
+        } else if (deliverer.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(TRAVEL);
-        } else if (driver.isPressed(LEFT_STICK_BUTTON)) {
+        } else if (deliverer.isPressed(LEFT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(INTAKE);
         } else if (deliverer.isPressed(SQUARE)) {
             robot.getSlide().moveToHeight(GROUND_LEVEL);

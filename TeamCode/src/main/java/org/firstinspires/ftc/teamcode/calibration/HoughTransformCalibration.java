@@ -13,13 +13,14 @@ import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.BaseDrivingTeleOp;
 import org.firstinspires.ftc.teamcode.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.TileEdgeDetector;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 
 @TeleOp(group = "Calibration")
-public class HoughTransformCalibration extends BaseTeleOp {
+public class HoughTransformCalibration extends BaseDrivingTeleOp {
 
     @Override
     protected Robot.CameraMode getCameraMode() {

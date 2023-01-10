@@ -56,6 +56,7 @@ public abstract class AutoMain extends LinearOpMode {
 
         robot.getWebCamFront().waitUntilReady();
         robot.getAprilTagDetector().activate();
+        robot.getDriveTrain().getTileEdgeDetectorSide().deactivate();
 
         robot.getDriveTrain().setPosition(getStartPosition());
     }

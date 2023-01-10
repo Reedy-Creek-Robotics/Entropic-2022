@@ -25,16 +25,15 @@ import java.util.Collections;
 public class RampingCalibration extends BaseDrivingTeleOp {
 
     private double strafeCorrection = 1.0;
-    private double limiter = 0.3;
 
     @Override
     public void loop() {
         // Changing ramping values
         if (controller.isPressed(LEFT_TRIGGER)) {
-            // Ramp Up values
-            if (controller.isPressed(DPAD_UP) && limiter < 1) {
+            // Ramp Up Motor values
+            if (controller.isPressed(DPAD_UP) && limiter <= 1) {
                 descriptor.rampingUpMinMotorPower += 0.01;
-            } else if (controller.isPressed(DPAD_DOWN) && limiter > 0) {
+            } else if (controller.isPressed(DPAD_DOWN) && limiter >= 0) {
                 descriptor.rampingUpMinMotorPower -= 0.01;
             } else if (controller.isPressed(DPAD_LEFT)) {
                 descriptor.rampingUpEndSpeed += 0.01;
@@ -55,9 +54,9 @@ public class RampingCalibration extends BaseDrivingTeleOp {
 
         } else if (controller.isPressed(RIGHT_TRIGGER)) {
             // Ramp down values
-            if (controller.isPressed(DPAD_UP) && limiter < 1) {
+            if (controller.isPressed(DPAD_UP) && limiter <= 1) {
                 descriptor.rampingDownMinMotorPower += 0.01;
-            } else if (controller.isPressed(DPAD_DOWN) && limiter > 0) {
+            } else if (controller.isPressed(DPAD_DOWN) && limiter >= 0) {
                 descriptor.rampingDownMinMotorPower -= 0.01;
             } else if (controller.isPressed(DPAD_LEFT)) {
                 descriptor.rampingDownBeginDistance += 0.01;
@@ -78,9 +77,9 @@ public class RampingCalibration extends BaseDrivingTeleOp {
 
         } else {
             // Limiter and strafe correction
-            if (controller.isPressed(RIGHT_BUMPER) && limiter < 1) {
+            if (controller.isPressed(RIGHT_BUMPER) && limiter <= 1) {
                 limiter += 0.05;
-            } else if (controller.isPressed(LEFT_BUMPER) && limiter > 0) {
+            } else if (controller.isPressed(LEFT_BUMPER) && limiter >= 0) {
                 limiter -= 0.05;
             } else if (controller.isPressed(X)) {
                 strafeCorrection += 0.005;
@@ -97,7 +96,6 @@ public class RampingCalibration extends BaseDrivingTeleOp {
                 new EmpiricalStrafeCorrection(limiter, strafeCorrection)
         );
 
-        telemetry.addData("Limiter", format(limiter));
         telemetry.addData("Strafe Correction", format(strafeCorrection));
         telemetry.addData("Ramp Down Min Power", format(descriptor.rampingDownMinMotorPower));
         telemetry.addData("Ramp Down Begin Distance", format(descriptor.rampingDownBeginDistance) + " tiles");

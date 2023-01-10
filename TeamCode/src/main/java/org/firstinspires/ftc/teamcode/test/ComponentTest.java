@@ -95,9 +95,9 @@ public class ComponentTest extends OpMode {
             } else if (gamepad1.dpad_right) {
                 robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
             } else if (gamepad1.x) {
-                robot.getDriveTrain().rotate(-90, limiter);
+                robot.getDriveTrain().rotateSimple(-90, limiter);
             } else if (gamepad1.y) {
-                robot.getDriveTrain().rotate(90, limiter);
+                robot.getDriveTrain().rotateSimple(90, limiter);
             } else if (gamepad1.b) {
                 robot.getDriveTrain().stopAllCommands();
             } else if (gamepad1.start) {

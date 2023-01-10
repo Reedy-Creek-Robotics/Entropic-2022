@@ -27,6 +27,7 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.firstinspires.ftc.teamcode.util.MecanumUtil;
+import org.firstinspires.ftc.teamcode.util.MecanumUtil.MotorPowers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -74,6 +75,11 @@ public class DriveTrain extends BaseComponent {
      */
     private Orientation previousImuOrientation;
 
+    /**
+     * The previous iteration's motor powers.
+     */
+    private MotorPowers previousMotorPowers;
+    
     /**
      * The previous iteration's tick counts for the motors.
      */
@@ -232,7 +238,7 @@ public class DriveTrain extends BaseComponent {
                     deltaFrontLeft,
                     deltaFrontRight,
                     heading,
-                    null
+                    previousMotorPowers
             );
 
             position = position.add(deltaPositionRelativeToField);
@@ -393,7 +399,7 @@ public class DriveTrain extends BaseComponent {
         // Stop any current command from executing.
         stopAllCommands();
 
-        MecanumUtil.MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDrive(
+        MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDrive(
                 drive,
                 strafe,
                 turn,
@@ -409,7 +415,7 @@ public class DriveTrain extends BaseComponent {
         // Stop any current command from executing.
         stopAllCommands();
 
-        MecanumUtil.MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDriverRelative(
+        MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDriverRelative(
                 drive,
                 strafe,
                 turn,
@@ -480,6 +486,7 @@ public class DriveTrain extends BaseComponent {
      * @param speed     The speed you want to move at
      */
     public void moveAlignedToTileCenter(double distance, Direction direction, double speed) {
+        // todo: handle half tile movement, and avoid obstacles
         executeCommand(new MoveAlignedToTileCenter(direction, distance, speed));
     }
 
@@ -506,7 +513,7 @@ public class DriveTrain extends BaseComponent {
      * @param distance the distance to move in tiles
      * @param speed    a factor 0-1 that indicates how fast to move
      */
-    public void moveForward(double distance, double speed) {
+    public void moveForwardSimple(double distance, double speed) {
         executeCommand(new MoveForward(distance, speed));
     }
 
@@ -516,7 +523,7 @@ public class DriveTrain extends BaseComponent {
      * @param distance the distance to move in tiles. Positive to the left, Negative to the right
      * @param speed    a factor 0-1 that indicates how fast to move
      */
-    public void strafe(double distance, double speed) {
+    public void strafeSimple(double distance, double speed) {
         executeCommand(new Strafe(distance, speed));
     }
 
@@ -526,7 +533,7 @@ public class DriveTrain extends BaseComponent {
      * @param angle Positive is left, negative is right, turns the given angle in degrees
      * @param speed 0-1, how fast we move
      */
-    public void rotate(double angle, double speed) {
+    public void rotateSimple(double angle, double speed) {
         executeCommand(new Rotate(angle, speed));
     }
 
@@ -593,16 +600,17 @@ public class DriveTrain extends BaseComponent {
     /**
      * Turns on all the motors.
      *
-     * @param speed how fast the motors turn
+     * @param power how fast the motors turn
      */
-    private void setMotorPower(double speed) {
-        // Shut off the motor power
-        for (DcMotorEx motor : motors) {
-            motor.setPower(speed);
-        }
+    private void setMotorPower(double power) {
+        setMotorPowers(new MotorPowers(
+                power, power, power, power
+        ));
     }
 
-    private void setMotorPowers(MecanumUtil.MotorPowers motorPowers) {
+    private void setMotorPowers(MotorPowers motorPowers) {
+        previousMotorPowers = motorPowers;
+
         frontLeft.setPower(motorPowers.frontLeft);
         frontRight.setPower(motorPowers.frontRight);
         backLeft.setPower(motorPowers.backLeft);
@@ -757,7 +765,7 @@ public class DriveTrain extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            MecanumUtil.MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForTargetPosition(
+            MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForTargetPosition(
                     robotDescriptor,
                     position, heading, velocity,
                     targetPosition, targetHeading,

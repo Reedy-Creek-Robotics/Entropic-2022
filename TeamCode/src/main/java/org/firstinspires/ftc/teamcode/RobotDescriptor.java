@@ -83,10 +83,12 @@ public class RobotDescriptor {
      * Note that these should be measured after calibrating ramping values above.
      */
     public List<EmpiricalStrafeCorrection> empiricalStrafeCorrections = Arrays.asList(
-            new EmpiricalStrafeCorrection(0.0, 0.99),
-            new EmpiricalStrafeCorrection(0.3, 0.95),
-            new EmpiricalStrafeCorrection(0.7, 0.93),
-            new EmpiricalStrafeCorrection(1.0, 0.92)
+            new EmpiricalStrafeCorrection(0.0, 0.865),
+            new EmpiricalStrafeCorrection(0.3, 0.865),
+            new EmpiricalStrafeCorrection(0.5, 0.865),
+            new EmpiricalStrafeCorrection(0.7, 0.865),
+            new EmpiricalStrafeCorrection(0.8, 0.855),
+            new EmpiricalStrafeCorrection(1.0, 0.845)
     );
 
     /**

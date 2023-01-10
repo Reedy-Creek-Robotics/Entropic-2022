@@ -67,9 +67,9 @@ public class MoveCommandTest extends OpMode {
         } else if (controller.isPressed(DPAD_RIGHT)) {
             robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
         } else if (controller.isPressed(Controller.Button.X)) {
-            robot.getDriveTrain().rotate(-90, limiter);
+            robot.getDriveTrain().rotateSimple(-90, limiter);
         } else if (controller.isPressed(Controller.Button.Y)) {
-            robot.getDriveTrain().rotate(90, limiter);
+            robot.getDriveTrain().rotateSimple(90, limiter);
         } else if (controller.isPressed(B)) {
             robot.getDriveTrain().stopAllCommands();
         } else if (controller.isPressed(A)) {

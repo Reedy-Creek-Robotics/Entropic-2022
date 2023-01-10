@@ -13,14 +13,20 @@ import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.BaseTeleOp;
+import org.firstinspires.ftc.teamcode.components.LinearSlide;
 
 @TeleOp(group = "Calibration")
-public class TurretCalibration extends BaseTeleOp {
+public class IntakeTurretCalibration extends BaseTeleOp {
 
     private double turretPosition = LEFT_SIDE.getServoPosition();
 
     private double intakeTime = 1.0;
     private double intakePower = 1.0;
+
+    @Override
+    public void start() {
+        robot.getSlide().moveToHeight(LinearSlide.SlideHeight.SMALL_POLE);
+    }
 
     @Override
     public void loop() {
