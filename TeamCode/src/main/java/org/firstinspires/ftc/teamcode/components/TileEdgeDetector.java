@@ -113,7 +113,7 @@ public class TileEdgeDetector extends BaseComponent {
     }
 
     public void deactivate() {
-        webCam.setFrameProcessor(null);
+        webCam.removeFrameProcessor();
         frameProcessor = null;
         observation = null;
     }

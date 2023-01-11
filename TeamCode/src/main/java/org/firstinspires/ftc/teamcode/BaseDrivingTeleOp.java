@@ -21,6 +21,7 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 public abstract class BaseDrivingTeleOp extends BaseTeleOp {
 
     protected Controller driver;
+    protected Controller deliverer;
 
     private MovementMode movementMode;
     protected double limiter;
@@ -30,6 +31,7 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
         super.init();
 
         driver = controller;
+        deliverer = new Controller(gamepad2);
 
         setMovementMode(MovementMode.FAST);
     }
@@ -87,6 +89,13 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             double turn = driver.rightStickX();
 
             driveTrain.driverRelative(drive, turn, strafe, limiter);
+        }
+
+        if (driver.isPressed(START)) {
+            // todo: go to the middle of the current tile instead of this
+            driveTrain.setPosition(new Position(.5, .5));
+        } else if (driver.isPressed(BACK)) {
+            driveTrain.setHeading(new Heading(90));
         }
     }
 

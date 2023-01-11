@@ -54,7 +54,7 @@ public abstract class AutoMain extends LinearOpMode {
         // For auto paths, don't use tile edge detection except at key points
         robot.getDriveTrain().getTileEdgeDetectorSide().deactivate();
 
-        robot.getWebCamFront().waitUntilReady();
+        //robot.getWebCamFront().waitUntilReady();
         robot.getAprilTagDetector().activate();
 
         robot.getDriveTrain().setPosition(getStartPosition());

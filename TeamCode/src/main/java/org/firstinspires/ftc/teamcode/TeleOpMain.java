@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.*;
 import static org.firstinspires.ftc.teamcode.Controller.Button.A;
 import static org.firstinspires.ftc.teamcode.Controller.Button.CIRCLE;
 import static org.firstinspires.ftc.teamcode.Controller.Button.CROSS;
@@ -15,6 +16,7 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.SQUARE;
 import static org.firstinspires.ftc.teamcode.Controller.Button.TRIANGLE;
+import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.INTAKE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
@@ -27,10 +29,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
 
 @TeleOp
-public class  TeleOpMain extends BaseDrivingTeleOp {
-
-    private Controller driver;
-    private Controller deliverer;
+public class TeleOpMain extends BaseDrivingTeleOp {
 
     double turretPosition = Orientation.FRONT.getServoPosition();
 
@@ -40,9 +39,6 @@ public class  TeleOpMain extends BaseDrivingTeleOp {
 
         // Load the position from disk, so it can pick up the previous position from the auto path.
         robot.loadPositionFromDisk();
-
-        driver = controller;
-        deliverer = new Controller(gamepad2);
 
         deliverer.analogConfig(LEFT_STICK_Y)
                 .withMaxValue(robot.getSlide().getAscendingPower());
@@ -72,13 +68,13 @@ public class  TeleOpMain extends BaseDrivingTeleOp {
             robot.getSlide().moveToHeight(TRAVEL);
         } else if (deliverer.isPressed(LEFT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(INTAKE);
-        } else if (deliverer.isPressed(SQUARE)) {
+        } else if (deliverer.isPressed(X)) {
             robot.getSlide().moveToHeight(GROUND_LEVEL);
-        } else if (deliverer.isPressed(TRIANGLE)) {
+        } else if (deliverer.isPressed(Y)) {
             robot.getSlide().moveToHeight(TOP_POLE);
-        } else if (deliverer.isPressed(CIRCLE)) {
+        } else if (deliverer.isPressed(B)) {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
-        } else if (deliverer.isPressed(CROSS)) {
+        } else if (deliverer.isPressed(A)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
         }
 

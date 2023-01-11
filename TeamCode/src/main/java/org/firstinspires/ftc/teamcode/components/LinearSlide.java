@@ -6,7 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class LinearSlide extends BaseComponent {
 
-    private static final int TICKS_PER_STACKED_CONE = 20; // todo: calibrate
+    private static final int TICKS_PER_STACKED_CONE = 195; // todo: calibrate
+    private static final int DELIVER_OFFSET = 250;  // ticks to lower before delivery
 
     private static final int TARGET_REACHED_THRESHOLD = 5;
 
@@ -14,13 +15,13 @@ public class LinearSlide extends BaseComponent {
     private static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
     private static final double MIN_POWER = 0.01;
 
-    private double idlePower = 0.25;
-    private double ascendingPower = 0.5;
-    private double descendingPower = 0.2;
+    private double idlePower = 0.4;
+    private double ascendingPower = 1.0;
+    private double descendingPower = 1.0;
 
     public enum SlideHeight {
         TOP_POLE(4125),
-        MEDIUM_POLE(2950),
+        MEDIUM_POLE(2850),
         SMALL_POLE(1800),
         GROUND_LEVEL(200),
         TRAVEL(500),

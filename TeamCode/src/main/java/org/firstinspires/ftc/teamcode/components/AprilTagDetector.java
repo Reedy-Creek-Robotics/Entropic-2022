@@ -60,7 +60,7 @@ public class AprilTagDetector extends BaseComponent {
     }
 
     public void deactivate() {
-        webCam.setFrameProcessor(null);
+        webCam.removeFrameProcessor();
         frameProcessor = null;
     }
 

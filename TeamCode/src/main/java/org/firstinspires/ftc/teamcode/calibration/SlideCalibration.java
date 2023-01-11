@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.calibration;
 
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.A;
 import static org.firstinspires.ftc.teamcode.Controller.Button.B;
 import static org.firstinspires.ftc.teamcode.Controller.Button.CIRCLE;
 import static org.firstinspires.ftc.teamcode.Controller.Button.CROSS;
@@ -22,11 +25,13 @@ import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.BaseTeleOp;
+import org.firstinspires.ftc.teamcode.BaseDrivingTeleOp;
+import org.firstinspires.ftc.teamcode.Controller;
+import org.firstinspires.ftc.teamcode.Controller.Button;
 import org.firstinspires.ftc.teamcode.components.LinearSlide;
 
 @TeleOp(group = "Calibration")
-public class SlideCalibration extends BaseTeleOp {
+public class SlideCalibration extends BaseDrivingTeleOp {
 
     @Override
     public void init() {
@@ -36,53 +41,59 @@ public class SlideCalibration extends BaseTeleOp {
     @Override
     public void loop() {
 
+        applyBasicDriving();
+
         LinearSlide slide = robot.getSlide();
 
+        //Intake
+        if (driver.isPressed(RIGHT_TRIGGER)) {
+            robot.getIntake().intakeManual();
+        } else if (driver.isPressed(LEFT_TRIGGER)) {
+            robot.getIntake().outakeManual();
+        } else {
+            robot.getIntake().stopIntake();
+        }
+
         // Manual slide movement
-        if (controller.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
-            controller.analogConfig(LEFT_STICK_Y).withMaxValue(slide.getAscendingPower());
-            slide.manualSlideMove(controller.leftStickY());
+        if (deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
+            deliverer.analogConfig(LEFT_STICK_Y).withMaxValue(slide.getAscendingPower());
+            slide.manualSlideMove(deliverer.leftStickY());
         }
 
         // Adjust slide power
-        if (controller.isPressed(DPAD_UP)) {
+        if (deliverer.isPressed(DPAD_UP)) {
             double power = slide.getAscendingPower();
             slide.setAscendingPower(power + 0.05);
-        } else if (controller.isPressed(DPAD_DOWN)) {
+        } else if (deliverer.isPressed(DPAD_DOWN)) {
             double power = slide.getAscendingPower();
             slide.setAscendingPower(power - 0.05);
         }
-        if (controller.isPressed(DPAD_RIGHT)) {
+        if (deliverer.isPressed(DPAD_RIGHT)) {
             double power = slide.getDescendingPower();
             slide.setDescendingPower(power + 0.05);
-        } else if (controller.isPressed(DPAD_LEFT)) {
+        } else if (deliverer.isPressed(DPAD_LEFT)) {
             double power = slide.getDescendingPower();
             slide.setDescendingPower(power - 0.05);
         }
-        if (controller.isPressed(RIGHT_BUMPER)) {
+        if (deliverer.isPressed(RIGHT_BUMPER)) {
             double power = slide.getIdlePower();
             slide.setIdlePower(power + 0.05);
-        } else if (controller.isPressed(LEFT_BUMPER)) {
+        } else if (deliverer.isPressed(LEFT_BUMPER)) {
             double power = slide.getIdlePower();
             slide.setIdlePower(power - 0.05);
         }
 
         // Lift
-        if (controller.isPressed(LEFT_STICK_BUTTON)) {
+        if (deliverer.isPressed(LEFT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(INTAKE);
-        } else if (controller.isPressed(SQUARE)) {
+        } else if (deliverer.isPressed(Button.X)) {
             robot.getSlide().moveToHeight(GROUND_LEVEL);
-        } else if (controller.isPressed(TRIANGLE)) {
+        } else if (deliverer.isPressed(Button.Y)) {
             robot.getSlide().moveToHeight(TOP_POLE);
-        } else if (controller.isPressed(CIRCLE)) {
+        } else if (deliverer.isPressed(B)) {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
-        } else if (controller.isPressed(CROSS)) {
+        } else if (deliverer.isPressed(A)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
-        }
-
-        if (controller.isPressed(B)) {
-            slide.stopAllCommands();
-            slide.stopMotor();
         }
 
         telemetry.addData("Slide Position", format(slide.getPosition()));

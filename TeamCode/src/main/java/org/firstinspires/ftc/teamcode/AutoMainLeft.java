@@ -32,16 +32,12 @@ public class AutoMainLeft extends AutoMain {
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, .5), BASE_SPEED);
 
         //move to medium pole and prepare to drop off
-        //robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), new Heading(0), BASE_SPEED);
-        robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.2), new Heading(0), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), new Heading(0), BASE_SPEED);
         robot.getTurret().moveToOrientation(FRONT);
         robot.getSlide().moveToHeight(LinearSlide.SlideHeight.MEDIUM_POLE);
         robot.waitForCommandsToFinish();
 
-        robot.getDriveTrain().setPosition(new Position(1.5, 2));
-
         // Wait until we get an observation to make sure we are where we expect
-        //robot.getDriveTrain().waitForTileEdgeDetection(2.0);
 
         //drop off pole
         robot.getDriveTrain().moveToTargetPosition(new Position(1.55, 2), BASE_SPEED);
@@ -51,17 +47,14 @@ public class AutoMainLeft extends AutoMain {
 
         //recenter
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
-
-        //robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
-        robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 1.4), BASE_SPEED);
-
+        robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
+        //robot.getDriveTrain().waitForTileEdgeDetection(2.0);
         robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
-        robot.getDriveTrain().setPosition(new Position(1.5, 1.5));
+        //robot.getDriveTrain().setPosition(new Position(1.5, 1.5));
 
-        park();
 
         /*
         //test
