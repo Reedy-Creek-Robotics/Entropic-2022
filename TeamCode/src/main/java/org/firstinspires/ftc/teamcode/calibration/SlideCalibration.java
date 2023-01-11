@@ -5,8 +5,6 @@ import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGG
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.A;
 import static org.firstinspires.ftc.teamcode.Controller.Button.B;
-import static org.firstinspires.ftc.teamcode.Controller.Button.CIRCLE;
-import static org.firstinspires.ftc.teamcode.Controller.Button.CROSS;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
@@ -14,8 +12,8 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
-import static org.firstinspires.ftc.teamcode.Controller.Button.SQUARE;
-import static org.firstinspires.ftc.teamcode.Controller.Button.TRIANGLE;
+import static org.firstinspires.ftc.teamcode.Controller.Button.X;
+import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.INTAKE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
@@ -26,8 +24,6 @@ import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.BaseDrivingTeleOp;
-import org.firstinspires.ftc.teamcode.Controller;
-import org.firstinspires.ftc.teamcode.Controller.Button;
 import org.firstinspires.ftc.teamcode.components.LinearSlide;
 
 @TeleOp(group = "Calibration")
@@ -86,9 +82,9 @@ public class SlideCalibration extends BaseDrivingTeleOp {
         // Lift
         if (deliverer.isPressed(LEFT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(INTAKE);
-        } else if (deliverer.isPressed(Button.X)) {
+        } else if (deliverer.isPressed(X)) {
             robot.getSlide().moveToHeight(GROUND_LEVEL);
-        } else if (deliverer.isPressed(Button.Y)) {
+        } else if (deliverer.isPressed(Y)) {
             robot.getSlide().moveToHeight(TOP_POLE);
         } else if (deliverer.isPressed(B)) {
             robot.getSlide().moveToHeight(MEDIUM_POLE);

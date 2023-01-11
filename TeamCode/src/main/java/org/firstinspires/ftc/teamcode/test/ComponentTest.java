@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.test;
 
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_X;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_Y;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.INTAKE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
@@ -87,13 +87,13 @@ public class ComponentTest extends OpMode {
         if (lastButtonTime1.seconds() > 0.25) {
             boolean buttonPress = true;
             if (gamepad1.dpad_up) {
-                robot.getDriveTrain().moveAlignedToTileCenter(1, Y, limiter);
+                robot.getDriveTrain().moveAlignedToTileCenter(1, FIELD_Y, limiter);
             } else if (gamepad1.dpad_left) {
-                robot.getDriveTrain().moveAlignedToTileCenter(-1, X, limiter);
+                robot.getDriveTrain().moveAlignedToTileCenter(-1, FIELD_X, limiter);
             } else if (gamepad1.dpad_down) {
-                robot.getDriveTrain().moveAlignedToTileCenter(-1, Y, limiter);
+                robot.getDriveTrain().moveAlignedToTileCenter(-1, FIELD_Y, limiter);
             } else if (gamepad1.dpad_right) {
-                robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
+                robot.getDriveTrain().moveAlignedToTileCenter(1, FIELD_X, limiter);
             } else if (gamepad1.x) {
                 robot.getDriveTrain().rotateSimple(-90, limiter);
             } else if (gamepad1.y) {

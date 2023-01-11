@@ -1,10 +1,8 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_X;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_Y;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
-import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.convertToFieldSpace;
@@ -195,7 +193,7 @@ public class DriveTrain extends BaseComponent {
 
         telemetry.addData("Heading", heading);
         telemetry.addData("Position", position);
-        telemetry.addData("Speed", format(velocity.magnitude()));
+        //telemetry.addData("Speed", format(velocity.magnitude()));
 
         //telemetry.addData("Current Command", getCurrentCommand());
         //telemetry.addData("Next Commands", getNextCommands());
@@ -423,8 +421,8 @@ public class DriveTrain extends BaseComponent {
     }
 
     public enum Direction {
-        X,
-        Y
+        FIELD_X,
+        FIELD_Y
     }
 
     /**
@@ -499,7 +497,7 @@ public class DriveTrain extends BaseComponent {
      * Centers the robot within the current tile.
      */
     public void centerInCurrentTile(double speed) {
-        moveAlignedToTileCenter(0.0, Direction.X, speed);
+        moveAlignedToTileCenter(0.0, Direction.FIELD_X, speed);
     }
 
     /**
@@ -587,9 +585,7 @@ public class DriveTrain extends BaseComponent {
      */
     private void stopMotors() {
         // Shut off the motor power
-        for (DcMotorEx motor : motors) {
-            motor.setPower(0);
-        }
+        setMotorPower(0.0);
     }
 
     /**
@@ -876,13 +872,17 @@ public class DriveTrain extends BaseComponent {
         protected Position calculateTargetPosition() {
             // Calculate the new target position, aligned to the tile middle.
             Position targetPosition;
-            if (direction == X) {
+            if (direction == FIELD_X) {
                 targetPosition = new Position(position.getX() + distance, position.getY());
-            } else if (direction == Y) {
+            } else if (direction == FIELD_Y) {
                 targetPosition = new Position(position.getX(), position.getY() + distance);
             } else {
                 throw new IllegalArgumentException();
             }
+
+            // todo: support half tile movement
+            // todo: add obstacle detection and avoidance (e.g. posts, edge of field)
+
             return targetPosition.alignToTileMiddle();
         }
 

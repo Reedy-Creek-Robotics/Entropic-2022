@@ -9,8 +9,10 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.START;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
+import static org.firstinspires.ftc.teamcode.Controller.Button.X;
+import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_X;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_Y;
 
 import android.annotation.SuppressLint;
 
@@ -59,16 +61,16 @@ public class MoveCommandTest extends OpMode {
         }
 
         if (controller.isPressed(DPAD_UP)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(1, Y, limiter);
+            robot.getDriveTrain().moveAlignedToTileCenter(1, FIELD_Y, limiter);
         } else if (controller.isPressed(DPAD_LEFT)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(-1, X, limiter);
+            robot.getDriveTrain().moveAlignedToTileCenter(-1, FIELD_X, limiter);
         } else if (controller.isPressed(DPAD_DOWN)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(-1, Y, limiter);
+            robot.getDriveTrain().moveAlignedToTileCenter(-1, FIELD_Y, limiter);
         } else if (controller.isPressed(DPAD_RIGHT)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(1, X, limiter);
-        } else if (controller.isPressed(Controller.Button.X)) {
+            robot.getDriveTrain().moveAlignedToTileCenter(1, FIELD_X, limiter);
+        } else if (controller.isPressed(X)) {
             robot.getDriveTrain().rotateSimple(-90, limiter);
-        } else if (controller.isPressed(Controller.Button.Y)) {
+        } else if (controller.isPressed(Y)) {
             robot.getDriveTrain().rotateSimple(90, limiter);
         } else if (controller.isPressed(B)) {
             robot.getDriveTrain().stopAllCommands();

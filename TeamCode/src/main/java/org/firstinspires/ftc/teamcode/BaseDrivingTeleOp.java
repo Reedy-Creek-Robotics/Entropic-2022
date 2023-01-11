@@ -3,15 +3,20 @@ package org.firstinspires.ftc.teamcode;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_X;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
-import static org.firstinspires.ftc.teamcode.Controller.Button.*;
+import static org.firstinspires.ftc.teamcode.Controller.Button.A;
+import static org.firstinspires.ftc.teamcode.Controller.Button.B;
 import static org.firstinspires.ftc.teamcode.Controller.Button.BACK;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.Y;
+import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
+import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
+import static org.firstinspires.ftc.teamcode.Controller.Button.START;
+import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_X;
+import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_Y;
 import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
@@ -47,33 +52,23 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
         applyBasicDriving();
 
         // Hough assisted driving
-        double driverAssistDistance = driver.isButtonDown(Controller.Button.Y) ? 0.5 : 1.0;
+        double driverAssistDistance = driver.isButtonDown(Y) ? 0.5 : 1.0;
         if (driver.isPressed(DPAD_UP)) {
-            driveTrain.moveAlignedToTileCenter(driverAssistDistance, Y, limiter);
+            driveTrain.moveAlignedToTileCenter(driverAssistDistance, FIELD_Y, limiter);
         } else if (driver.isPressed(DPAD_LEFT)) {
-            driveTrain.moveAlignedToTileCenter(-driverAssistDistance, X, limiter);
+            driveTrain.moveAlignedToTileCenter(-driverAssistDistance, FIELD_X, limiter);
         } else if (driver.isPressed(DPAD_DOWN)) {
-            driveTrain.moveAlignedToTileCenter(-driverAssistDistance, Y, limiter);
+            driveTrain.moveAlignedToTileCenter(-driverAssistDistance, FIELD_Y, limiter);
         } else if (driver.isPressed(DPAD_RIGHT)) {
-            driveTrain.moveAlignedToTileCenter(driverAssistDistance, X, limiter);
+            driveTrain.moveAlignedToTileCenter(driverAssistDistance, FIELD_X, limiter);
         } else if (driver.isPressed(LEFT_BUMPER)) {
             driveTrain.rotateAlignedToTile(90, limiter);
         } else if (driver.isPressed(RIGHT_BUMPER)) {
             driveTrain.rotateAlignedToTile(-90, limiter);
         } else if (driver.isPressed(A)) {
             driveTrain.centerInCurrentTile(limiter);
-        }
-
-        // Utility functions
-        if (driver.isPressed(LEFT_STICK_BUTTON)) {
-            toggleDriveMode();
         } else if (driver.isPressed(B)) {
             driveTrain.stopAllCommands();
-        } else if (driver.isPressed(START)) {
-            // todo: go to the middle of the current tile instead of this
-            driveTrain.setPosition(new Position(.5, .5));
-        } else if (driver.isPressed(BACK)) {
-            driveTrain.setHeading(new Heading(90));
         }
 
         telemetry.addData("Limiter", format(limiter));
@@ -91,11 +86,17 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             driveTrain.driverRelative(drive, turn, strafe, limiter);
         }
 
+        // Utility functions
         if (driver.isPressed(START)) {
             // todo: go to the middle of the current tile instead of this
             driveTrain.setPosition(new Position(.5, .5));
         } else if (driver.isPressed(BACK)) {
             driveTrain.setHeading(new Heading(90));
+        }
+
+        // Slow mode
+        if (driver.isPressed(LEFT_STICK_BUTTON)) {
+            toggleDriveMode();
         }
     }
 

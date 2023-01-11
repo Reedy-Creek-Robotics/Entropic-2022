@@ -1,6 +1,13 @@
 package org.firstinspires.ftc.teamcode.calibration;
 
-import static org.firstinspires.ftc.teamcode.Controller.Button;
+import static org.firstinspires.ftc.teamcode.Controller.Button.A;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
+import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.Controller.Button.START;
+import static org.firstinspires.ftc.teamcode.Controller.Button.X;
+import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -157,22 +164,22 @@ public class WebCamCalibration extends BaseTeleOp {
 
     @Override
     public void loop() {
-        if (controller.isPressed(Button.START)) {
+        if (controller.isPressed(START)) {
             resetCalibration();
-        } else if (controller.isPressed(Button.Y)) {
+        } else if (controller.isPressed(Y)) {
             calibrationMode = !calibrationMode;
-        } else if (controller.isPressed(Button.X)) {
+        } else if (controller.isPressed(X)) {
             showGrid = !showGrid;
-        } else if (controller.isPressed(Button.A)) {
+        } else if (controller.isPressed(A)) {
             cornerPoints.put(activeCorner, activeCornerPoint);
             startCorner(nextCorner(activeCorner));
-        } else if (controller.isPressed(Button.DPAD_LEFT)) {
+        } else if (controller.isPressed(DPAD_LEFT)) {
             activeCornerPoint.position = activeCornerPoint.position.add(new Vector2(-0.5, 0));
-        } else if (controller.isPressed(Button.DPAD_RIGHT)) {
+        } else if (controller.isPressed(DPAD_RIGHT)) {
             activeCornerPoint.position = activeCornerPoint.position.add(new Vector2(0.5, 0));
-        } else if (controller.isPressed(Button.DPAD_UP)) {
+        } else if (controller.isPressed(DPAD_UP)) {
             activeCornerPoint.position = activeCornerPoint.position.add(new Vector2(0, 0.5));
-        } else if (controller.isPressed(Button.DPAD_DOWN)) {
+        } else if (controller.isPressed(DPAD_DOWN)) {
             activeCornerPoint.position = activeCornerPoint.position.add(new Vector2(0, -0.5));
         }
 

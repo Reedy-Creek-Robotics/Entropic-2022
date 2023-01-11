@@ -4,19 +4,16 @@ import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.Controller.Button.*;
 import static org.firstinspires.ftc.teamcode.Controller.Button.A;
-import static org.firstinspires.ftc.teamcode.Controller.Button.CIRCLE;
-import static org.firstinspires.ftc.teamcode.Controller.Button.CROSS;
+import static org.firstinspires.ftc.teamcode.Controller.Button.B;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_STICK_BUTTON;
-import static org.firstinspires.ftc.teamcode.Controller.Button.SQUARE;
-import static org.firstinspires.ftc.teamcode.Controller.Button.TRIANGLE;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
+import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.INTAKE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.MEDIUM_POLE;
@@ -79,6 +76,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         }
 
         // Turret
+        // todo: field relative turret movement
         if (deliverer.isPressed(RIGHT_STICK_X)) {
             turretPosition += deliverer.rightStickX() * 0.05;
         } else if (deliverer.isPressed(DPAD_UP)) {
@@ -88,10 +86,9 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         } else if (deliverer.isPressed(DPAD_DOWN)) {
             turretPosition = Orientation.BACK.getServoPosition();
         }
-        // todo: move manual based on deliverer right stick.
         robot.getTurret().moveToPosition(turretPosition);
 
-        telemetry.addData("Turret Safe to Move", robot.getTurret().isSafeToMove() ? "yes" : "no");
+        //telemetry.addData("Turret Safe to Move", robot.getTurret().isSafeToMove() ? "yes" : "no");
 
         robot.updateStatus();
     }
