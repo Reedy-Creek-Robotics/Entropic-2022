@@ -5,8 +5,8 @@ import static org.firstinspires.ftc.teamcode.util.FormatUtil.*;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.util.DistanceUtil;
-import org.firstinspires.ftc.teamcode.util.FormatUtil;
 import org.opencv.core.Size;
 
 import java.util.ArrayList;
@@ -14,17 +14,25 @@ import java.util.List;
 
 public class TileEdgeSolver {
 
+    private RobotContext context;
     private RobotDescriptor descriptor;
 
-    public TileEdgeSolver(RobotDescriptor descriptor) {
-        this.descriptor = descriptor;
+    /**
+     * The maximum angle between an observed line and the expected location of that line.  If the line falls outside
+     * this boundary then we will discard it.
+     */
+    public double expectedTileEdgeAngleThreshold = 15;
+
+    public TileEdgeSolver(RobotContext context) {
+        this.context = context;
+        this.descriptor = context.robotDescriptor;
     }
 
     /**
      * Examines lines that were found in a webcam image and, if possible, calculates the distance
      * from the robot to the tile edges, along with the heading offset between the robot and the
      * tile edge.
-     *
+     * <p>
      * If no observation can be made based on the given lines, then this returns null.
      *
      * @param webCamLines the list of lines, in pixel coordinates of the webcam image.
@@ -54,11 +62,6 @@ public class TileEdgeSolver {
             ));
         }
 
-        // todo: use the robot's current pose and heuristics to determine whether a line is a
-        // todo: likely tile edge or just noise.
-        // todo: another idea is to use the color around the detected line (tile edges should be
-        // todo: dark gray, while posts and other robots will be different colors).
-
         if (!robotLines.isEmpty()) {
             TileEdgeObservation observation = new TileEdgeObservation(
                     null,
@@ -66,14 +69,14 @@ public class TileEdgeSolver {
                     null
             );
 
-            // todo: figure out how to handle more than two lines.
+            List<Line> filteredLines = filterTileEdgeLines(robotLines, observation);
 
-            for (Line line : robotLines) {
+            for (Line line : filteredLines) {
                 // Figure out if the line is the front edge or the right edge
                 Position robotCenter = new Position(0, 0);
                 double angle = line.getAngleToX();
 
-                if (Math.abs(angle) > 45) {
+                if (Math.abs(angle) > 45 && observation.observedRightEdge == null) {
                     // Right edge
                     line = line.normalizeY();
                     observation.distanceRight = robotCenter.distance(line);
@@ -83,8 +86,9 @@ public class TileEdgeSolver {
                         observation.distanceRight = -observation.distanceRight + 1.0;
                     }
                     observation.headingOffset = line.getAngleToY();
+                    observation.observedRightEdge = line;
 
-                } else {
+                } else if (Math.abs(angle) < 45 && observation.observedFrontEdge == null) {
                     // Front edge
                     line = line.normalizeX();
                     observation.distanceFront = robotCenter.distance(line);
@@ -94,6 +98,10 @@ public class TileEdgeSolver {
                         observation.distanceFront = -observation.distanceFront + 1.0;
                     }
                     observation.headingOffset = line.getAngleToX();
+                    observation.observedFrontEdge = line;
+
+                } else {
+                    observation.unusedLines.add(line);
                 }
             }
 
@@ -104,13 +112,44 @@ public class TileEdgeSolver {
         }
     }
 
+    private List<Line> filterTileEdgeLines(List<Line> lines, TileEdgeObservation observation) {
+        // todo: another idea is to use the color around the detected line (tile edges should be
+        // todo: dark gray, while posts and other robots will be different colors).
+
+        if (context.robotPositionProvider != null) {
+            List<Line> filteredLines = new ArrayList<>();
+            Heading robotHeading = context.robotPositionProvider.getHeading();
+
+            Position origin = new Position(0, 0);
+
+            Line expectedRightEdge = new Line(origin, origin.add(new Vector2(0, 1).rotate(robotHeading.getValue())));
+            Line expectedFrontEdge = new Line(origin, origin.add(new Vector2(1, 0).rotate(robotHeading.getValue())));
+
+            for (Line line : lines) {
+                if (Math.abs(line.getAngleToLine(expectedFrontEdge)) < expectedTileEdgeAngleThreshold ||
+                        Math.abs(line.getAngleToLine(expectedRightEdge)) < expectedTileEdgeAngleThreshold
+                ) {
+                    filteredLines.add(line);
+                } else {
+                    observation.badLines.add(line);
+                }
+            }
+
+            return filteredLines;
+
+        } else {
+            // We don't have access to the robot position, so just return the full list.
+            return lines;
+        }
+    }
+
     /**
      * Converts a position from the image calibration coordinate space to robot center coordinate space.
-     *
+     * <p>
      * Image calibration space is convenient for measuring the bounds of the webcam.  It has its origin at the
      * right-front corner of the robot, is oriented with the y-axis pointing out to the right side of the robot,
      * and is measured in inches.  WebCam coordinates found in RobotDescriptor are specified in Image Calibration Space.
-     *
+     * <p>
      * Robot center space has its origin at the center of the robot, is oriented with the y-axis pointing toward the
      * front of the robot, and is measured in tiles.
      */
@@ -143,6 +182,12 @@ public class TileEdgeSolver {
         public Double distanceFront;
         public Double distanceRight;
         public Double headingOffset;
+
+        public Line observedFrontEdge;
+        public Line observedRightEdge;
+        public List<Line> unusedLines = new ArrayList<>();
+        public List<Line> badLines = new ArrayList<>();
+
         public ElapsedTime observationTime;
 
         public TileEdgeObservation(Double distanceFront, Double distanceRight, Double headingOffset) {

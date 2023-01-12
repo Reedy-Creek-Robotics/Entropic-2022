@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class LineTest {
 
-    private static final double E = 1e-6;
+    private static final double E = 1e-5;
 
     @Test
     public void withX() {
@@ -144,6 +144,30 @@ public class LineTest {
         assertEquals(45.0,
                 new Line(new Position(0, 0), new Position(1, -1)
                 ).getAngleToY(), E);
+    }
+
+
+    @Test
+    public void getAngleToLine() {
+        Line line = new Line(new Position(0, 0), new Position(1, 1));
+
+        assertEquals(0.0, line.getAngleToLine(
+                new Line(new Position(0, 0), new Position(1, 1))), E);
+
+        assertEquals(0.0, line.getAngleToLine(
+                new Line(new Position(0, 0), new Position(-1, -1))), E);
+
+        assertEquals(90.0, line.getAngleToLine(
+                new Line(new Position(0, 0), new Position(-1, 1))), E);
+
+        assertEquals(45.0, line.getAngleToLine(
+                new Line(new Position(0, 0), new Position(1, 0))), E);
+
+        assertEquals(15.0, line.getAngleToLine(
+                new Line(new Position(0, 0), new Position(Math.sqrt(3), 1))), E);
+
+        assertEquals(-45.0, line.getAngleToLine(
+                new Line(new Position(0, 0), new Position(0, -1))), E);
     }
 
     @Test

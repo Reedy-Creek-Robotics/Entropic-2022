@@ -115,11 +115,28 @@ public class Line {
     }
 
     /**
+     * Returns the angle in degrees between the line and the other line, in the range
+     * (-90 < angle <= 90).
+     */
+    public double getAngleToLine(Line otherLine) {
+        double angle = toVector().angleTo(otherLine.toVector());
+        if (angle > 90) angle = angle - 180;
+        return angle;
+    }
+
+    /**
      * Determines if a given position falls to the left side of the line, when drawn from p1 to p2.
      */
     public boolean isLeft(Position position) {
         return ((p2.getX() - p1.getX()) * (position.getY() - p1.getY()) -
                 (p2.getY() - p1.getY()) * (position.getX() - p1.getX())) > 0;
+    }
+
+    /**
+     * Convert this line into a vector.
+     */
+    public Vector2 toVector() {
+        return p2.minus(p1);
     }
 
 }

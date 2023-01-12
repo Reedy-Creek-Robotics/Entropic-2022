@@ -61,6 +61,8 @@ public class Robot extends BaseComponent {
         );
 
         this.driveTrain = new DriveTrain(context, webCamSide);
+        getRobotContext().robotPositionProvider = driveTrain;
+
         this.aprilTagDetector = new AprilTagDetector(context, webCamFront);
 
         this.turret = new Turret(context, new Turret.SafetyCheck() {

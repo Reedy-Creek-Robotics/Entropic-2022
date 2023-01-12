@@ -7,6 +7,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
@@ -21,8 +22,9 @@ public class TileEdgeSolverTest {
     private static final double E = 1e-6;
 
     private static RobotDescriptor descriptor = new RobotDescriptor();
+    private static RobotContext context = new RobotContext(null, descriptor);
 
-    private static TileEdgeSolver solver = new TileEdgeSolver(descriptor);
+    private static TileEdgeSolver solver = new TileEdgeSolver(context);
 
     @Before
     public void setUp() {

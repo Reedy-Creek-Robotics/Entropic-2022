@@ -20,6 +20,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.components.RobotContext.RobotPositionProvider;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
@@ -31,7 +32,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @SuppressLint("DefaultLocale")
-public class DriveTrain extends BaseComponent {
+public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     /**
      * The software of the drivetrain

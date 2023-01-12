@@ -92,7 +92,7 @@ public class TileEdgeDetector extends BaseComponent {
         verticalParameters.pixelVoterThreshold = 90; //(int) (resolution.height * (1.0 / 4.0));
         this.houghLineDetectorVertical = new HoughLineDetector(verticalParameters);
 
-        this.tileEdgeSolver = new TileEdgeSolver(robotDescriptor);
+        this.tileEdgeSolver = new TileEdgeSolver(context);
     }
 
     public HoughLineDetector getHoughLineDetectorHorizontal() {
@@ -158,14 +158,10 @@ public class TileEdgeDetector extends BaseComponent {
 
             List<Line> lines = new ArrayList<>();
             for (HoughLine houghLine : houghLineDetectorHorizontal.detectLines(input)) {
-                Line line = houghLine.toLine(robotDescriptor.webCamResolution);
-                lines.add(line);
-                DrawUtil.drawLine(output, line, Color.ORANGE);
+                lines.add(houghLine.toLine(robotDescriptor.webCamResolution));
             }
             for (HoughLine houghLine : houghLineDetectorVertical.detectLines(input)) {
-                Line line = houghLine.toLine(robotDescriptor.webCamResolution);
-                lines.add(line);
-                DrawUtil.drawLine(output, line, Color.BLUE);
+                lines.add(houghLine.toLine(robotDescriptor.webCamResolution));
             }
 
             TileEdgeObservation observation = tileEdgeSolver.solve(lines);
@@ -174,6 +170,20 @@ public class TileEdgeDetector extends BaseComponent {
                 // Remember the observation so that it can be used by the drivetrain.
                 TileEdgeDetector.this.observation = observation;
                 observation.setObservationTime(beginFrameTime);
+
+                // Draw the observation details on the screen.
+                for (Line badLine : observation.badLines) {
+                    DrawUtil.drawLine(output, badLine, Color.BLACK);
+                }
+                for (Line unusedLine : observation.unusedLines) {
+                    DrawUtil.drawLine(output, unusedLine, Color.WHITE);
+                }
+                if (observation.observedFrontEdge != null) {
+                    DrawUtil.drawLine(output, observation.observedFrontEdge, Color.BLUE);
+                }
+                if (observation.observedRightEdge != null) {
+                    DrawUtil.drawLine(output, observation.observedRightEdge, Color.GREEN);
+                }
 
                 String distanceRightInches = observation.distanceRight != null ?
                         format(tilesToInches(observation.distanceRight) - robotDescriptor.robotDimensionsInInches.width / 2, 1) + " in" :

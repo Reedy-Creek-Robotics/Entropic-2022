@@ -50,9 +50,16 @@ public class Vector2 {
         return new Vector2(x * scalar, y * scalar);
     }
 
+    public double dot(Vector2 other) {
+        return x * other.x + y * other.y;
+    }
+
+    public double angleTo(Vector2 other) {
+        return Math.toDegrees(Math.acos(dot(other) / (magnitude() * other.magnitude())));
+    }
+
     @SuppressLint("DefaultLocale")
     public String toString() {
         return String.format("(%.3f, %.3f)", x, y);
     }
-
 }
