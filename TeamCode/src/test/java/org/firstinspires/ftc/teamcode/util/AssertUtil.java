@@ -29,8 +29,12 @@ public class AssertUtil {
     }
 
     public static void assertPosition(Position expected, Position actual) {
-        assertEquals("x", expected.getX(), actual.getX(), E);
-        assertEquals("y", expected.getY(), actual.getY(), E);
+        assertPosition("position", expected, actual);
+    }
+
+    public static void assertPosition(String message, Position expected, Position actual) {
+        assertEquals(message + ".x", expected.getX(), actual.getX(), E);
+        assertEquals(message + ".y", expected.getY(), actual.getY(), E);
     }
 
     public static void assertLine(Line expected, Line actual) {
