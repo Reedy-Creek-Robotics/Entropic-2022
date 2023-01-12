@@ -11,8 +11,10 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_Y;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.EAST;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.NORTH;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.SOUTH;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.WEST;
 
 import android.annotation.SuppressLint;
 
@@ -61,13 +63,13 @@ public class MoveCommandTest extends OpMode {
         }
 
         if (controller.isPressed(DPAD_UP)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(1, FIELD_Y, limiter);
+            robot.getDriveTrain().moveAlignedToTileCenter(1, NORTH, limiter);
         } else if (controller.isPressed(DPAD_LEFT)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(-1, FIELD_X, limiter);
+            robot.getDriveTrain().moveAlignedToTileCenter(1, WEST, limiter);
         } else if (controller.isPressed(DPAD_DOWN)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(-1, FIELD_Y, limiter);
+            robot.getDriveTrain().moveAlignedToTileCenter(1, SOUTH, limiter);
         } else if (controller.isPressed(DPAD_RIGHT)) {
-            robot.getDriveTrain().moveAlignedToTileCenter(1, FIELD_X, limiter);
+            robot.getDriveTrain().moveAlignedToTileCenter(1, EAST, limiter);
         } else if (controller.isPressed(X)) {
             robot.getDriveTrain().rotateSimple(-90, limiter);
         } else if (controller.isPressed(Y)) {

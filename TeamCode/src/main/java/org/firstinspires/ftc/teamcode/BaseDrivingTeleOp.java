@@ -15,8 +15,10 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_Y;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.EAST;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.NORTH;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.SOUTH;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.WEST;
 import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
@@ -54,13 +56,13 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
         // Hough assisted driving
         double driverAssistDistance = driver.isButtonDown(Y) ? 0.5 : 1.0;
         if (driver.isPressed(DPAD_UP)) {
-            driveTrain.moveAlignedToTileCenter(driverAssistDistance, FIELD_Y, limiter);
+            driveTrain.moveAlignedToTileCenter(driverAssistDistance, NORTH, limiter);
         } else if (driver.isPressed(DPAD_LEFT)) {
-            driveTrain.moveAlignedToTileCenter(-driverAssistDistance, FIELD_X, limiter);
+            driveTrain.moveAlignedToTileCenter(driverAssistDistance, WEST, limiter);
         } else if (driver.isPressed(DPAD_DOWN)) {
-            driveTrain.moveAlignedToTileCenter(-driverAssistDistance, FIELD_Y, limiter);
+            driveTrain.moveAlignedToTileCenter(driverAssistDistance, SOUTH, limiter);
         } else if (driver.isPressed(DPAD_RIGHT)) {
-            driveTrain.moveAlignedToTileCenter(driverAssistDistance, FIELD_X, limiter);
+            driveTrain.moveAlignedToTileCenter(driverAssistDistance, EAST, limiter);
         } else if (driver.isPressed(LEFT_BUMPER)) {
             driveTrain.rotateAlignedToTile(90, limiter);
         } else if (driver.isPressed(RIGHT_BUMPER)) {

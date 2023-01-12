@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_Y;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.NORTH;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
@@ -20,6 +19,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.game.Field;
+import org.firstinspires.ftc.teamcode.game.Field.Direction;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
@@ -34,7 +35,12 @@ import java.util.List;
 public class DriveTrain extends BaseComponent {
 
     /**
-     * The software of the drivetrain
+     * A representation of the playing field.
+     */
+    private Field field = new Field();
+
+    /**
+     * Detects tile edges to provide empirical correction to the robot's position and heading.
      */
     private TileEdgeDetector tileEdgeDetectorSide;
 
@@ -420,11 +426,6 @@ public class DriveTrain extends BaseComponent {
         setMotorPowers(motorPowers);
     }
 
-    public enum Direction {
-        FIELD_X,
-        FIELD_Y
-    }
-
     /**
      * Moves the given distance in tiles, in the given direction, at the given speed.
      *
@@ -473,13 +474,13 @@ public class DriveTrain extends BaseComponent {
 
     /**
      * Moves the given distance in tiles, in the given direction, at the given speed.
+     * The requested distance should be a multiple of 0.5 (any excess will be ignored).
      *
      * @param distance  Move that many tiles. Backwards and Right are negative Directions.
      * @param direction The direction you want to move in
      * @param speed     The speed you want to move at
      */
     public void moveAlignedToTileCenter(double distance, Direction direction, double speed) {
-        // todo: handle half tile movement, and avoid obstacles
         executeCommand(new MoveAlignedToTileCenter(direction, distance, speed));
     }
 
@@ -497,7 +498,7 @@ public class DriveTrain extends BaseComponent {
      * Centers the robot within the current tile.
      */
     public void centerInCurrentTile(double speed) {
-        moveAlignedToTileCenter(0.0, Direction.FIELD_X, speed);
+        moveAlignedToTileCenter(0.0, NORTH, speed);
     }
 
     /**
@@ -852,6 +853,7 @@ public class DriveTrain extends BaseComponent {
      */
     private class MoveAlignedToTileCenter extends BaseMoveCommand implements CombinableCommand {
 
+
         /**
          * The direction in which the robot should move.
          */
@@ -862,26 +864,48 @@ public class DriveTrain extends BaseComponent {
          */
         private double distance;
 
+        /**
+         * The previous target position, if there was one (used for combining commands), or null.
+         */
+        private Position previousTargetPosition;
+
         public MoveAlignedToTileCenter(Direction direction, double distance, double speed) {
+            this(direction, distance, null, speed);
+        }
+
+        public MoveAlignedToTileCenter(Direction direction, double distance, Position previousTargetPosition, double speed) {
             super(speed);
             this.direction = direction;
             this.distance = distance;
+            this.previousTargetPosition = previousTargetPosition;
         }
 
         @Override
         protected Position calculateTargetPosition() {
             // Calculate the new target position, aligned to the tile middle.
-            Position targetPosition;
-            if (direction == FIELD_X) {
-                targetPosition = new Position(position.getX() + distance, position.getY());
-            } else if (direction == FIELD_Y) {
-                targetPosition = new Position(position.getX(), position.getY() + distance);
-            } else {
-                throw new IllegalArgumentException();
-            }
 
-            // todo: support half tile movement
-            // todo: add obstacle detection and avoidance (e.g. posts, edge of field)
+            // Start at the current position, or the previous target position if it exists.
+            Position targetPosition = previousTargetPosition != null ?
+                    previousTargetPosition :
+                    position;
+
+            // Calculate the number of whole steps and half steps to move.
+            int wholeSteps = (int) distance;
+            int halfSteps = (distance - wholeSteps) > 0.4 ? 1 : 0;
+
+            // Move in whole steps and half steps, one at a time, using the field to check for
+            // obstacles and walls.
+            while (wholeSteps > 0 || halfSteps > 0) {
+                if (wholeSteps > 0) {
+                    // Whole step
+                    targetPosition = field.move(targetPosition, direction);
+                    wholeSteps--;
+                } else {
+                    // Half step
+                    targetPosition = field.moveHalf(targetPosition, direction);
+                    halfSteps--;
+                }
+            }
 
             return targetPosition.alignToTileMiddle();
         }
@@ -899,18 +923,25 @@ public class DriveTrain extends BaseComponent {
                 MoveAlignedToTileCenter otherMoveCommand = (MoveAlignedToTileCenter) other;
                 if (direction == otherMoveCommand.direction) {
 
-                    // If this command has already been started, and a targetPosition calculated, calculate the
-                    // remaining distance to the target.  Otherwise, the command has not yet been started but is in
-                    // the queue, so just use the full requested distance to move.
-                    double remainingDistance = getTargetPosition() != null ?
-                            position.distance(getTargetPosition()) * Math.signum(distance) :
-                            distance;
+                    if (getTargetPosition() != null) {
+                        // If this command has already been started, and a target position calculated,
+                        // use the constructor that accepts a previous target position.
+                        return new MoveAlignedToTileCenter(
+                                direction,
+                                distance + otherMoveCommand.distance,
+                                previousTargetPosition,
+                                getSpeed()
+                        );
 
-                    return new MoveAlignedToTileCenter(
-                            direction,
-                            remainingDistance + otherMoveCommand.distance,
-                            getSpeed()
-                    );
+                    } else {
+                        // Otherwise, the command has not yet been started but is in the queue,
+                        // so just add the new requested distance to the existing one.
+                        return new MoveAlignedToTileCenter(
+                                direction,
+                                distance + otherMoveCommand.distance,
+                                getSpeed()
+                        );
+                    }
                 }
             }
 
