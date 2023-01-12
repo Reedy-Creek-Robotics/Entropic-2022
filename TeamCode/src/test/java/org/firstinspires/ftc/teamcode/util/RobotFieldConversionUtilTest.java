@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertHeading;
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertPosition;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
 import static org.junit.Assert.assertEquals;
@@ -9,8 +12,6 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.junit.Test;
 
 public class RobotFieldConversionUtilTest {
-
-    private static final double E = 1e-6;
 
     @Test
     public void convertToRobotSpace() {
@@ -352,15 +353,6 @@ public class RobotFieldConversionUtilTest {
     private void assertFieldSpaceCoordinate(FieldSpaceCoordinates expected, FieldSpaceCoordinates actual) {
         assertPosition(expected.position, actual.position);
         assertHeading(expected.heading, actual.heading);
-    }
-
-    private void assertPosition(Position expected, Position actual) {
-        assertEquals(expected.getX(), actual.getX(), E);
-        assertEquals(expected.getY(), actual.getY(), E);
-    }
-
-    private void assertHeading(Heading expected, Heading actual) {
-        assertEquals(expected.getValue(), actual.getValue(), E);
     }
 
 }

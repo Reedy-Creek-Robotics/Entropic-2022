@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.TileEdgeObservation;
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertPosition;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -18,8 +20,6 @@ import org.opencv.core.Size;
 import java.util.Arrays;
 
 public class TileEdgeSolverTest {
-
-    private static final double E = 1e-6;
 
     private static RobotDescriptor descriptor = new RobotDescriptor();
     private static RobotContext context = new RobotContext(null, descriptor);
@@ -104,20 +104,15 @@ public class TileEdgeSolverTest {
 
     @Test
     public void convertFromImageCalibrationSpaceToRobotCenterSpace() {
-        assertPosEquals(
+        assertPosition(
                 new Position(inchesToTiles(5), inchesToTiles(6)),
                 solver.convertFromImageCalibrationSpaceToRobotCenterSpace(new Position(0, 0))
         );
 
-        assertPosEquals(
+        assertPosition(
                 new Position(inchesToTiles(13), inchesToTiles(1)),
                 solver.convertFromImageCalibrationSpaceToRobotCenterSpace(new Position(5, 8))
         );
-    }
-
-    private void assertPosEquals(Position expected, Position actual) {
-        assertEquals("x", expected.getX(), actual.getX(), E);
-        assertEquals("y", expected.getY(), actual.getY(), E);
     }
 
 }
