@@ -1,12 +1,11 @@
 package org.firstinspires.ftc.teamcode.geometry;
 
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 public class PositionTest {
-
-    private static final double E = 1e-6;
 
     @Test
     public void distanceToLine() {

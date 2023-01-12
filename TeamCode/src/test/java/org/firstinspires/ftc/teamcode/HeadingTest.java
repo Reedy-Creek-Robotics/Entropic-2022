@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
 import static org.junit.Assert.assertEquals;
 
 import org.firstinspires.ftc.teamcode.geometry.Heading;
@@ -7,8 +8,6 @@ import org.junit.Test;
 
 public class HeadingTest {
     
-    private static final double E = 1e-6; 
-
     @Test
     public void getValue() {
 

@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import static org.firstinspires.ftc.teamcode.RobotDescriptor.EmpiricalStrafeCorrection;
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertVector;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -15,8 +17,6 @@ import java.util.Arrays;
 
 public class MecanumUtilTest {
 
-    private static final double E = 1e-6;
-
     private static RobotDescriptor descriptor = new RobotDescriptor();
 
     @Test
@@ -29,7 +29,7 @@ public class MecanumUtilTest {
 
         double expectedTiles = MecanumUtil.ticksToTiles(descriptor, 10);
 
-        assertVectorEquals(new Vector2(0.0, expectedTiles), offset);
+        assertVector(new Vector2(0.0, expectedTiles), offset);
     }
 
     @Test
@@ -42,7 +42,7 @@ public class MecanumUtilTest {
 
         double expectedTiles = MecanumUtil.ticksToTiles(descriptor, 10);
 
-        assertVectorEquals(new Vector2(expectedTiles, 0.0), offset);
+        assertVector(new Vector2(expectedTiles, 0.0), offset);
     }
 
     @Test
@@ -61,7 +61,7 @@ public class MecanumUtilTest {
 
         double expectedTiles = MecanumUtil.ticksToTiles(descriptor, 10) * strafeCorrection;
 
-        assertVectorEquals(new Vector2(expectedTiles, 0.0), offset);
+        assertVector(new Vector2(expectedTiles, 0.0), offset);
     }
 
     @Test
@@ -87,7 +87,7 @@ public class MecanumUtilTest {
 
         double expectedTiles = MecanumUtil.ticksToTiles(descriptor, 10) * strafeCorrection;
 
-        assertVectorEquals(new Vector2(expectedTiles, 0.0), offset);
+        assertVector(new Vector2(expectedTiles, 0.0), offset);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class MecanumUtilTest {
 
         double expectedTiles = MecanumUtil.ticksToTiles(descriptor, 10) / Math.sqrt(2);
 
-        assertVectorEquals(new Vector2(expectedTiles, expectedTiles), offset);
+        assertVector(new Vector2(expectedTiles, expectedTiles), offset);
     }
 
     @Test
@@ -162,11 +162,6 @@ public class MecanumUtilTest {
         assertEquals(powers.backLeft, powers.frontRight, E);
         assertEquals(powers.backRight, powers.frontLeft, E);
         assertEquals(powers.backLeft, -powers.frontLeft, E);
-    }
-
-    private void assertVectorEquals(Vector2 expected, Vector2 actual) {
-        assertEquals(expected.getX(), actual.getX(), E);
-        assertEquals(expected.getY(), actual.getY(), E);
     }
 
 }

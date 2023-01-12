@@ -1,33 +1,33 @@
 package org.firstinspires.ftc.teamcode.geometry;
 
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertVector;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
 public class Vector2Test {
 
-    private static final double E = 1e-6;
-
     @Test
     public void rotate() {
 
-        assertVectorEquals(new Vector2(0.0, 0.0), new Vector2(0.0, 0.0).rotate(0.0));
-        assertVectorEquals(new Vector2(0.0, 0.0), new Vector2(0.0, 0.0).rotate(-90));
-        assertVectorEquals(new Vector2(0.0, 0.0), new Vector2(0.0, 0.0).rotate(90));
-        assertVectorEquals(new Vector2(0.0, 0.0), new Vector2(0.0, 0.0).rotate(45));
+        assertVector(new Vector2(0.0, 0.0), new Vector2(0.0, 0.0).rotate(0.0));
+        assertVector(new Vector2(0.0, 0.0), new Vector2(0.0, 0.0).rotate(-90));
+        assertVector(new Vector2(0.0, 0.0), new Vector2(0.0, 0.0).rotate(90));
+        assertVector(new Vector2(0.0, 0.0), new Vector2(0.0, 0.0).rotate(45));
 
-        assertVectorEquals(new Vector2(1.0, 0.0), new Vector2(1.0, 0.0).rotate(0.0));
-        assertVectorEquals(new Vector2(0.0, 1.0), new Vector2(1.0, 0.0).rotate(90));
-        assertVectorEquals(new Vector2(0.0, -1.0), new Vector2(1.0, 0.0).rotate(-90));
-        assertVectorEquals(new Vector2(-1.0, 0.0), new Vector2(1.0, 0.0).rotate(180));
+        assertVector(new Vector2(1.0, 0.0), new Vector2(1.0, 0.0).rotate(0.0));
+        assertVector(new Vector2(0.0, 1.0), new Vector2(1.0, 0.0).rotate(90));
+        assertVector(new Vector2(0.0, -1.0), new Vector2(1.0, 0.0).rotate(-90));
+        assertVector(new Vector2(-1.0, 0.0), new Vector2(1.0, 0.0).rotate(180));
 
-        assertVectorEquals(new Vector2(3.0, 0.0), new Vector2(3.0, 0.0).rotate(0.0));
-        assertVectorEquals(new Vector2(0.0, 3.0), new Vector2(3.0, 0.0).rotate(90));
-        assertVectorEquals(new Vector2(0.0, -3.0), new Vector2(3.0, 0.0).rotate(-90));
-        assertVectorEquals(new Vector2(-3.0, 0.0), new Vector2(3.0, 0.0).rotate(180));
+        assertVector(new Vector2(3.0, 0.0), new Vector2(3.0, 0.0).rotate(0.0));
+        assertVector(new Vector2(0.0, 3.0), new Vector2(3.0, 0.0).rotate(90));
+        assertVector(new Vector2(0.0, -3.0), new Vector2(3.0, 0.0).rotate(-90));
+        assertVector(new Vector2(-3.0, 0.0), new Vector2(3.0, 0.0).rotate(180));
 
-        assertVectorEquals(new Vector2(Math.sqrt(2), 0.0), new Vector2(1.0, 1.0).rotate(-45));
-        assertVectorEquals(new Vector2(0.0, Math.sqrt(2)), new Vector2(1.0, 1.0).rotate(45));
+        assertVector(new Vector2(Math.sqrt(2), 0.0), new Vector2(1.0, 1.0).rotate(-45));
+        assertVector(new Vector2(0.0, Math.sqrt(2)), new Vector2(1.0, 1.0).rotate(45));
 
     }
 
@@ -50,15 +50,10 @@ public class Vector2Test {
 
     @Test
     public void withMagnitude() {
-        assertVectorEquals(
+        assertVector(
                 new Vector2(Math.sqrt(2) / 2, Math.sqrt(2) / 2),
                 new Vector2(1.0, 1.0).withMagnitude(1.0)
         );
-    }
-
-    private void assertVectorEquals(Vector2 expected, Vector2 actual) {
-        assertEquals(expected.getX(), actual.getX(), E);
-        assertEquals(expected.getY(), actual.getY(), E);
     }
 
 }

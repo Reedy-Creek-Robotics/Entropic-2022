@@ -1,12 +1,10 @@
 package org.firstinspires.ftc.teamcode.geometry;
 
-import static org.junit.Assert.assertEquals;
+import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertPosition;
 
 import org.junit.Test;
 
 public class ViewportTest {
-
-    private static final double E = 1e-6;
 
     @Test
     public void convertExternalToView_unitSquare() {
@@ -16,9 +14,9 @@ public class ViewportTest {
                 new Position(0, 0), new Position(1, 0)
         );
 
-        assertPosEquals(new Position(0.5, 0.5), viewport.convertViewToExternal(new Position(320, 180)));
-        assertPosEquals(new Position(0.25, 0.75), viewport.convertViewToExternal(new Position(160, 90)));
-        assertPosEquals(new Position(-0.5, 1.5), viewport.convertViewToExternal(new Position(-320, -180)));
+        assertPosition(new Position(0.5, 0.5), viewport.convertViewToExternal(new Position(320, 180)));
+        assertPosition(new Position(0.25, 0.75), viewport.convertViewToExternal(new Position(160, 90)));
+        assertPosition(new Position(-0.5, 1.5), viewport.convertViewToExternal(new Position(-320, -180)));
     }
 
     @Test
@@ -32,13 +30,13 @@ public class ViewportTest {
                 bottomLeft, bottomRight
         );
 
-        assertPosEquals(bottomLeft, viewport.convertViewToExternal(new Position(0, 360)));
-        assertPosEquals(bottomRight, viewport.convertViewToExternal(new Position(640, 360)));
-        assertPosEquals(topLeft, viewport.convertViewToExternal(new Position(0, 0)));
-        assertPosEquals(topRight, viewport.convertViewToExternal(new Position(640, 0)));
+        assertPosition(bottomLeft, viewport.convertViewToExternal(new Position(0, 360)));
+        assertPosition(bottomRight, viewport.convertViewToExternal(new Position(640, 360)));
+        assertPosition(topLeft, viewport.convertViewToExternal(new Position(0, 0)));
+        assertPosition(topRight, viewport.convertViewToExternal(new Position(640, 0)));
 
         Position center = average(topLeft, topRight, bottomLeft, bottomRight);
-        assertPosEquals(center, viewport.convertViewToExternal(new Position(320, 180)));
+        assertPosition(center, viewport.convertViewToExternal(new Position(320, 180)));
     }
 
     @Test
@@ -52,16 +50,16 @@ public class ViewportTest {
                 bottomLeft, bottomRight
         );
 
-        assertPosEquals(bottomLeft, viewport.convertViewToExternal(new Position(20, 90)));
-        assertPosEquals(bottomRight, viewport.convertViewToExternal(new Position(180, 90)));
-        assertPosEquals(topLeft, viewport.convertViewToExternal(new Position(20, 10)));
-        assertPosEquals(topRight, viewport.convertViewToExternal(new Position(180, 10)));
-        assertPosEquals(new Position(10, 5), viewport.convertViewToExternal(new Position(100, 50)));
+        assertPosition(bottomLeft, viewport.convertViewToExternal(new Position(20, 90)));
+        assertPosition(bottomRight, viewport.convertViewToExternal(new Position(180, 90)));
+        assertPosition(topLeft, viewport.convertViewToExternal(new Position(20, 10)));
+        assertPosition(topRight, viewport.convertViewToExternal(new Position(180, 10)));
+        assertPosition(new Position(10, 5), viewport.convertViewToExternal(new Position(100, 50)));
 
-        assertPosEquals(new Position(0, 0), viewport.convertViewToExternal(new Position(0, 100)));
-        assertPosEquals(new Position(0, 10), viewport.convertViewToExternal(new Position(0, 0)));
-        assertPosEquals(new Position(20, 10), viewport.convertViewToExternal(new Position(200, 0)));
-        assertPosEquals(new Position(20, 0), viewport.convertViewToExternal(new Position(200, 100)));
+        assertPosition(new Position(0, 0), viewport.convertViewToExternal(new Position(0, 100)));
+        assertPosition(new Position(0, 10), viewport.convertViewToExternal(new Position(0, 0)));
+        assertPosition(new Position(20, 10), viewport.convertViewToExternal(new Position(200, 0)));
+        assertPosition(new Position(20, 0), viewport.convertViewToExternal(new Position(200, 100)));
     }
 
     private Position average(Position... positions) {
@@ -71,11 +69,6 @@ public class ViewportTest {
             y += position.getY();
         }
         return new Position(x / positions.length, y / positions.length);
-    }
-
-    private void assertPosEquals(Position expected, Position actual) {
-        assertEquals("x", expected.getX(), actual.getX(), E);
-        assertEquals("y", expected.getY(), actual.getY(), E);
     }
 
 }
