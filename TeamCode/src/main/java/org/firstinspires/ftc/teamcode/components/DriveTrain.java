@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_Y;
+import static org.firstinspires.ftc.teamcode.game.Field.Direction.NORTH;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.convertToFieldSpace;
@@ -21,6 +21,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.components.RobotContext.RobotPositionProvider;
+import org.firstinspires.ftc.teamcode.game.Field;
+import org.firstinspires.ftc.teamcode.game.Field.Direction;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
@@ -35,7 +37,12 @@ import java.util.List;
 public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     /**
-     * The software of the drivetrain
+     * A representation of the playing field.
+     */
+    private Field field = new Field();
+
+    /**
+     * Detects tile edges to provide empirical correction to the robot's position and heading.
      */
     private TileEdgeDetector tileEdgeDetectorSide;
 
@@ -93,6 +100,11 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * The previously seen tile edge observation.  We don't want to apply the same observation twice.
      */
     private TileEdgeSolver.TileEdgeObservation previousObservation;
+
+    /**
+     * Statistics about Hough tile edge correction.
+     */
+    private HoughStatistics houghStatistics = new HoughStatistics();
 
 
     public DriveTrain(RobotContext context, WebCam webCamSide) {
@@ -199,6 +211,8 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         //telemetry.addData("Current Command", getCurrentCommand());
         //telemetry.addData("Next Commands", getNextCommands());
 
+        telemetry.addData("Hough Stats", houghStatistics);
+
         // Now allow any commands to run with the updated data
         super.updateStatus();
     }
@@ -258,9 +272,13 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
             // Then using the observation overwrite the expected with the actual values.
             if (observation.distanceRight != null) {
+                houghStatistics.rightEdgeCorrections++;
+                houghStatistics.rightEdgeCorrectionDistance += Math.abs(observation.distanceRight - robotSpaceCoordinates.distanceRight);
                 robotSpaceCoordinates.distanceRight = observation.distanceRight;
             }
             if (observation.distanceFront != null) {
+                houghStatistics.frontEdgeCorrections++;
+                houghStatistics.frontEdgeCorrectionDistance += Math.abs(observation.distanceFront - robotSpaceCoordinates.distanceFront);
                 robotSpaceCoordinates.distanceFront = observation.distanceFront;
             }
             if (observation.headingOffset != null) {
@@ -292,6 +310,16 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
                 // Also update the previous position by the same amount, so the velocity doesn't jump.
                 if (previousPosition != null) {
                     previousPosition = previousPosition.add(correction);
+                }
+
+                houghStatistics.totalCorrections++;
+                houghStatistics.totalCorrectionDistance += correctionDistance;
+                houghStatistics.totalObservationAge += observation.observationTime.seconds();
+
+                if (velocity != null && velocity.magnitude() > 0.01) {
+                    houghStatistics.movingCorrections++;
+                } else {
+                    houghStatistics.stationaryCorrections++;
                 }
             }
         }
@@ -421,11 +449,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         setMotorPowers(motorPowers);
     }
 
-    public enum Direction {
-        FIELD_X,
-        FIELD_Y
-    }
-
     /**
      * Moves the given distance in tiles, in the given direction, at the given speed.
      *
@@ -474,13 +497,13 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     /**
      * Moves the given distance in tiles, in the given direction, at the given speed.
+     * The requested distance should be a multiple of 0.5 (any excess will be ignored).
      *
      * @param distance  Move that many tiles. Backwards and Right are negative Directions.
      * @param direction The direction you want to move in
      * @param speed     The speed you want to move at
      */
     public void moveAlignedToTileCenter(double distance, Direction direction, double speed) {
-        // todo: handle half tile movement, and avoid obstacles
         executeCommand(new MoveAlignedToTileCenter(direction, distance, speed));
     }
 
@@ -498,7 +521,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * Centers the robot within the current tile.
      */
     public void centerInCurrentTile(double speed) {
-        moveAlignedToTileCenter(0.0, Direction.FIELD_X, speed);
+        moveAlignedToTileCenter(0.0, NORTH, speed);
     }
 
     /**
@@ -853,6 +876,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      */
     private class MoveAlignedToTileCenter extends BaseMoveCommand implements CombinableCommand {
 
+
         /**
          * The direction in which the robot should move.
          */
@@ -863,26 +887,48 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
          */
         private double distance;
 
+        /**
+         * The previous target position, if there was one (used for combining commands), or null.
+         */
+        private Position previousTargetPosition;
+
         public MoveAlignedToTileCenter(Direction direction, double distance, double speed) {
+            this(direction, distance, null, speed);
+        }
+
+        public MoveAlignedToTileCenter(Direction direction, double distance, Position previousTargetPosition, double speed) {
             super(speed);
             this.direction = direction;
             this.distance = distance;
+            this.previousTargetPosition = previousTargetPosition;
         }
 
         @Override
         protected Position calculateTargetPosition() {
             // Calculate the new target position, aligned to the tile middle.
-            Position targetPosition;
-            if (direction == FIELD_X) {
-                targetPosition = new Position(position.getX() + distance, position.getY());
-            } else if (direction == FIELD_Y) {
-                targetPosition = new Position(position.getX(), position.getY() + distance);
-            } else {
-                throw new IllegalArgumentException();
-            }
 
-            // todo: support half tile movement
-            // todo: add obstacle detection and avoidance (e.g. posts, edge of field)
+            // Start at the current position, or the previous target position if it exists.
+            Position targetPosition = previousTargetPosition != null ?
+                    previousTargetPosition :
+                    position;
+
+            // Calculate the number of whole steps and half steps to move.
+            int wholeSteps = (int) distance;
+            int halfSteps = (distance - wholeSteps) > 0.4 ? 1 : 0;
+
+            // Move in whole steps and half steps, one at a time, using the field to check for
+            // obstacles and walls.
+            while (wholeSteps > 0 || halfSteps > 0) {
+                if (wholeSteps > 0) {
+                    // Whole step
+                    targetPosition = field.move(targetPosition, direction);
+                    wholeSteps--;
+                } else {
+                    // Half step
+                    targetPosition = field.moveHalf(targetPosition, direction);
+                    halfSteps--;
+                }
+            }
 
             return targetPosition.alignToTileMiddle();
         }
@@ -900,18 +946,25 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
                 MoveAlignedToTileCenter otherMoveCommand = (MoveAlignedToTileCenter) other;
                 if (direction == otherMoveCommand.direction) {
 
-                    // If this command has already been started, and a targetPosition calculated, calculate the
-                    // remaining distance to the target.  Otherwise, the command has not yet been started but is in
-                    // the queue, so just use the full requested distance to move.
-                    double remainingDistance = getTargetPosition() != null ?
-                            position.distance(getTargetPosition()) * Math.signum(distance) :
-                            distance;
+                    if (getTargetPosition() != null) {
+                        // If this command has already been started, and a target position calculated,
+                        // use the constructor that accepts a previous target position.
+                        return new MoveAlignedToTileCenter(
+                                direction,
+                                distance + otherMoveCommand.distance,
+                                previousTargetPosition,
+                                getSpeed()
+                        );
 
-                    return new MoveAlignedToTileCenter(
-                            direction,
-                            remainingDistance + otherMoveCommand.distance,
-                            getSpeed()
-                    );
+                    } else {
+                        // Otherwise, the command has not yet been started but is in the queue,
+                        // so just add the new requested distance to the existing one.
+                        return new MoveAlignedToTileCenter(
+                                direction,
+                                distance + otherMoveCommand.distance,
+                                getSpeed()
+                        );
+                    }
                 }
             }
 
@@ -1149,6 +1202,35 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
                     backLeft, backRight, frontLeft, frontRight
             );
         }
+    }
+
+    private class HoughStatistics {
+
+        public double totalCorrectionDistance;
+        public int totalCorrections;
+        public double totalObservationAge;
+        public double frontEdgeCorrectionDistance;
+        public int frontEdgeCorrections;
+        public double rightEdgeCorrectionDistance;
+        public int rightEdgeCorrections;
+        public int stationaryCorrections;
+        public int movingCorrections;
+
+        @Override
+        public String toString() {
+            double averageObservationAge = totalCorrections != 0 ?
+                    totalObservationAge / totalCorrections :
+                    0.0;
+
+            return String.format(
+                    "Total [%.1f in, %d], Front [%.1f in, %d], Right [%.1f in, %d], Stationary [%d], Moving [%d], Avg Age [%.3f s]",
+                    tilesToInches(totalCorrectionDistance), totalCorrections,
+                    tilesToInches(frontEdgeCorrectionDistance), frontEdgeCorrections,
+                    tilesToInches(rightEdgeCorrectionDistance), rightEdgeCorrections,
+                    stationaryCorrections, movingCorrections, averageObservationAge
+            );
+        }
+
     }
 
 }
