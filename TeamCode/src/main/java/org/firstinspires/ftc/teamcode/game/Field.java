@@ -1,8 +1,5 @@
 package org.firstinspires.ftc.teamcode.game;
 
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_X;
-import static org.firstinspires.ftc.teamcode.components.DriveTrain.Direction.FIELD_Y;
-
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
