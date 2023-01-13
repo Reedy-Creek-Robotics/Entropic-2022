@@ -23,12 +23,14 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
 
 @TeleOp
 public class TeleOpMain extends BaseDrivingTeleOp {
 
-    double turretPosition = Orientation.FRONT.getServoPosition();
+    Orientation turretPosition = Orientation.FRONT;
 
     @Override
     public void init() {
@@ -76,17 +78,20 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         }
 
         // Turret
+        Heading heading = robot.getDriveTrain().getHeading();
         // todo: field relative turret movement
         if (deliverer.isPressed(RIGHT_STICK_X)) {
-            turretPosition += deliverer.rightStickX() * 0.05;
+            //turretPosition += deliverer.rightStickX() * 0.05;
         } else if (deliverer.isPressed(DPAD_UP)) {
-            turretPosition = Orientation.FRONT.getServoPosition();
-        } else if (deliverer.isPressed(DPAD_LEFT) || deliverer.isPressed(DPAD_RIGHT)) {
-            turretPosition = Orientation.LEFT_SIDE.getServoPosition();
+            turretPosition = Turret.getFieldRelativeOrientation(Orientation.FRONT, heading);
+        } else if (deliverer.isPressed(DPAD_LEFT)) {
+            turretPosition = Turret.getFieldRelativeOrientation(Orientation.LEFT_SIDE, heading);
+        } else if(deliverer.isPressed(DPAD_RIGHT)) {
+            turretPosition = Turret.getFieldRelativeOrientation(Orientation.RIGHT_SIDE, heading);
         } else if (deliverer.isPressed(DPAD_DOWN)) {
-            turretPosition = Orientation.BACK.getServoPosition();
+            turretPosition = Turret.getFieldRelativeOrientation(Orientation.BACK, heading);
         }
-        robot.getTurret().moveToPosition(turretPosition);
+        robot.getTurret().moveToOrientation(turretPosition);
 
         //telemetry.addData("Turret Safe to Move", robot.getTurret().isSafeToMove() ? "yes" : "no");
 

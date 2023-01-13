@@ -2,6 +2,10 @@ package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.geometry.Heading;
+
+import java.util.Arrays;
+
 public class Turret extends BaseComponent {
 
     private static double MAXIMUM = 1;
@@ -20,9 +24,9 @@ public class Turret extends BaseComponent {
 
     public enum Orientation {
         FRONT(0.313),
+        RIGHT_SIDE(.681),
         BACK(1.000),
-        LEFT_SIDE(0.681),
-        START(0.5);
+        LEFT_SIDE(0.681);
 
         private double servoPosition;
 
@@ -50,7 +54,7 @@ public class Turret extends BaseComponent {
         servo.getController().pwmDisable();
     }
 
-    public void moveTurretManually(double targetPosition){
+    public void moveTurretManually(double targetPosition) {
         servo.setPosition(targetPosition);
     }
 
@@ -58,6 +62,17 @@ public class Turret extends BaseComponent {
         if (isSafeToMove()) {
             executeCommand(new MoveToOrientation(orientation));
         }
+    }
+
+    public static Orientation getFieldRelativeOrientation(Orientation orientation, Heading heading) {
+        Heading heading1 = heading.minus(45);
+        int rotation = (int) heading1.getValue() / 90;
+
+        Orientation[] orientations = Orientation.values();
+
+        int currentIndex = Arrays.asList(orientations).indexOf(orientation);
+
+        return orientations[(currentIndex + rotation) % orientations.length];
     }
 
     public void moveToPosition(double position) {

@@ -1,12 +1,14 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class LinearSlide extends BaseComponent {
 
-    private static final int TICKS_PER_STACKED_CONE = 195; // todo: calibrate
+    private static final int TICKS_PER_STACKED_CONE = 140; // todo: calibrate
     private static final int DELIVER_OFFSET = 250;  // ticks to lower before delivery
 
     private static final int TARGET_REACHED_THRESHOLD = 5;
@@ -14,6 +16,7 @@ public class LinearSlide extends BaseComponent {
     private static final int MAX_HEIGHT = SlideHeight.TOP_POLE.ticks + 100;
     private static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
     private static final double MIN_POWER = 0.01;
+    private static final int TURRET_SAFETY_LEEWAY = 100;
 
     private double idlePower = 0.4;
     private double ascendingPower = 1.0;
@@ -93,11 +96,19 @@ public class LinearSlide extends BaseComponent {
         motor.setPower(idlePower);
     }
 
+    @Override
+    public void updateStatus() {
+        telemetry.addData("Target Position", targetPosition);
+        telemetry.addData("Leeway position", TRAVEL.ticks - TURRET_SAFETY_LEEWAY);
+
+        super.updateStatus();
+    }
+
     /**
      * Indicates whether the slide is currently at or above the given known position.
      */
     public boolean isAtOrAbove(SlideHeight position) {
-        return getPosition() >= (position.ticks - TARGET_REACHED_THRESHOLD);
+        return getPosition() >= (position.ticks - TURRET_SAFETY_LEEWAY - TARGET_REACHED_THRESHOLD);
     }
 
     /**

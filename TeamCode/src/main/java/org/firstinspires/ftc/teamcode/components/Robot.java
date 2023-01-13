@@ -130,8 +130,8 @@ public class Robot extends BaseComponent {
             onStart();
         }
         updateCount++;
-        double updatesPerSecond = updateCount / firstUpdateTime.seconds();
-        telemetry.addData("Updates / sec", String.format("%.1f", updatesPerSecond));
+        //double updatesPerSecond = updateCount / firstUpdateTime.seconds();
+        //telemetry.addData("Updates / sec", String.format("%.1f", updatesPerSecond));
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();

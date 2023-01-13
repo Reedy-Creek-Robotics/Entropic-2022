@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.geometry;
 
 import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
 import static org.junit.Assert.assertEquals;

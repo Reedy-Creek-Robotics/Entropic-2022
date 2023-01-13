@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.BACK;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.FRONT;
+import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.LEFT_SIDE;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -53,40 +54,35 @@ public class AutoMainLeft extends AutoMain {
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
-        //robot.getDriveTrain().setPosition(new Position(1.5, 1.5));
-
-
-        /*
-        //test
         getNewCone();
         deliverToPole(Pole.HIGH);
 
-        getNewCone();
-        deliverToPole(Pole.MEDIUM);
+        robot.getDriveTrain().moveToTargetPosition(new Position(1.5,1.5),BASE_SPEED);
+        park();
 
-        getNewCone();
-        deliverToPole(Pole.LOW);
-
-        getNewCone();
-        deliverToPole(Pole.GROUND);*/
-
-
-        //get a new cone(loop*5)
         //getNewCone();
-
-        //deliver to pole(loop*5)
         //deliverToPole(Pole.HIGH);
+
+        //getNewCone();
+        //deliverToPole(Pole.HIGH);
+
     }
 
     //Used after recentered
     protected void getNewCone() {
-        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(10), 2.5), BASE_SPEED);
+        //get to stack
+        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(15), 2.5), BASE_SPEED);
         robot.getTurret().moveToOrientation(BACK);
         robot.waitForCommandsToFinish();
 
+        //intake
         robot.getSlide().moveToIntake(coneCount);
         coneCount--;
-        robot.getIntake().intake(0.5);
+        robot.getIntake().intake(1);
+        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(12), 2.5), .3);
+        robot.waitForCommandsToFinish();
+
+        robot.getSlide().moveToHeight(SMALL_POLE);
         robot.waitForCommandsToFinish();
 
         robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), BASE_SPEED);
@@ -96,16 +92,19 @@ public class AutoMainLeft extends AutoMain {
     protected void deliverToPole(Pole pole) {
         if (pole == Pole.HIGH) {
             robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TOP_POLE);
-            robot.getTurret().moveToOrientation(FRONT);
-            robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), new Heading(45), BASE_SPEED);
-            robot.getDriveTrain().moveToTargetPosition(new Position(1 + inchesToTiles(19), 2 + inchesToTiles(18.5)), BASE_SPEED);
+            robot.getTurret().moveToOrientation(LEFT_SIDE);
+            robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.5), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getIntake().outtake(.5);
+            robot.getDriveTrain().moveToTargetPosition(new Position(2,2.65), BASE_SPEED);
+            robot.waitForCommandsToFinish();
+
+            robot.getIntake().outtake(1);
             robot.waitForCommandsToFinish();
 
             robot.getSlide().moveToHeight(TRAVEL);
             robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), new Heading(0), BASE_SPEED);
+
         } else if (pole == Pole.MEDIUM) {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
             robot.getTurret().moveToOrientation(FRONT);
