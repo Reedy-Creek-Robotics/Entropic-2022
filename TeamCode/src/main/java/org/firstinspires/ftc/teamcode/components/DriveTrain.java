@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.game.Field.Direction.NORTH;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.convertToFieldSpace;
@@ -98,6 +99,11 @@ public class DriveTrain extends BaseComponent {
      * The previously seen tile edge observation.  We don't want to apply the same observation twice.
      */
     private TileEdgeSolver.TileEdgeObservation previousObservation;
+
+    /**
+     * Statistics about Hough tile edge correction.
+     */
+    private HoughStatistics houghStatistics = new HoughStatistics();
 
 
     public DriveTrain(RobotContext context, WebCam webCamSide) {
@@ -204,6 +210,8 @@ public class DriveTrain extends BaseComponent {
         //telemetry.addData("Current Command", getCurrentCommand());
         //telemetry.addData("Next Commands", getNextCommands());
 
+        telemetry.addData("Hough Stats", houghStatistics);
+
         // Now allow any commands to run with the updated data
         super.updateStatus();
     }
@@ -263,9 +271,13 @@ public class DriveTrain extends BaseComponent {
 
             // Then using the observation overwrite the expected with the actual values.
             if (observation.distanceRight != null) {
+                houghStatistics.rightEdgeCorrections++;
+                houghStatistics.rightEdgeCorrectionDistance += Math.abs(observation.distanceRight - robotSpaceCoordinates.distanceRight);
                 robotSpaceCoordinates.distanceRight = observation.distanceRight;
             }
             if (observation.distanceFront != null) {
+                houghStatistics.frontEdgeCorrections++;
+                houghStatistics.frontEdgeCorrectionDistance += Math.abs(observation.distanceFront - robotSpaceCoordinates.distanceFront);
                 robotSpaceCoordinates.distanceFront = observation.distanceFront;
             }
             if (observation.headingOffset != null) {
@@ -297,6 +309,16 @@ public class DriveTrain extends BaseComponent {
                 // Also update the previous position by the same amount, so the velocity doesn't jump.
                 if (previousPosition != null) {
                     previousPosition = previousPosition.add(correction);
+                }
+
+                houghStatistics.totalCorrections++;
+                houghStatistics.totalCorrectionDistance += correctionDistance;
+                houghStatistics.totalObservationAge += observation.observationTime.seconds();
+
+                if (velocity != null && velocity.magnitude() > 0.01) {
+                    houghStatistics.movingCorrections++;
+                } else {
+                    houghStatistics.stationaryCorrections++;
                 }
             }
         }
@@ -1179,6 +1201,35 @@ public class DriveTrain extends BaseComponent {
                     backLeft, backRight, frontLeft, frontRight
             );
         }
+    }
+
+    private class HoughStatistics {
+
+        public double totalCorrectionDistance;
+        public int totalCorrections;
+        public double totalObservationAge;
+        public double frontEdgeCorrectionDistance;
+        public int frontEdgeCorrections;
+        public double rightEdgeCorrectionDistance;
+        public int rightEdgeCorrections;
+        public int stationaryCorrections;
+        public int movingCorrections;
+
+        @Override
+        public String toString() {
+            double averageObservationAge = totalCorrections != 0 ?
+                    totalObservationAge / totalCorrections :
+                    0.0;
+
+            return String.format(
+                    "Total [%.1f in, %d], Front [%.1f in, %d], Right [%.1f in, %d], Stationary [%d], Moving [%d], Avg Age [%.3f s]",
+                    tilesToInches(totalCorrectionDistance), totalCorrections,
+                    tilesToInches(frontEdgeCorrectionDistance), frontEdgeCorrections,
+                    tilesToInches(rightEdgeCorrectionDistance), rightEdgeCorrections,
+                    stationaryCorrections, movingCorrections, averageObservationAge
+            );
+        }
+
     }
 
 }
