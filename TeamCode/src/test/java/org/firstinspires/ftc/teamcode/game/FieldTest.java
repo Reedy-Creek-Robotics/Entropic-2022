@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertPosition;
 
 import org.firstinspires.ftc.teamcode.game.Field.Direction;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.junit.Test;
 
@@ -17,6 +18,9 @@ import java.util.List;
 public class FieldTest {
 
     private Field field = new Field();
+    {
+        field.setBounds(new Rectangle(6.0, 6.0));
+    }
 
     @Test
     public void move() {

@@ -75,6 +75,13 @@ public class Position {
         );
     }
 
+    /**
+     * Aligns the given position to the edge of the nearest tile.
+     */
+    public Position alignToTileEdge() {
+        return new Position(Math.round(x * 2.0) / 2.0, Math.round(y * 2.0) / 2.0);
+    }
+
     @SuppressLint("DefaultLocale")
     public String toString() {
         return String.format("(%.3f, %.3f)", x, y);
