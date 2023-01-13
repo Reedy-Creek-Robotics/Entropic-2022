@@ -90,8 +90,8 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
 
         // Utility functions
         if (driver.isPressed(START)) {
-            // todo: go to the middle of the current tile instead of this
-            driveTrain.setPosition(new Position(.5, .5));
+            Position position = driveTrain.getPosition();
+            driveTrain.setPosition(position.alignToTileMiddle());
         } else if (driver.isPressed(BACK)) {
             driveTrain.setHeading(new Heading(90));
         }
