@@ -932,7 +932,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
                 }
             }
 
-            return targetPosition.alignToTileMiddle();
+            return targetPosition;
         }
 
         @Override

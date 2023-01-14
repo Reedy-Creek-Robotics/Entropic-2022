@@ -28,6 +28,14 @@ public class FieldTest {
     }
 
     @Test
+    public void move_negativeCoordinates() {
+        tryMove(pos(-1.5, -1.5), EAST, pos(-0.5, -1.5));
+        tryMove(pos(-1.5, -1.5), NORTH, pos(-1.5, -0.5));
+        tryMove(pos(-1.5, -1.5), WEST, pos(-2.5, -1.5));
+        tryMove(pos(-1.5, -1.5), SOUTH, pos(-1.5, -2.5));
+    }
+
+    @Test
     public void move_startAtMidLine() {
         tryMove(pos(3.0, 1.5), EAST, pos(3.5, 1.5));
         tryMove(pos(3.0, 1.5), WEST, pos(2.5, 1.5));

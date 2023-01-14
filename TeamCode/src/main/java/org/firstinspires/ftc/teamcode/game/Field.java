@@ -69,12 +69,12 @@ public class Field {
         } else {
             positionInTile = position.getY() - (int) position.getY();
         }
-        return inRange(positionInTile, 0.25, 0.75);
+        return inRange(Math.abs(positionInTile), 0.25, 0.75);
     }
 
     private boolean isOnTileEdge(Position position) {
-        double x = position.getX() - (int) position.getX();
-        double y = position.getY() - (int) position.getY();
+        double x = Math.abs(position.getX() - (int) position.getX());
+        double y = Math.abs(position.getY() - (int) position.getY());
 
         return !inRange(x, 0.25, 0.75) ||
                 !inRange(y, 0.25, 0.75);
