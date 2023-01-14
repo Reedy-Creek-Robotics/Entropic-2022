@@ -219,7 +219,9 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         updateCurrentPositionWithMotorTicks();
 
         // Override this with a visual observation from hough code, if there is one.
-        updateCurrentPositionWithTileEdgeObservation();
+        if (velocity != null && velocity.magnitude() < 0.01) {
+            updateCurrentPositionWithTileEdgeObservation();
+        }
     }
 
     private void updateCurrentPositionWithMotorTicks() {

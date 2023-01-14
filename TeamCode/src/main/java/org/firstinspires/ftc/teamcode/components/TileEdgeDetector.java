@@ -166,10 +166,15 @@ public class TileEdgeDetector extends BaseComponent {
 
             TileEdgeObservation observation = tileEdgeSolver.solve(lines);
 
+            if (context.robotPositionProvider != null) {
+                Position position = context.robotPositionProvider.getPosition();
+                DrawUtil.drawText(output, "Position " + position.toString(2), new Position(50, 140), Color.ORANGE, 0.5, 1);
+            }
+
             if (observation != null) {
                 // Remember the observation so that it can be used by the drivetrain.
-                TileEdgeDetector.this.observation = observation;
                 observation.setObservationTime(beginFrameTime);
+                TileEdgeDetector.this.observation = observation;
 
                 // Draw the observation details on the screen.
                 for (Line badLine : observation.badLines) {
@@ -192,7 +197,7 @@ public class TileEdgeDetector extends BaseComponent {
                         format(tilesToInches(observation.distanceFront) - robotDescriptor.robotDimensionsInInches.height / 2, 1) + " in" :
                         "___";
                 String headingOffset = observation.headingOffset != null ?
-                        format(observation.headingOffset, 1) + " s" :
+                        format(observation.headingOffset, 1) :
                         "___";
 
                 DrawUtil.drawText(output, "DR " + distanceRightInches, new Position(50, 20), Color.ORANGE, 0.5, 1);

@@ -31,6 +31,7 @@ public class AutoMainLeft extends AutoMain {
     public void runAutoPath() {
 
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, .5), BASE_SPEED);
+        //robot.getDriveTrain().waitForTileEdgeDetection(1.0);
 
         //move to medium pole and prepare to drop off
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), new Heading(0), BASE_SPEED);
@@ -42,6 +43,7 @@ public class AutoMainLeft extends AutoMain {
 
         //drop off pole
         robot.getDriveTrain().moveToTargetPosition(new Position(1.55, 2), BASE_SPEED);
+        robot.getSlide().moveDeliverOffset(true);
         robot.waitForCommandsToFinish();
         robot.getIntake().outtake(1);
         robot.waitForCommandsToFinish();
@@ -50,7 +52,7 @@ public class AutoMainLeft extends AutoMain {
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.75), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
-        //robot.getDriveTrain().waitForTileEdgeDetection(2.0);
+        robot.getDriveTrain().waitForTileEdgeDetection(1.0);
         robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
@@ -58,11 +60,11 @@ public class AutoMainLeft extends AutoMain {
         getNewCone();
         deliverToPole(Pole.HIGH);
 
-        robot.getDriveTrain().moveToTargetPosition(new Position(1.5,1.5),BASE_SPEED);
-        park();
+        getNewCone();
+        deliverToPole(Pole.HIGH);
 
-        //getNewCone();
-        //deliverToPole(Pole.HIGH);
+        robot.getDriveTrain().moveToTargetPosition(new Position(robot.getDriveTrain().getPosition().getX(),1.5),BASE_SPEED);
+        park();
 
         //getNewCone();
         //deliverToPole(Pole.HIGH);
@@ -98,6 +100,9 @@ public class AutoMainLeft extends AutoMain {
 
             robot.getDriveTrain().moveToTargetPosition(new Position(2,2.60), BASE_SPEED);
             robot.waitForCommandsToFinish();
+
+            //robot.getSlide().moveDeliverOffset(true);
+            //robot.waitForCommandsToFinish();
 
             robot.getIntake().outtake(1);
             robot.waitForCommandsToFinish();
@@ -142,6 +147,7 @@ public class AutoMainLeft extends AutoMain {
             robot.getSlide().moveToHeight(TRAVEL);
             robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), new Heading(0), BASE_SPEED);
         }
+        robot.getDriveTrain().waitForTileEdgeDetection(1.0);
         robot.waitForCommandsToFinish();
     }
 

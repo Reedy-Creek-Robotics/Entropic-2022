@@ -63,11 +63,7 @@ public class TileEdgeSolver {
         }
 
         if (!robotLines.isEmpty()) {
-            TileEdgeObservation observation = new TileEdgeObservation(
-                    null,
-                    null,
-                    null
-            );
+            TileEdgeObservation observation = new TileEdgeObservation();
 
             List<Line> filteredLines = filterTileEdgeLines(robotLines, observation);
 
@@ -188,14 +184,7 @@ public class TileEdgeSolver {
         public List<Line> unusedLines = new ArrayList<>();
         public List<Line> badLines = new ArrayList<>();
 
-        public ElapsedTime observationTime;
-
-        public TileEdgeObservation(Double distanceFront, Double distanceRight, Double headingOffset) {
-            this.distanceFront = distanceFront;
-            this.distanceRight = distanceRight;
-            this.headingOffset = headingOffset;
-            this.observationTime = new ElapsedTime();
-        }
+        public ElapsedTime observationTime = new ElapsedTime();
 
         public void setObservationTime(ElapsedTime time) {
             this.observationTime = time;
