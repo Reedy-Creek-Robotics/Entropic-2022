@@ -24,6 +24,7 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
@@ -36,6 +37,11 @@ public class TeleOpMain extends BaseDrivingTeleOp {
     boolean outTakeOffsetToggle = true;
 
     @Override
+    protected Robot.CameraMode getCameraMode() {
+        return Robot.CameraMode.ENABLED_AND_STREAMING_SIDE;
+    }
+
+    @Override
     public void init() {
         super.init();
 
@@ -44,6 +50,8 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         deliverer.analogConfig(LEFT_STICK_Y)
                 .withMaxValue(robot.getSlide().getAscendingPower());
+
+
     }
 
     @Override
