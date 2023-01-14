@@ -18,9 +18,6 @@ import java.util.List;
 public class FieldTest {
 
     private Field field = new Field();
-    {
-        field.setBounds(new Rectangle(6.0, 6.0));
-    }
 
     @Test
     public void move() {
@@ -40,6 +37,8 @@ public class FieldTest {
 
     @Test
     public void move_avoidWalls() {
+        field.setBounds(new Rectangle(6.0, 6.0));
+
         tryMove(pos(5.5, 1.5), EAST, pos(5.5, 1.5));
         tryMove(pos(1.5, 5.5), NORTH, pos(1.5, 5.5));
         tryMove(pos(0.5, 1.5), WEST, pos(0.5, 1.5));
@@ -72,6 +71,8 @@ public class FieldTest {
 
     @Test
     public void moveHalf_avoidWalls() {
+        field.setBounds(new Rectangle(6.0, 6.0));
+
         tryMoveHalf(pos(5.5, 1.5), EAST, pos(5.5, 1.5));
         tryMoveHalf(pos(1.5, 5.5), NORTH, pos(1.5, 5.5));
         tryMoveHalf(pos(0.5, 1.5), WEST, pos(0.5, 1.5));
@@ -112,7 +113,9 @@ public class FieldTest {
                     field.move(startWithOffset, direction);
 
             assertPosition(
-                    "start " + start + " with offset " + startOffset + ", position",
+                    "start " + start +
+                            " with offset " + startOffset +
+                            " direction " + direction + ", position",
                     expected, actual
             );
         }

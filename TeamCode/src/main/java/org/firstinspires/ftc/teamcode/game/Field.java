@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.game;
 
-import org.firstinspires.ftc.teamcode.components.DriveTrain;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
@@ -14,16 +13,7 @@ public class Field {
         WEST
     }
 
-    /*
-    private Rectangle bounds = new Rectangle(
-            6.0, 6.0
-    );
-    */
-
-    // todo: for now, run without wall detection
-    private Rectangle bounds = new Rectangle(
-            100.0, 100.0, -100.0, -100.0
-    );
+    private Rectangle bounds;
 
     public void setBounds(Rectangle bounds) {
         this.bounds = bounds;
@@ -33,71 +23,80 @@ public class Field {
      * Calculates the new target position after moving one tile in the given direction.
      */
     public Position move(Position position, Direction direction) {
-        Position targetPosition;
-        if (direction == Direction.NORTH) {
-            targetPosition = position.add(new Vector2(0, 1));
-        } else if (direction == Direction.SOUTH) {
-            targetPosition = position.add(new Vector2(0, -1));
-        } else if (direction == Direction.EAST) {
-            targetPosition = position.add(new Vector2(1, 0));
-        } else if (direction == Direction.WEST) {
-            targetPosition = position.add(new Vector2(-1, 0));
-        } else {
-            throw new IllegalArgumentException();
+        Vector2 offset = offsetForDirection(direction);
+        if (isOnTileEdge(position)) {
+            // If starting on the tile edge, move only half a tile.
+            offset = offset.multiply(0.5);
         }
 
-        return validPosition(position, targetPosition, direction) ?
-                targetPosition.alignToTileMiddle() :
-                position.alignToTileEdge();
-    }
+        Position targetPosition = position.add(offset);
 
+        if (isValidMove(position, targetPosition, direction)) {
+            return targetPosition.alignToTileMiddle();
+        } else {
+            return position.alignToTileEdge();
+        }
+    }
 
     /**
      * Calculates the new target position after moving a half tile in the given direction.
      */
     public Position moveHalf(Position position, Direction direction) {
+        Vector2 offset = offsetForDirection(direction).multiply(0.5);
+        Position targetPosition = position.add(offset);
 
-
-        //Add the distance moved
-        Position targetPosition;
-        if (direction == Direction.NORTH) {
-            targetPosition = position.add(new Vector2(0, .5));
-        } else if (direction == Direction.SOUTH) {
-            targetPosition = position.add(new Vector2(0, -.5));
-        } else if (direction == Direction.EAST) {
-            targetPosition = position.add(new Vector2(.5, 0));
-        } else if (direction == Direction.WEST) {
-            targetPosition = position.add(new Vector2(-.5, 0));
+        if (isValidMove(position, targetPosition, direction)) {
+            return targetPosition.alignToTileEdge();
         } else {
-            throw new IllegalArgumentException();
+            return position.alignToTileEdge();
         }
-
-        targetPosition = validPosition(position, targetPosition, direction) ? targetPosition : position;
-
-        return targetPosition.alignToTileEdge();
     }
 
-    public boolean validPosition(Position position, Position targetPosition, Direction direction) {
-        return avoidWalls(targetPosition) && avoidObstacles(position, direction);
+    public boolean isValidMove(Position position, Position targetPosition, Direction direction) {
+        return avoidsWalls(targetPosition) && avoidsObstacles(position, direction);
     }
 
-    private boolean avoidWalls(Position position) {
-        return position.getX() <= bounds.getRight() - 0.2 && position.getX() >= bounds.getLeft() + 0.2 &&
-               position.getY() <= bounds.getTop() - 0.2 && position.getY() >= bounds.getBottom() + 0.2;
+    private boolean avoidsWalls(Position position) {
+        if (bounds == null) return true;
+        return position.getX() <= bounds.getRight() - 0.25 && position.getX() >= bounds.getLeft() + 0.25 &&
+                position.getY() <= bounds.getTop() - 0.25 && position.getY() >= bounds.getBottom() + 0.25;
     }
 
-    private boolean avoidObstacles(Position position, Direction direction) {
-        double decimalVal;
+    private boolean avoidsObstacles(Position position, Direction direction) {
+        double positionInTile;
         if ((direction == Direction.NORTH || direction == Direction.SOUTH)) {
-            decimalVal = position.getX() - (int) position.getX();
+            positionInTile = position.getX() - (int) position.getX();
         } else {
-            decimalVal = position.getY() - (int) position.getY();
+            positionInTile = position.getY() - (int) position.getY();
         }
-        return inThreshold(decimalVal, .3, .7);
+        return inRange(positionInTile, 0.25, 0.75);
     }
 
-    private boolean inThreshold(double value, double rangeStart, double rangeEnd) {
+    private boolean isOnTileEdge(Position position) {
+        double x = position.getX() - (int) position.getX();
+        double y = position.getY() - (int) position.getY();
+
+        return !inRange(x, 0.25, 0.75) ||
+                !inRange(y, 0.25, 0.75);
+    }
+
+    private boolean inRange(double value, double rangeStart, double rangeEnd) {
         return value >= rangeStart && value <= rangeEnd;
+    }
+
+    private Vector2 offsetForDirection(Direction direction) {
+        switch (direction) {
+            case NORTH:
+                return new Vector2(0.0, 1.0);
+            case SOUTH:
+                return new Vector2(0.0, -1.0);
+            case EAST:
+                return new Vector2(1.0, 0.0);
+            case WEST:
+                return new Vector2(-1.0, 0.0);
+            default:
+                throw new IllegalArgumentException();
+        }
     }
 
 }
