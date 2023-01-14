@@ -75,6 +75,14 @@ public class LinearSlide extends BaseComponent {
         }
     }
 
+    public void moveDeliverOffset(boolean goingDown) {
+        if(goingDown) {
+            moveToTicks(targetPosition -= DELIVER_OFFSET);
+        }else {
+            moveToTicks(targetPosition += DELIVER_OFFSET);
+        }
+    }
+
     /**
      * Adjusts the position of the slide by the given number of ticks.  Positive ticks moves the
      * slide up, negative ticks moves the slide down.

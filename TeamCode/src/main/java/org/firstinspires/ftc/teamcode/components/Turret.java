@@ -24,7 +24,7 @@ public class Turret extends BaseComponent {
 
     public enum Orientation {
         FRONT(0.313),
-        RIGHT_SIDE(.681),
+        RIGHT_SIDE(0.681),
         BACK(1.000),
         LEFT_SIDE(0.681);
 
@@ -68,10 +68,9 @@ public class Turret extends BaseComponent {
         Heading heading1 = heading.minus(45);
         int rotation = (int) heading1.getValue() / 90;
 
+        int currentIndex = orientation.ordinal();
+
         Orientation[] orientations = Orientation.values();
-
-        int currentIndex = Arrays.asList(orientations).indexOf(orientation);
-
         return orientations[(currentIndex + rotation) % orientations.length];
     }
 

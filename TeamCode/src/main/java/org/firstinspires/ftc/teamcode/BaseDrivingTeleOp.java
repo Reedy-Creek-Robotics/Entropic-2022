@@ -14,6 +14,7 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.START;
+import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
 import static org.firstinspires.ftc.teamcode.game.Field.Direction.EAST;
 import static org.firstinspires.ftc.teamcode.game.Field.Direction.NORTH;
@@ -71,6 +72,8 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             driveTrain.centerInCurrentTile(limiter);
         } else if (driver.isPressed(B)) {
             driveTrain.stopAllCommands();
+        } else if (driver.isPressed(X)) {
+            toggleDriveMode();
         }
 
         telemetry.addData("Limiter", format(limiter));
