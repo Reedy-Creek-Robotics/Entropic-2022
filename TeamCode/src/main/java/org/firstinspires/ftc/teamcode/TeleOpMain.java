@@ -11,6 +11,7 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
+import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
@@ -32,6 +33,8 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
     Orientation turretPosition = Orientation.FRONT;
 
+    boolean outTakeOffsetToggle = true;
+
     @Override
     public void init() {
         super.init();
@@ -50,12 +53,10 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         // Intake
         if (driver.isPressed(RIGHT_TRIGGER)) {
-            if (robot.getSlide().isAtOrAbove(GROUND_LEVEL)) {
-                robot.getSlide().moveToIntake();
-            }
             robot.getIntake().intakeManual();
         } else if (driver.isPressed(LEFT_TRIGGER)) {
             robot.getIntake().outakeManual();
+            outTakeOffsetToggle = true;
         } else {
             robot.getIntake().stopIntake();
         }
@@ -75,6 +76,11 @@ public class TeleOpMain extends BaseDrivingTeleOp {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
         } else if (deliverer.isPressed(A)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
+        }
+
+        if(driver.isPressed(RIGHT_STICK_BUTTON)) {
+            robot.getSlide().moveDeliverOffset(outTakeOffsetToggle);
+            outTakeOffsetToggle = !outTakeOffsetToggle;
         }
 
         // Turret

@@ -43,11 +43,12 @@ public class AutoMainLeft extends AutoMain {
         //drop off pole
         robot.getDriveTrain().moveToTargetPosition(new Position(1.55, 2), BASE_SPEED);
         robot.waitForCommandsToFinish();
-        robot.getIntake().outtake(2);
+        robot.getIntake().outtake(1);
         robot.waitForCommandsToFinish();
 
         //recenter
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.75), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
         //robot.getDriveTrain().waitForTileEdgeDetection(2.0);
         robot.waitForCommandsToFinish(0.5);
@@ -65,7 +66,6 @@ public class AutoMainLeft extends AutoMain {
 
         //getNewCone();
         //deliverToPole(Pole.HIGH);
-
     }
 
     //Used after recentered
@@ -79,7 +79,7 @@ public class AutoMainLeft extends AutoMain {
         robot.getSlide().moveToIntake(coneCount);
         coneCount--;
         robot.getIntake().intake(1);
-        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(12), 2.5), .3);
+        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(10), 2.5), .3);
         robot.waitForCommandsToFinish();
 
         robot.getSlide().moveToHeight(SMALL_POLE);
@@ -96,7 +96,7 @@ public class AutoMainLeft extends AutoMain {
             robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.5), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getDriveTrain().moveToTargetPosition(new Position(2,2.65), BASE_SPEED);
+            robot.getDriveTrain().moveToTargetPosition(new Position(2,2.60), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
             robot.getIntake().outtake(1);

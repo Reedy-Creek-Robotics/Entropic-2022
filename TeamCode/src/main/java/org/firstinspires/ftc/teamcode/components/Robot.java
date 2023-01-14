@@ -20,7 +20,7 @@ import java.util.List;
 
 public class Robot extends BaseComponent {
 
-    private static final double VOLTAGE_WARNING_THRESHOLD = 12.1;
+    private static final double VOLTAGE_WARNING_THRESHOLD = 12.3;
 
     private DriveTrain driveTrain;
     private WebCam webCamSide;

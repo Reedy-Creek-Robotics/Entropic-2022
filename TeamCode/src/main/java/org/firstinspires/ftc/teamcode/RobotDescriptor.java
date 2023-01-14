@@ -109,10 +109,10 @@ public class RobotDescriptor {
     /**
      * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
      */
-    public Position webCamImageTopLeftCornerCoordinates = new Position(0.892, 10.370);
-    public Position webCamImageTopRightCornerCoordinates = new Position(18.069, 10.385);
-    public Position webCamImageBottomLeftCornerCoordinates = new Position(1.971, 0.899);
-    public Position webCamImageBottomRightCornerCoordinates = new Position(16.12, 0.686);
+    public Position webCamImageTopLeftCornerCoordinates = new Position(-0.157, 10.613);
+    public Position webCamImageTopRightCornerCoordinates = new Position(17.083, 10.651);
+    public Position webCamImageBottomLeftCornerCoordinates = new Position(1.778, 0.901);
+    public Position webCamImageBottomRightCornerCoordinates = new Position(15.591, 1.285);
 
     /**
      * An empirically measured strafe correction value for a given motor power.
