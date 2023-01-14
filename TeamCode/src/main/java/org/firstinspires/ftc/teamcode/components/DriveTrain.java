@@ -523,7 +523,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * Centers the robot within the current tile.
      */
     public void centerInCurrentTile(double speed) {
-        moveAlignedToTileCenter(0.0, NORTH, speed);
+        moveToTargetPosition(position.alignToTileMiddle(), heading.alignToRightAngle(), speed);
     }
 
     /**

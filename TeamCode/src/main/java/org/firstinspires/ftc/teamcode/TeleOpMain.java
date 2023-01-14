@@ -11,7 +11,6 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
-import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
@@ -34,7 +33,8 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
     Orientation turretPosition = Orientation.FRONT;
 
-    boolean outTakeOffsetToggle = true;
+    boolean outTakeOffsetDown = true;
+    boolean outTakeOffsetEnabled = false;
 
     @Override
     protected Robot.CameraMode getCameraMode() {
@@ -64,7 +64,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
             robot.getIntake().intakeManual();
         } else if (driver.isPressed(LEFT_TRIGGER)) {
             robot.getIntake().outakeManual();
-            outTakeOffsetToggle = true;
         } else {
             robot.getIntake().stopIntake();
         }
@@ -73,22 +72,31 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         if (deliverer.isPressed(LEFT_STICK_Y)) {
             robot.getSlide().manualSlideMove(deliverer.leftStickY());
         } else if (deliverer.isPressed(RIGHT_STICK_BUTTON)) {
+            outTakeOffsetEnabled = false;
             robot.getSlide().moveToHeight(TRAVEL);
         } else if (deliverer.isPressed(LEFT_STICK_BUTTON)) {
+            outTakeOffsetEnabled = false;
             robot.getSlide().moveToHeight(INTAKE);
         } else if (deliverer.isPressed(X)) {
+            outTakeOffsetEnabled = false;
             robot.getSlide().moveToHeight(GROUND_LEVEL);
         } else if (deliverer.isPressed(Y)) {
+            outTakeOffsetDown = true;
+            outTakeOffsetEnabled = true;
             robot.getSlide().moveToHeight(TOP_POLE);
         } else if (deliverer.isPressed(B)) {
+            outTakeOffsetDown = true;
+            outTakeOffsetEnabled = true;
             robot.getSlide().moveToHeight(MEDIUM_POLE);
         } else if (deliverer.isPressed(A)) {
+            outTakeOffsetDown = true;
+            outTakeOffsetEnabled = true;
             robot.getSlide().moveToHeight(SMALL_POLE);
         }
 
-        if(driver.isPressed(RIGHT_STICK_BUTTON)) {
-            robot.getSlide().moveDeliverOffset(outTakeOffsetToggle);
-            outTakeOffsetToggle = !outTakeOffsetToggle;
+        if(driver.isPressed(RIGHT_STICK_BUTTON) && outTakeOffsetEnabled) {
+            robot.getSlide().moveDeliverOffset(outTakeOffsetDown);
+            outTakeOffsetDown = !outTakeOffsetDown;
         }
 
         // Turret
