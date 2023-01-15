@@ -29,8 +29,7 @@ import org.opencv.core.Size;
 import java.util.HashMap;
 import java.util.Map;
 
-@TeleOp(group = "Calibration")
-public class WebCamCalibration extends BaseTeleOp {
+public abstract class BaseWebCamCalibration extends BaseTeleOp {
 
     /**
      * The center of the calibration mat (in inches), marked with intersecting diagonal lines.
@@ -57,16 +56,13 @@ public class WebCamCalibration extends BaseTeleOp {
     private WebCam webCam;
     private WebCamDescriptor webCamDescriptor;
 
-    @Override
-    protected Robot.CameraMode getCameraMode() {
-        return Robot.CameraMode.ENABLED_AND_STREAMING_SIDE;
-    }
+    protected abstract WebCam getWebCam();
 
     @Override
     public void init() {
         super.init();
 
-        webCam = robot.getWebCamSide();
+        webCam = getWebCam();
         webCamDescriptor = webCam.getWebCamDescriptor();
         resolution = webCamDescriptor.resolution;
         viewCenter = new Position(resolution.width / 2, resolution.height / 2);
