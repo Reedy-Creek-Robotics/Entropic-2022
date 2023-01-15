@@ -172,15 +172,18 @@ public class TileEdgeSolver {
             // New coordinates in inches from robot center.
             fromRobotCenter = rotated.add(robotCenterToRobotFrontRight);
 
-        } else if (webCamDescriptor.orientation == FRONT_FIELD){
+        } else if (webCamDescriptor.orientation == FRONT_FIELD) {
+            // The coordinates of the front right wheel when placing down the calibration mat.
+            Vector2 calibrationMatOffset = new Vector2(-8, -1);
+
             // Translate the coordinates to robot center.
-            Vector2 robotCenterToRobotFrontLeft = new Vector2(
-                    -descriptor.robotDimensionsInInches.width / 2,
+            Vector2 robotCenterToRobotFrontRight = new Vector2(
+                    descriptor.robotDimensionsInInches.width / 2,
                     descriptor.robotDimensionsInInches.height / 2
             );
 
             // New coordinates in inches from robot center.
-            fromRobotCenter = position.add(robotCenterToRobotFrontLeft);
+            fromRobotCenter = position.add(calibrationMatOffset).add(robotCenterToRobotFrontRight);
 
         } else {
             throw new IllegalArgumentException();

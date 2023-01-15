@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
@@ -38,6 +39,7 @@ public abstract class BaseWebCamCalibration extends BaseTeleOp {
 
     private boolean calibrationMode = false;
     private boolean showGrid = false;
+    private boolean slowMode = false;
 
     private enum Corner {
         TOP_LEFT,
@@ -67,7 +69,7 @@ public abstract class BaseWebCamCalibration extends BaseTeleOp {
 
         resetCalibration();
 
-        robot.getWebCamSide().setFrameProcessor(new WebCam.FrameProcessor() {
+        webCam.setFrameProcessor(new WebCam.FrameProcessor() {
             @Override
             public void processFrame(Mat input, Mat output, FrameContext frameContext) {
 
@@ -181,10 +183,12 @@ public abstract class BaseWebCamCalibration extends BaseTeleOp {
             activeCornerPoint.position = activeCornerPoint.position.add(new Vector2(0, 0.5));
         } else if (controller.isPressed(DPAD_DOWN)) {
             activeCornerPoint.position = activeCornerPoint.position.add(new Vector2(0, -0.5));
+        } else if (controller.isPressed(LEFT_STICK_BUTTON)) {
+            slowMode = !slowMode;
         }
 
         if (controller.leftStickX() != 0.0 || controller.leftStickY() != 0.0) {
-            double moveSpeed = 5.0;
+            double moveSpeed = slowMode ? 0.5 : 2.0;
             activeCornerPoint.viewPosition = activeCornerPoint.viewPosition.add(
                     new Vector2(-controller.leftStickX(), -controller.leftStickY()).multiply(moveSpeed)
             );
