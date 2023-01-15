@@ -13,7 +13,9 @@ import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 import org.opencv.core.Size;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TileEdgeSolver {
 
@@ -58,26 +60,32 @@ public class TileEdgeSolver {
                 bottomLeft, bottomRight
         );
 
+
         // Convert the lines from webcam coordinates into coordinates relative to the robot.
         List<Line> robotLines = new ArrayList<>();
+        Map<Line, Line> originalLines = new HashMap<>();
         for (Line line : webCamLines) {
-            robotLines.add(new Line(
+            Line robotLine = new Line(
                     viewport.convertViewToExternal(line.getP1()),
                     viewport.convertViewToExternal(line.getP2())
-            ));
+            );
+            robotLines.add(robotLine);
+            originalLines.put(robotLine, line);
         }
 
         if (!robotLines.isEmpty()) {
             TileEdgeObservation observation = new TileEdgeObservation();
 
-            List<Line> filteredLines = filterTileEdgeLines(robotLines, observation);
+            List<Line> filteredLines = filterTileEdgeLines(robotLines, observation, originalLines);
 
             for (Line line : filteredLines) {
+                Line originalLine = originalLines.get(line);
+
                 // Figure out if the line is the front edge or the right edge
                 Position robotCenter = new Position(0, 0);
                 double angle = line.getAngleToX();
 
-                if (Math.abs(angle) > 45 && observation.observedRightEdge == null) {
+                if (Math.abs(angle) > 45 && observation.distanceRight == null) {
                     // Right edge
                     line = line.normalizeY();
                     observation.distanceRight = robotCenter.distance(line);
@@ -87,9 +95,9 @@ public class TileEdgeSolver {
                         observation.distanceRight = -observation.distanceRight + 1.0;
                     }
                     observation.headingOffset = line.getAngleToY();
-                    observation.observedRightEdge = line;
+                    observation.observedRightEdge = originalLine;
 
-                } else if (Math.abs(angle) < 45 && observation.observedFrontEdge == null) {
+                } else if (Math.abs(angle) < 45 && observation.distanceFront == null) {
                     // Front edge
                     line = line.normalizeX();
                     observation.distanceFront = robotCenter.distance(line);
@@ -99,10 +107,10 @@ public class TileEdgeSolver {
                         observation.distanceFront = -observation.distanceFront + 1.0;
                     }
                     observation.headingOffset = line.getAngleToX();
-                    observation.observedFrontEdge = line;
+                    observation.observedFrontEdge = originalLine;
 
                 } else {
-                    observation.unusedLines.add(line);
+                    observation.unusedLines.add(originalLine);
                 }
             }
 
@@ -113,7 +121,7 @@ public class TileEdgeSolver {
         }
     }
 
-    private List<Line> filterTileEdgeLines(List<Line> lines, TileEdgeObservation observation) {
+    private List<Line> filterTileEdgeLines(List<Line> lines, TileEdgeObservation observation, Map<Line, Line> originalLines) {
         // todo: another idea is to use the color around the detected line (tile edges should be
         // todo: dark gray, while posts and other robots will be different colors).
 
@@ -127,12 +135,13 @@ public class TileEdgeSolver {
             Line expectedFrontEdge = new Line(origin, origin.add(new Vector2(1, 0).rotate(robotHeading.getValue())));
 
             for (Line line : lines) {
+                Line originalLine = originalLines.get(line);
                 if (Math.abs(line.getAngleToLine(expectedFrontEdge)) < expectedTileEdgeAngleThreshold ||
                         Math.abs(line.getAngleToLine(expectedRightEdge)) < expectedTileEdgeAngleThreshold
                 ) {
                     filteredLines.add(line);
                 } else {
-                    observation.badLines.add(line);
+                    observation.badLines.add(originalLine);
                 }
             }
 

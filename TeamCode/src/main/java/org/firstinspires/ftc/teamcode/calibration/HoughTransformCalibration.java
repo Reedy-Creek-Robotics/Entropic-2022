@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.calibration;
 
-import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.B;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
@@ -16,7 +14,6 @@ import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.BaseDrivingTeleOp;
-import org.firstinspires.ftc.teamcode.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.TileEdgeDetector;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;

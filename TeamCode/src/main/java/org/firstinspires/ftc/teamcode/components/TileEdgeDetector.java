@@ -168,12 +168,6 @@ public class TileEdgeDetector extends BaseComponent {
 
             TileEdgeObservation observation = tileEdgeSolver.solve(lines);
 
-            if (context.robotPositionProvider != null) {
-                Position position = context.robotPositionProvider.getPosition();
-                DrawUtil.drawText(output, "Position " + position.toString(2),
-                        new Position(50, 140), Color.ORANGE, 0.5, 1);
-            }
-
             if (observation != null) {
                 // Remember the observation so that it can be used by the drivetrain.
                 observation.setObservationTime(beginFrameTime);
@@ -194,12 +188,12 @@ public class TileEdgeDetector extends BaseComponent {
 
             // Draw the observation details on the screen.
             if (webCam.isStreaming()) {
-                drawOutput(output, aggregator.getAggregateObservation());
+                drawOutput(output, observation);
             }
         }
 
         private void drawOutput(Mat output, TileEdgeObservation observation) {
-            if (observation != null && aggregator != null) {
+            if (observation != null) {
                 for (Line badLine : observation.badLines) {
                     DrawUtil.drawLine(output, badLine, Color.BLACK);
                 }
@@ -212,25 +206,34 @@ public class TileEdgeDetector extends BaseComponent {
                 if (observation.observedRightEdge != null) {
                     DrawUtil.drawLine(output, observation.observedRightEdge, Color.GREEN);
                 }
+            }
 
-                String distanceRightInches = observation.distanceRight != null ?
-                        format(tilesToInches(observation.distanceRight) -
+            TileEdgeObservation aggregate = aggregator.getAggregateObservation();
+            if (aggregate != null) {
+                String distanceRightInches = aggregate.distanceRight != null ?
+                        format(tilesToInches(aggregate.distanceRight) -
                                 robotDescriptor.robotDimensionsInInches.width / 2, 1) +
                                 " in, [" + aggregator.countRight + " obs]" :
                         "___";
-                String distanceFrontInches = observation.distanceFront != null ?
-                        format(tilesToInches(observation.distanceFront) -
+                String distanceFrontInches = aggregate.distanceFront != null ?
+                        format(tilesToInches(aggregate.distanceFront) -
                                 robotDescriptor.robotDimensionsInInches.height / 2, 1) +
                                 " in, [" + aggregator.countFront + " obs]" :
                         "___";
-                String headingOffset = observation.headingOffset != null ?
-                        format(observation.headingOffset, 1) +
+                String headingOffset = aggregate.headingOffset != null ?
+                        format(aggregate.headingOffset, 1) +
                                 " deg, [" + aggregator.countHeading + "]" :
                         "___";
 
                 DrawUtil.drawText(output, "DR " + distanceRightInches, new Position(50, 20), Color.ORANGE, 0.5, 1);
                 DrawUtil.drawText(output, "DF " + distanceFrontInches, new Position(50, 50), Color.ORANGE, 0.5, 1);
                 DrawUtil.drawText(output, "Heading " + headingOffset, new Position(50, 80), Color.ORANGE, 0.5, 1);
+            }
+
+            if (context.robotPositionProvider != null) {
+                Position position = context.robotPositionProvider.getPosition();
+                DrawUtil.drawText(output, "Position " + position.toString(2),
+                        new Position(50, 140), Color.ORANGE, 0.5, 1);
             }
         }
 
