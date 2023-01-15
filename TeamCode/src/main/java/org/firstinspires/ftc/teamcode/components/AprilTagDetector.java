@@ -7,6 +7,7 @@ import static org.firstinspires.ftc.teamcode.util.Color.WHITE;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.components.WebCam.FrameContext;
 import org.opencv.calib3d.Calib3d;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -130,7 +131,7 @@ public class AprilTagDetector extends BaseComponent {
         }
 
         @Override
-        public void processFrame(Mat input, Mat output) {
+        public void processFrame(Mat input, Mat output, FrameContext frameContext) {
 
             // Convert to greyscale
             Imgproc.cvtColor(input, gray, Imgproc.COLOR_RGBA2GRAY);

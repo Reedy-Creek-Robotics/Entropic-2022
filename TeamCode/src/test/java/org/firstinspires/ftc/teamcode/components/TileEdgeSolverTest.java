@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamAnchorPoint.anchor;
+import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamDescriptor;
+import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamOrientation;
 import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.TileEdgeObservation;
 import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
 import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertPosition;
@@ -9,7 +12,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
-import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
@@ -24,15 +26,21 @@ public class TileEdgeSolverTest {
     private static RobotDescriptor descriptor = new RobotDescriptor();
     private static RobotContext context = new RobotContext(null, descriptor);
 
-    private static TileEdgeSolver solver = new TileEdgeSolver(context);
+    private static TileEdgeSolver solver;
 
     @Before
     public void setUp() {
-        descriptor.webCamImageTopLeftCornerCoordinates = new Position(0, 9);
-        descriptor.webCamImageBottomLeftCornerCoordinates = new Position(0, 1);
-        descriptor.webCamImageTopRightCornerCoordinates = new Position(12, 9);
-        descriptor.webCamImageBottomRightCornerCoordinates = new Position(12, 1);
+        WebCamDescriptor webCamDescriptor = new WebCamDescriptor(
+                "WebCamTest",
+                WebCamOrientation.RIGHT_SIDE_FIELD,
+                anchor(new Position(0, 0), new Position(0, 9)),
+                anchor(new Position(640, 0), new Position(12, 9)),
+                anchor(new Position(0, 360), new Position(0, 1)),
+                anchor(new Position(640, 360), new Position(12, 1))
+        );
         descriptor.robotDimensionsInInches = new Size(10.0, 12.0);
+
+        solver = new TileEdgeSolver(context, webCamDescriptor);
     }
 
     @Test
@@ -106,12 +114,12 @@ public class TileEdgeSolverTest {
     public void convertFromImageCalibrationSpaceToRobotCenterSpace() {
         assertPosition(
                 new Position(inchesToTiles(5), inchesToTiles(6)),
-                solver.convertFromImageCalibrationSpaceToRobotCenterSpace(new Position(0, 0))
+                solver.convertFromWebCamFieldSpaceToRobotSpace(new Position(0, 0))
         );
 
         assertPosition(
                 new Position(inchesToTiles(13), inchesToTiles(1)),
-                solver.convertFromImageCalibrationSpaceToRobotCenterSpace(new Position(5, 8))
+                solver.convertFromWebCamFieldSpaceToRobotSpace(new Position(5, 8))
         );
     }
 

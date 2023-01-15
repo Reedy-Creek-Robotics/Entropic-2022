@@ -13,8 +13,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.Controller;
+import org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamDescriptor;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.WebCam;
+import org.firstinspires.ftc.teamcode.components.WebCam.FrameContext;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
@@ -52,6 +54,9 @@ public class WebCamCalibration extends BaseTeleOp {
     private Corner activeCorner;
     private AnchorPoint activeCornerPoint;
 
+    private WebCam webCam;
+    private WebCamDescriptor webCamDescriptor;
+
     @Override
     protected Robot.CameraMode getCameraMode() {
         return Robot.CameraMode.ENABLED_AND_STREAMING_SIDE;
@@ -61,7 +66,9 @@ public class WebCamCalibration extends BaseTeleOp {
     public void init() {
         super.init();
 
-        resolution = descriptor.webCamResolution;
+        webCam = robot.getWebCamSide();
+        webCamDescriptor = webCam.getWebCamDescriptor();
+        resolution = webCamDescriptor.resolution;
         viewCenter = new Position(resolution.width / 2, resolution.height / 2);
         controller = new Controller(gamepad1);
 
@@ -69,7 +76,7 @@ public class WebCamCalibration extends BaseTeleOp {
 
         robot.getWebCamSide().setFrameProcessor(new WebCam.FrameProcessor() {
             @Override
-            public void processFrame(Mat input, Mat output) {
+            public void processFrame(Mat input, Mat output, FrameContext frameContext) {
 
                 if (!calibrationMode) {
 
@@ -106,10 +113,10 @@ public class WebCamCalibration extends BaseTeleOp {
                     }
 
                 } else {
-                    Position topLeft = descriptor.webCamImageTopLeftCornerCoordinates;
-                    Position topRight = descriptor.webCamImageTopRightCornerCoordinates;
-                    Position bottomLeft = descriptor.webCamImageBottomLeftCornerCoordinates;
-                    Position bottomRight = descriptor.webCamImageBottomRightCornerCoordinates;
+                    Position topLeft = webCamDescriptor.topLeft.robot;
+                    Position topRight = webCamDescriptor.topRight.robot;
+                    Position bottomLeft = webCamDescriptor.bottomLeft.robot;
+                    Position bottomRight = webCamDescriptor.bottomRight.robot;
 
                     Viewport viewport = new Viewport(
                             resolution.width, resolution.height,

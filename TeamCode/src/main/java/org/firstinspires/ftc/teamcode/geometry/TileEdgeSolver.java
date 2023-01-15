@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.geometry;
 
-import static org.firstinspires.ftc.teamcode.util.FormatUtil.*;
+import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamOrientation.FRONT_FIELD;
+import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamOrientation.RIGHT_SIDE_FIELD;
+import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamDescriptor;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 import org.opencv.core.Size;
@@ -16,16 +19,18 @@ public class TileEdgeSolver {
 
     private RobotContext context;
     private RobotDescriptor descriptor;
+    private WebCamDescriptor webCamDescriptor;
 
     /**
-     * The maximum angle between an observed line and the expected location of that line.  If the line falls outside
-     * this boundary then we will discard it.
+     * The maximum angle between an observed line and the expected location of that line.  If the
+     * line falls outside this boundary then we will discard it.
      */
     public double expectedTileEdgeAngleThreshold = 15;
 
-    public TileEdgeSolver(RobotContext context) {
+    public TileEdgeSolver(RobotContext context, WebCamDescriptor webCamDescriptor) {
         this.context = context;
         this.descriptor = context.robotDescriptor;
+        this.webCamDescriptor = webCamDescriptor;
     }
 
     /**
@@ -39,13 +44,13 @@ public class TileEdgeSolver {
      */
     public TileEdgeObservation solve(List<Line> webCamLines) {
 
-        Size resolution = descriptor.webCamResolution;
+        Size resolution = webCamDescriptor.resolution;
 
         // Convert the webcam corners to coordinates that are relative to the center of the robot.
-        Position topLeft = convertFromImageCalibrationSpaceToRobotCenterSpace(descriptor.webCamImageTopLeftCornerCoordinates);
-        Position topRight = convertFromImageCalibrationSpaceToRobotCenterSpace(descriptor.webCamImageTopRightCornerCoordinates);
-        Position bottomLeft = convertFromImageCalibrationSpaceToRobotCenterSpace(descriptor.webCamImageBottomLeftCornerCoordinates);
-        Position bottomRight = convertFromImageCalibrationSpaceToRobotCenterSpace(descriptor.webCamImageBottomRightCornerCoordinates);
+        Position topLeft = convertFromWebCamFieldSpaceToRobotSpace(webCamDescriptor.topLeft.robot);
+        Position topRight = convertFromWebCamFieldSpaceToRobotSpace(webCamDescriptor.topRight.robot);
+        Position bottomLeft = convertFromWebCamFieldSpaceToRobotSpace(webCamDescriptor.bottomLeft.robot);
+        Position bottomRight = convertFromWebCamFieldSpaceToRobotSpace(webCamDescriptor.bottomRight.robot);
 
         Viewport viewport = new Viewport(
                 resolution.width, resolution.height,
@@ -140,30 +145,46 @@ public class TileEdgeSolver {
     }
 
     /**
-     * Converts a position from the image calibration coordinate space to robot center coordinate space.
+     * Converts a position from the webcam field coordinate space to robot center coordinate space.
      * <p>
-     * Image calibration space is convenient for measuring the bounds of the webcam.  It has its origin at the
+     * Webcam field space is convenient for measuring the bounds of the webcam.  It has its origin at the
      * right-front corner of the robot, is oriented with the y-axis pointing out to the right side of the robot,
      * and is measured in inches.  WebCam coordinates found in RobotDescriptor are specified in Image Calibration Space.
      * <p>
      * Robot center space has its origin at the center of the robot, is oriented with the y-axis pointing toward the
      * front of the robot, and is measured in tiles.
      */
-    public Position convertFromImageCalibrationSpaceToRobotCenterSpace(Position position) {
+    public Position convertFromWebCamFieldSpaceToRobotSpace(Position position) {
         // Rotate the coordinates so they are facing the front of the robot instead of to the right.
-        Position rotated = new Position(
-                position.getY(),
-                -position.getX()
-        );
+        Position fromRobotCenter;
+        if (webCamDescriptor.orientation == RIGHT_SIDE_FIELD) {
+            Position rotated = new Position(
+                    position.getY(),
+                    -position.getX()
+            );
 
-        // Translate the coordinates to robot center.
-        Vector2 robotCenterToRobotRight = new Vector2(
-                descriptor.robotDimensionsInInches.width / 2,
-                descriptor.robotDimensionsInInches.height / 2
-        );
+            // Translate the coordinates to robot center.
+            Vector2 robotCenterToRobotFrontRight = new Vector2(
+                    descriptor.robotDimensionsInInches.width / 2,
+                    descriptor.robotDimensionsInInches.height / 2
+            );
 
-        // New coordinates in inches from robot center.
-        Position fromRobotCenter = rotated.add(robotCenterToRobotRight);
+            // New coordinates in inches from robot center.
+            fromRobotCenter = rotated.add(robotCenterToRobotFrontRight);
+
+        } else if (webCamDescriptor.orientation == FRONT_FIELD){
+            // Translate the coordinates to robot center.
+            Vector2 robotCenterToRobotFrontLeft = new Vector2(
+                    -descriptor.robotDimensionsInInches.width / 2,
+                    descriptor.robotDimensionsInInches.height / 2
+            );
+
+            // New coordinates in inches from robot center.
+            fromRobotCenter = position.add(robotCenterToRobotFrontLeft);
+
+        } else {
+            throw new IllegalArgumentException();
+        }
 
         // Convert from inches to tiles.
         Position fromRobotCenterInTiles = new Position(

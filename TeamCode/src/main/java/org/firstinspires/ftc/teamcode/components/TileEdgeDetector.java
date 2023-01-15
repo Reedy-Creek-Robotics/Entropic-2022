@@ -10,12 +10,13 @@ import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.components.WebCam.FrameContext;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
-import org.firstinspires.ftc.teamcode.util.FormatUtil;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -37,12 +38,17 @@ public class TileEdgeDetector extends BaseComponent {
     private WebCam webCam;
 
     /**
-     * The detector for finding lines in the webcam image.
+     * Describes the location and physical characteristics of the webcam.
+     */
+    private RobotDescriptor.WebCamDescriptor webCamDescriptor;
+
+    /**
+     * The detector for finding horizontal lines in the webcam image.
      */
     private HoughLineDetector houghLineDetectorHorizontal;
 
     /**
-     * The detector for finding lines in the webcam image.
+     * The detector for finding vertical lines in the webcam image.
      */
     private HoughLineDetector houghLineDetectorVertical;
 
@@ -52,27 +58,37 @@ public class TileEdgeDetector extends BaseComponent {
     private TileEdgeSolver tileEdgeSolver;
 
     /**
-     * The most recently acquired observation, or null if nothing has been observed yet.
+     * The most recently acquired observation.
      */
     private TileEdgeObservation observation;
 
+    /**
+     * Aggregates observations from multiple webcams to provide the most current observation data.
+     */
+    private TileEdgeObservationAggregator aggregator;
 
     private FrameProcessor frameProcessor;
 
-    public TileEdgeDetector(RobotContext context, WebCam webCam) {
+    public TileEdgeDetector(
+            RobotContext context,
+            WebCam webCam,
+            TileEdgeObservationAggregator aggregator
+    ) {
         super(context);
         this.webCam = webCam;
+        this.webCamDescriptor = webCam.getWebCamDescriptor();
+        this.aggregator = aggregator;
         reset();
     }
 
     @Override
     public void init() {
-        Size resolution = robotDescriptor.webCamResolution;
+        Size resolution = webCam.getResolution();
 
-        double verticalInches = Math.abs(robotDescriptor.webCamImageTopLeftCornerCoordinates.minus(
-                robotDescriptor.webCamImageBottomLeftCornerCoordinates).getY());
-        double horizontalInches = Math.abs(robotDescriptor.webCamImageTopRightCornerCoordinates.minus(
-                robotDescriptor.webCamImageTopLeftCornerCoordinates).getX());
+        double verticalInches = Math.abs(webCamDescriptor.topLeft.robot.minus(
+                webCamDescriptor.bottomLeft.robot).getY());
+        double horizontalInches = Math.abs(webCamDescriptor.topRight.robot.minus(
+                webCamDescriptor.topLeft.robot).getX());
         double verticalPixelsPerInch = resolution.height / verticalInches;
         double horizontalPixelsPerInch = resolution.width / horizontalInches;
 
@@ -92,7 +108,7 @@ public class TileEdgeDetector extends BaseComponent {
         verticalParameters.pixelVoterThreshold = 90; //(int) (resolution.height * (1.0 / 4.0));
         this.houghLineDetectorVertical = new HoughLineDetector(verticalParameters);
 
-        this.tileEdgeSolver = new TileEdgeSolver(context);
+        this.tileEdgeSolver = new TileEdgeSolver(context, webCamDescriptor);
     }
 
     public HoughLineDetector getHoughLineDetectorHorizontal() {
@@ -115,7 +131,7 @@ public class TileEdgeDetector extends BaseComponent {
     public void deactivate() {
         webCam.removeFrameProcessor();
         frameProcessor = null;
-        observation = null;
+        reset();
     }
 
     /**
@@ -125,22 +141,8 @@ public class TileEdgeDetector extends BaseComponent {
         return observation != null;
     }
 
-    /**
-     * Waits for some amount of time for a successful tile edge detection.
-     *
-     * @param maxTime the maximum time to wait in seconds.
-     * @return true if an edge was detected, false if maxTime was exceeded without detection.
-     */
-    public boolean waitForDetection(double maxTime) {
-        ElapsedTime time = new ElapsedTime();
-        while (!isDetected() && time.seconds() < maxTime && !isStopRequested()) {
-            sleep(25);
-        }
-        return isDetected();
-    }
-
     public void reset() {
-        observation = null;
+        aggregator.reset();
     }
 
     public TileEdgeObservation getObservation() {
@@ -151,24 +153,25 @@ public class TileEdgeDetector extends BaseComponent {
 
         @SuppressLint("DefaultLocale")
         @Override
-        public void processFrame(Mat input, Mat output) {
+        public void processFrame(Mat input, Mat output, FrameContext frameContext) {
 
             // Remember the time of the current frame capture as early as possible (before all the math).
             ElapsedTime beginFrameTime = new ElapsedTime();
 
             List<Line> lines = new ArrayList<>();
             for (HoughLine houghLine : houghLineDetectorHorizontal.detectLines(input)) {
-                lines.add(houghLine.toLine(robotDescriptor.webCamResolution));
+                lines.add(houghLine.toLine(webCam.getResolution()));
             }
             for (HoughLine houghLine : houghLineDetectorVertical.detectLines(input)) {
-                lines.add(houghLine.toLine(robotDescriptor.webCamResolution));
+                lines.add(houghLine.toLine(webCam.getResolution()));
             }
 
             TileEdgeObservation observation = tileEdgeSolver.solve(lines);
 
             if (context.robotPositionProvider != null) {
                 Position position = context.robotPositionProvider.getPosition();
-                DrawUtil.drawText(output, "Position " + position.toString(2), new Position(50, 140), Color.ORANGE, 0.5, 1);
+                DrawUtil.drawText(output, "Position " + position.toString(2),
+                        new Position(50, 140), Color.ORANGE, 0.5, 1);
             }
 
             if (observation != null) {
@@ -176,7 +179,27 @@ public class TileEdgeDetector extends BaseComponent {
                 observation.setObservationTime(beginFrameTime);
                 TileEdgeDetector.this.observation = observation;
 
-                // Draw the observation details on the screen.
+                // If there is an aggregator, also add this observation to it.
+                aggregator.add(observation);
+
+            } else {
+                // Keep the previous detection results if they are still within the previous detection threshold,
+                // This helps in case we skip a frame or two for some reason.
+                // Otherwise, discard the result so we no longer have a detection.
+                TileEdgeObservation previousObservation = TileEdgeDetector.this.observation;
+                if (previousObservation != null && previousObservation.observationTime.seconds() > PREVIOUS_DETECTION_THRESHOLD) {
+                    reset();
+                }
+            }
+
+            // Draw the observation details on the screen.
+            if (webCam.isStreaming()) {
+                drawOutput(output, aggregator.getAggregateObservation());
+            }
+        }
+
+        private void drawOutput(Mat output, TileEdgeObservation observation) {
+            if (observation != null && aggregator != null) {
                 for (Line badLine : observation.badLines) {
                     DrawUtil.drawLine(output, badLine, Color.BLACK);
                 }
@@ -191,29 +214,81 @@ public class TileEdgeDetector extends BaseComponent {
                 }
 
                 String distanceRightInches = observation.distanceRight != null ?
-                        format(tilesToInches(observation.distanceRight) - robotDescriptor.robotDimensionsInInches.width / 2, 1) + " in" :
+                        format(tilesToInches(observation.distanceRight) -
+                                robotDescriptor.robotDimensionsInInches.width / 2, 1) +
+                                " in, [" + aggregator.countRight + " obs]" :
                         "___";
                 String distanceFrontInches = observation.distanceFront != null ?
-                        format(tilesToInches(observation.distanceFront) - robotDescriptor.robotDimensionsInInches.height / 2, 1) + " in" :
+                        format(tilesToInches(observation.distanceFront) -
+                                robotDescriptor.robotDimensionsInInches.height / 2, 1) +
+                                " in, [" + aggregator.countFront + " obs]" :
                         "___";
                 String headingOffset = observation.headingOffset != null ?
-                        format(observation.headingOffset, 1) :
+                        format(observation.headingOffset, 1) +
+                                " deg, [" + aggregator.countHeading + "]" :
                         "___";
 
                 DrawUtil.drawText(output, "DR " + distanceRightInches, new Position(50, 20), Color.ORANGE, 0.5, 1);
                 DrawUtil.drawText(output, "DF " + distanceFrontInches, new Position(50, 50), Color.ORANGE, 0.5, 1);
                 DrawUtil.drawText(output, "Heading " + headingOffset, new Position(50, 80), Color.ORANGE, 0.5, 1);
-                DrawUtil.drawText(output, format(observation.observationTime.seconds()) + " s", new Position(50, 110), Color.ORANGE, 0.5, 1);
+            }
+        }
 
-            } else {
-                // Keep the previous detection results if they are still within the previous detection threshold,
-                // This helps in case we skip a frame or two for some reason.
-                // Otherwise, discard the result so we no longer have a detection.
-                TileEdgeObservation previousObservation = TileEdgeDetector.this.observation;
-                if (previousObservation != null && previousObservation.observationTime.seconds() > PREVIOUS_DETECTION_THRESHOLD) {
-                    reset();
+    }
+
+    public static class TileEdgeObservationAggregator {
+
+        private TileEdgeObservation aggregate;
+        private int countRight;
+        private int countFront;
+        private int countHeading;
+
+        public synchronized void add(TileEdgeObservation observation) {
+            if (observation == null) return;
+
+            if (aggregate == null) {
+                aggregate = new TileEdgeObservation();
+            }
+
+            aggregate.observationTime = observation.observationTime;
+
+            if (observation.distanceRight != null) {
+                countRight++;
+                if (aggregate.distanceRight != null) {
+                    aggregate.distanceRight = (observation.distanceRight + (aggregate.distanceRight * (countRight - 1))) / countRight;
+                } else {
+                    aggregate.distanceRight = observation.distanceRight;
                 }
             }
+
+            if (observation.distanceFront != null) {
+                countFront++;
+                if (aggregate.distanceFront != null) {
+                    aggregate.distanceFront = (observation.distanceFront + (aggregate.distanceFront * (countFront - 1))) / countFront;
+                } else {
+                    aggregate.distanceFront = observation.distanceFront;
+                }
+            }
+
+            if (observation.headingOffset != null) {
+                countHeading++;
+                if (aggregate.headingOffset != null) {
+                    aggregate.headingOffset = (observation.headingOffset + (aggregate.headingOffset * (countHeading - 1))) / countHeading;
+                } else {
+                    aggregate.headingOffset = observation.headingOffset;
+                }
+            }
+        }
+
+        public synchronized void reset() {
+            aggregate = null;
+            countRight = 0;
+            countFront = 0;
+            countHeading = 0;
+        }
+
+        public TileEdgeObservation getAggregateObservation() {
+            return aggregate;
         }
 
     }

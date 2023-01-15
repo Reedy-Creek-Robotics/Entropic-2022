@@ -23,6 +23,7 @@ public class Robot extends BaseComponent {
     private static final double VOLTAGE_WARNING_THRESHOLD = 12.3;
 
     private DriveTrain driveTrain;
+    private WebCam webCamAprilTag;
     private WebCam webCamSide;
     private WebCam webCamFront;
     private AprilTagDetector aprilTagDetector;
@@ -38,6 +39,7 @@ public class Robot extends BaseComponent {
     public enum CameraMode {
         DISABLED,
         ENABLED,
+        ENABLED_AND_STREAMING_APRIL,
         ENABLED_AND_STREAMING_SIDE,
         ENABLED_AND_STREAMING_FRONT;
 
@@ -49,21 +51,23 @@ public class Robot extends BaseComponent {
     public Robot(OpMode opMode, CameraMode cameraMode) {
         super(createRobotContext(opMode));
 
+        this.webCamAprilTag = new WebCam(
+                context, robotDescriptor.webCamAprilTagDescriptor,
+                cameraMode == CameraMode.ENABLED_AND_STREAMING_APRIL
+        );
         this.webCamSide = new WebCam(
-                context, "WebCamSide",
-                cameraMode == CameraMode.ENABLED_AND_STREAMING_SIDE,
-                robotDescriptor.webCamResolution
+                context, robotDescriptor.webCamSideDescriptor,
+                cameraMode == CameraMode.ENABLED_AND_STREAMING_SIDE
         );
         this.webCamFront = new WebCam(
-                context, "WebCamFront",
-                cameraMode == CameraMode.ENABLED_AND_STREAMING_FRONT,
-                robotDescriptor.webCamResolution
+                context, robotDescriptor.webCamFrontDescriptor,
+                cameraMode == CameraMode.ENABLED_AND_STREAMING_FRONT
         );
 
-        this.driveTrain = new DriveTrain(context, webCamSide);
+        this.driveTrain = new DriveTrain(context, webCamSide, webCamFront);
         getRobotContext().robotPositionProvider = driveTrain;
 
-        this.aprilTagDetector = new AprilTagDetector(context, webCamFront);
+        this.aprilTagDetector = new AprilTagDetector(context, webCamAprilTag);
 
         this.turret = new Turret(context, new Turret.SafetyCheck() {
             @Override

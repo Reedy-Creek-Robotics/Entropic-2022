@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamAnchorPoint.anchor;
+
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.opencv.core.Size;
 
@@ -97,26 +99,40 @@ public class RobotDescriptor {
     public boolean enableEmpiricalStrafeCorrection = true;
 
     /**
-     * The resolution of the side web cam, in pixels.
+     * The webcam used for detecting April tags.
      */
-    public Size webCamResolution = new Size(640, 360);
+    public WebCamDescriptor webCamAprilTagDescriptor = new WebCamDescriptor(
+            "WebCamAprilTag",
+            WebCamOrientation.FRONT_FORWARD
+    );
 
     /**
-     * The exposure duration for the webcam in milliseconds.
+     * The webcam used for detecting tile edges on the right side.
      */
-    public long webCamExposureMs = 15;
+    public WebCamDescriptor webCamSideDescriptor = new WebCamDescriptor(
+            "WebCamSide",
+            WebCamOrientation.RIGHT_SIDE_FIELD,
+            anchor(new Position(0, 0), new Position(-0.157, 10.613)),
+            anchor(new Position(640, 0), new Position(17.083, 10.651)),
+            anchor(new Position(0, 360), new Position(1.778, 0.901)),
+            anchor(new Position(640, 360), new Position(15.591, 1.285))
+    );
 
     /**
-     * The coordinates in inches from the front right corner of the robot, to the top left pixel in the webcam's vision.
+     * The webcam used for detecting tile edges on the right side.
      */
-    public Position webCamImageTopLeftCornerCoordinates = new Position(-0.157, 10.613);
-    public Position webCamImageTopRightCornerCoordinates = new Position(17.083, 10.651);
-    public Position webCamImageBottomLeftCornerCoordinates = new Position(1.778, 0.901);
-    public Position webCamImageBottomRightCornerCoordinates = new Position(15.591, 1.285);
+    public WebCamDescriptor webCamFrontDescriptor = new WebCamDescriptor(
+            "WebCamFront",
+            WebCamOrientation.FRONT_FIELD,
+            anchor(new Position(0, 0), new Position(-0.157, 10.613)),
+            anchor(new Position(640, 0), new Position(17.083, 10.651)),
+            anchor(new Position(0, 360), new Position(1.778, 0.901)),
+            anchor(new Position(640, 360), new Position(15.591, 1.285))
+    );
 
     /**
      * An empirically measured strafe correction value for a given motor power.
-     *
+     * <p>
      * Using encoder ticks to track position will lead to inaccuracy for lateral movement due to
      * wheel slippage inherent in mecanum wheels.  This slippage tends to be higher with higher
      * motor power.  By measuring the amount of slippage at various motor powers we can correct
@@ -141,6 +157,103 @@ public class RobotDescriptor {
             this.motorPower = motorPower;
             this.strafeCorrection = strafeCorrection;
         }
+    }
+
+    public static class WebCamDescriptor {
+
+        /**
+         * The name of the webcam.
+         */
+        public String name;
+
+        /**
+         * The resolution of the side web cam, in pixels.
+         */
+        public Size resolution = new Size(640, 360);
+
+        /**
+         * The exposure duration for the webcam in milliseconds.
+         */
+        public long exposureMs = 15;
+
+        /**
+         * The orientation of the webcam.
+         */
+        public WebCamOrientation orientation;
+
+        /**
+         * For field facing webcams, the list of known anchor points obtained through calibration.
+         */
+        //public List<WebCamAnchorPoint> anchorPoints = new ArrayList<>();
+        public WebCamAnchorPoint topLeft;
+        public WebCamAnchorPoint topRight;
+        public WebCamAnchorPoint bottomLeft;
+        public WebCamAnchorPoint bottomRight;
+
+        public WebCamDescriptor(String name, WebCamOrientation orientation) {
+            this.name = name;
+            this.orientation = orientation;
+        }
+
+        public WebCamDescriptor(
+                String name, WebCamOrientation orientation,
+                WebCamAnchorPoint topLeft, WebCamAnchorPoint topRight,
+                WebCamAnchorPoint bottomLeft, WebCamAnchorPoint bottomRight
+        ) {
+            this.name = name;
+            this.orientation = orientation;
+            this.topLeft = topLeft;
+            this.topRight = topRight;
+            this.bottomLeft = bottomLeft;
+            this.bottomRight = bottomRight;
+        }
+
+    }
+
+    public enum WebCamOrientation {
+
+        /**
+         * The webcam is on the front of the robot, facing forward.
+         */
+        FRONT_FORWARD,
+
+        /**
+         * The webcam is on the front of the robot, facing down at the field.
+         */
+        FRONT_FIELD,
+
+        /**
+         * The webcam is on the right side of the robot, facing down at the field.
+         */
+        RIGHT_SIDE_FIELD
+
+    }
+
+    /**
+     * An empirically measured mapping between the pixel coordinates on the webcam image, and
+     * the coordinates on the field relative to the robot.
+     */
+    public static class WebCamAnchorPoint {
+
+        /**
+         * The pixel position on the image of the anchor point.
+         */
+        public Position image;
+
+        /**
+         * The position measured in inches from the corner of the robot.
+         */
+        public Position robot;
+
+        public WebCamAnchorPoint(Position image, Position robot) {
+            this.image = image;
+            this.robot = robot;
+        }
+
+        public static WebCamAnchorPoint anchor(Position image, Position robot) {
+            return new WebCamAnchorPoint(image, robot);
+        }
+
     }
 
 }

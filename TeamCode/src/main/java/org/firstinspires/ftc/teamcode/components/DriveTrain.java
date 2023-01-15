@@ -21,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.components.RobotContext.RobotPositionProvider;
+import org.firstinspires.ftc.teamcode.components.TileEdgeDetector.TileEdgeObservationAggregator;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Field.Direction;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
@@ -45,6 +46,16 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * Detects tile edges to provide empirical correction to the robot's position and heading.
      */
     private TileEdgeDetector tileEdgeDetectorSide;
+
+    /**
+     * Detects tile edges to provide empirical correction to the robot's position and heading.
+     */
+    private TileEdgeDetector tileEdgeDetectorFront;
+
+    /**
+     * Aggregates tile edge observations.
+     */
+    private TileEdgeObservationAggregator tileEdgeAggregator;
 
     /**
      * The hardware for the drive train
@@ -97,17 +108,12 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     private ElapsedTime previousUpdateTime;
 
     /**
-     * The previously seen tile edge observation.  We don't want to apply the same observation twice.
-     */
-    private TileEdgeSolver.TileEdgeObservation previousObservation;
-
-    /**
      * Statistics about Hough tile edge correction.
      */
     private HoughStatistics houghStatistics = new HoughStatistics();
 
 
-    public DriveTrain(RobotContext context, WebCam webCamSide) {
+    public DriveTrain(RobotContext context, WebCam webCamSide, WebCam webCamFront) {
         super(context);
 
         frontLeft = (DcMotorEx) hardwareMap.dcMotor.get("FrontLeft");
@@ -118,11 +124,13 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
-        tileEdgeDetectorSide = new TileEdgeDetector(context, webCamSide);
-        addSubComponents(tileEdgeDetectorSide);
+        tileEdgeAggregator = new TileEdgeObservationAggregator();
+        tileEdgeDetectorSide = new TileEdgeDetector(context, webCamSide, tileEdgeAggregator);
+        tileEdgeDetectorFront = new TileEdgeDetector(context, webCamFront, tileEdgeAggregator);
+        addSubComponents(tileEdgeDetectorSide, tileEdgeDetectorSide);
 
         // For now starting position is to be assumed the origin (0, 0)
-        position = new Position(.5, .5);
+        position = new Position(0.5, 0.5);
         heading = new Heading(90);
         velocity = new Vector2(0, 0);
     }
@@ -144,6 +152,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
         // Activate the side tile edge detector immediately
         tileEdgeDetectorSide.activate();
+        tileEdgeDetectorFront.activate();
 
         previousUpdateTime = new ElapsedTime();
     }
@@ -182,6 +191,13 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     }
 
     /**
+     * Return the current position of the robot.
+     */
+    public Position getPosition() {
+        return position;
+    }
+
+    /**
      * Return the heading of the robot as an angle in degrees from (0 - 360).
      */
     public Heading getHeading() {
@@ -189,10 +205,10 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     }
 
     /**
-     * Return the current position of the robot.
+     * Returns the current velocity of the robot.
      */
-    public Position getPosition() {
-        return position;
+    public Vector2 getVelocity() {
+        return velocity;
     }
 
     @Override
@@ -225,9 +241,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         updateCurrentPositionWithMotorTicks();
 
         // Override this with a visual observation from hough code, if there is one.
-        if (velocity != null && velocity.magnitude() < 0.01) {
-            updateCurrentPositionWithTileEdgeObservation();
-        }
+        updateCurrentPositionWithTileEdgeObservation();
     }
 
     private void updateCurrentPositionWithMotorTicks() {
@@ -264,10 +278,16 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     }
 
     private void updateCurrentPositionWithTileEdgeObservation() {
+
+        // If the bot is moving, just reset the aggregation.
+        if (velocity == null || velocity.magnitude() > 0.01) {
+            tileEdgeAggregator.reset();
+            return;
+        }
+
         // Check whether there is an observation, and if we have not yet seen it.
-        TileEdgeSolver.TileEdgeObservation observation = tileEdgeDetectorSide.getObservation();
-        if (observation != null && previousObservation != observation) {
-            previousObservation = observation;
+        TileEdgeSolver.TileEdgeObservation observation = tileEdgeAggregator.getAggregateObservation();
+        if (observation != null) {
 
             // First, compute the expected robot space coordinates using our theoretical position.
             RobotSpaceCoordinates robotSpaceCoordinates = convertToRobotSpace(new FieldSpaceCoordinates(heading, position));
@@ -385,6 +405,23 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         }
 
         previousPosition = position;
+    }
+
+    /**
+     * Activates the tile edge detectors.
+     */
+    public void activateTileEdgeDetection() {
+        tileEdgeDetectorSide.activate();
+        tileEdgeDetectorFront.activate();
+    }
+
+    /**
+     * Deactivates the tile edge detectors.
+     */
+    public void deactivateTileEdgeDetection() {
+        tileEdgeDetectorSide.deactivate();
+        tileEdgeDetectorFront.deactivate();
+        tileEdgeAggregator.reset();
     }
 
     /**

@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static android.os.Environment.getExternalStorageDirectory;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
+import org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamDescriptor;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -34,7 +37,7 @@ public class WebCam extends BaseComponent {
     /**
      * The desired camera resolution.
      */
-    private Size size;
+    private Size resolution;
 
     /**
      * The output that will be rendered to the viewport (in RGBA format).
@@ -52,6 +55,11 @@ public class WebCam extends BaseComponent {
     private int frameCount = 0;
 
     /**
+     * The webcam descriptor.
+     */
+    private WebCamDescriptor webCamDescriptor;
+
+    /**
      * The OpenCV camera device that we are using.
      */
     private OpenCvWebcam camera;
@@ -61,15 +69,11 @@ public class WebCam extends BaseComponent {
      */
     private ExposureControl exposureControl;
 
-    public WebCam(RobotContext context, String cameraName, boolean streamOutput, Size resolution) {
-        super(context);
-        this.cameraName = cameraName;
-        this.streamOutput = streamOutput;
-        this.size = resolution;
-    }
 
-    public WebCam(RobotContext context, String cameraName, boolean streamOutput) {
-        this(context, cameraName, streamOutput, DEFAULT_RESOLUTION);
+    public WebCam(RobotContext context, WebCamDescriptor descriptor, boolean streamOutput) {
+        super(context);
+        this.webCamDescriptor = descriptor;
+        this.streamOutput = streamOutput;
     }
 
     @Override
@@ -89,13 +93,13 @@ public class WebCam extends BaseComponent {
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                camera.startStreaming((int) size.width, (int) size.height, OpenCvCameraRotation.UPRIGHT);
+                camera.startStreaming((int) resolution.width, (int) resolution.height, OpenCvCameraRotation.UPRIGHT);
                 camera.showFpsMeterOnViewport(false);
 
                 // Now that the camera is open the exposure can be adjusted.
                 exposureControl = camera.getExposureControl();
                 exposureControl.setMode(ExposureControl.Mode.Manual);
-                setExposure(robotDescriptor.webCamExposureMs);
+                setExposure(webCamDescriptor.exposureMs);
             }
 
             @Override
@@ -124,10 +128,12 @@ public class WebCam extends BaseComponent {
         return streamOutput;
     }
 
-    public Long getExposure() {
-        return exposureControl != null ?
-                exposureControl.getExposure(TimeUnit.MILLISECONDS) :
-                null;
+    public Size getResolution() {
+        return resolution;
+    }
+
+    public WebCamDescriptor getWebCamDescriptor() {
+        return webCamDescriptor;
     }
 
     public boolean isReady() {
@@ -144,6 +150,14 @@ public class WebCam extends BaseComponent {
         this.frameProcessor = frameProcessor;
     }
 
+    public void removeFrameProcessor() {
+        this.frameProcessor = null;
+    }
+
+    public boolean isStreaming() {
+        return streamOutput;
+    }
+
     /**
      * Sets the exposure of the camera
      *
@@ -153,8 +167,10 @@ public class WebCam extends BaseComponent {
         exposureControl.setExposure(duration, TimeUnit.MILLISECONDS);
     }
 
-    public void removeFrameProcessor() {
-        this.frameProcessor = null;
+    public Long getExposure() {
+        return exposureControl != null ?
+                exposureControl.getExposure(TimeUnit.MILLISECONDS) :
+                null;
     }
 
     private class CameraPipeline extends OpenCvPipeline {
@@ -164,18 +180,21 @@ public class WebCam extends BaseComponent {
 
             synchronized (WebCam.this) {
 
+                FrameContext context = new FrameContext(
+                        new ElapsedTime(),
+                        frameCount++
+                );
+
                 input.copyTo(output);
 
                 // Make sure it is RGBA, and the size that we expect.
-                assert input.width() == (int) size.width && input.height() == (int) size.height;
+                assert input.width() == (int) resolution.width && input.height() == (int) resolution.height;
                 assert input.channels() == 4 : "Expected RGBA image from webcam";
-
-                frameCount++;
 
                 // Allow any frame processors to analyze the image and annotate the output.
                 if (frameProcessor != null) {
                     try {
-                        frameProcessor.processFrame(input, output);
+                        frameProcessor.processFrame(input, output, context);
                     } catch (Exception e) {
                         telemetry.addData("Frame Error", ErrorUtil.convertToString(e));
                     }
@@ -196,8 +215,19 @@ public class WebCam extends BaseComponent {
          * @param input  the input frame image, in RGBA.
          * @param output the output image, in RGBA.
          */
-        void processFrame(Mat input, Mat output);
+        void processFrame(Mat input, Mat output, FrameContext frameContext);
 
+    }
+
+    public static class FrameContext {
+
+        public ElapsedTime frameTime;
+        public int frameCount;
+
+        public FrameContext(ElapsedTime frameTime, int frameCount) {
+            this.frameTime = frameTime;
+            this.frameCount = frameCount;
+        }
     }
 
 }

@@ -22,7 +22,7 @@ public class AprilTagCalibration extends BaseTeleOp {
     @Override
     protected Robot.CameraMode getCameraMode() {
         // For AprilTagCalibration stream the front web cam
-        return Robot.CameraMode.ENABLED_AND_STREAMING_FRONT;
+        return Robot.CameraMode.ENABLED_AND_STREAMING_APRIL;
     }
 
     @Override
