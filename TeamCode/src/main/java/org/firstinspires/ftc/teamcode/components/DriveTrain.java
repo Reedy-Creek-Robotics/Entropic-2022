@@ -408,6 +408,13 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     }
 
     /**
+     * Indicates if tile edge detection is active.
+     */
+    public boolean isTileEdgeDetectionActive() {
+        return tileEdgeDetectorSide.isActive() || tileEdgeDetectorFront.isActive();
+    }
+
+    /**
      * Activates the tile edge detectors.
      */
     public void activateTileEdgeDetection() {
@@ -434,13 +441,13 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         boolean active = tileEdgeDetectorSide.isActive();
         if (!active) {
             // Activate the tile edge detector if it's not turned on.
-            tileEdgeDetectorSide.activate();
+            activateTileEdgeDetection();
         }
 
         // Wait for up to the requested time until we have a valid observation.
         ElapsedTime waitTime = new ElapsedTime();
         while (!isStopRequested() && waitTime.seconds() < maxTime) {
-            TileEdgeSolver.TileEdgeObservation observation = tileEdgeDetectorSide.getObservation();
+            TileEdgeSolver.TileEdgeObservation observation = tileEdgeAggregator.getAggregateObservation();
             if (observation != null && observation.distanceRight != null) {
                 sleep(5);
             }
@@ -448,7 +455,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
         if (!active) {
             // If we turned on edge detection just for this method, now disable it.
-            tileEdgeDetectorSide.deactivate();
+            deactivateTileEdgeDetection();
         }
     }
 

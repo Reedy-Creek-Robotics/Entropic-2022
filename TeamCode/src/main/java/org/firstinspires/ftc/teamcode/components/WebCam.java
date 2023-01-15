@@ -22,22 +22,15 @@ import java.util.concurrent.TimeUnit;
 
 public class WebCam extends BaseComponent {
 
-    public static final Size DEFAULT_RESOLUTION = new Size(640, 360);
-
     /**
-     * The webcam name from the Rev control configuration.
+     * The webcam descriptor.
      */
-    private String cameraName;
+    private WebCamDescriptor webCamDescriptor;
 
     /**
      * Indicates if output should be streamed to the monitor.
      */
     private boolean streamOutput;
-
-    /**
-     * The desired camera resolution.
-     */
-    private Size resolution;
 
     /**
      * The output that will be rendered to the viewport (in RGBA format).
@@ -53,11 +46,6 @@ public class WebCam extends BaseComponent {
      * The number of frames that have been processed.
      */
     private int frameCount = 0;
-
-    /**
-     * The webcam descriptor.
-     */
-    private WebCamDescriptor webCamDescriptor;
 
     /**
      * The OpenCV camera device that we are using.
@@ -79,7 +67,9 @@ public class WebCam extends BaseComponent {
     @Override
     public void init() {
 
-        WebcamName webcamName = hardwareMap.get(WebcamName.class, this.cameraName);
+        String name = webCamDescriptor.name;
+        Size resolution = webCamDescriptor.resolution;
+        WebcamName webcamName = hardwareMap.get(WebcamName.class, name);
 
         if (streamOutput) {
             int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
@@ -109,6 +99,10 @@ public class WebCam extends BaseComponent {
         });
     }
 
+    public void stop() {
+        camera.setPipeline(null);
+    }
+
     public synchronized void saveLastFrame() {
         String filename = getExternalStorageDirectory() + "/webcam-frame-" +
                 new Date().toString().replace(' ', '-') +
@@ -129,7 +123,7 @@ public class WebCam extends BaseComponent {
     }
 
     public Size getResolution() {
-        return resolution;
+        return webCamDescriptor.resolution;
     }
 
     public WebCamDescriptor getWebCamDescriptor() {
@@ -188,6 +182,7 @@ public class WebCam extends BaseComponent {
                 input.copyTo(output);
 
                 // Make sure it is RGBA, and the size that we expect.
+                Size resolution = webCamDescriptor.resolution;
                 assert input.width() == (int) resolution.width && input.height() == (int) resolution.height;
                 assert input.channels() == 4 : "Expected RGBA image from webcam";
 

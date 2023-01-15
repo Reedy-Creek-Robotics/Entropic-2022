@@ -68,7 +68,7 @@ public class AutoMainLeft extends AutoMain {
         //getNewCone();
         //deliverToPole(Pole.HIGH);
 
-        robot.getDriveTrain().moveToTargetPosition(new Position(robot.getDriveTrain().getPosition().getX(),1.5),BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(robot.getDriveTrain().getPosition().getX(),2.5),BASE_SPEED);
         park();
 
         //getNewCone();
@@ -164,7 +164,7 @@ public class AutoMainLeft extends AutoMain {
 
     private void park() {
         // April tag position is
-        robot.getDriveTrain().moveToTargetPosition(new Position(.5 + (getAprilTagPosition() - 1), 1.5), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(.5 + (getAprilTagPosition() - 1), 2.5), BASE_SPEED);
         robot.getSlide().moveToHeight(INTAKE);
         robot.waitForCommandsToFinish();
     }
