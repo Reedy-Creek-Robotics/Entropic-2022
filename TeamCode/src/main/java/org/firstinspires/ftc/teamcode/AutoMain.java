@@ -62,7 +62,7 @@ public abstract class AutoMain extends LinearOpMode {
     protected abstract void runAutoPath();
 
     protected void initRobot() {
-        robot = new Robot(this);
+        robot = new Robot(this, Robot.CameraMode.ENABLED_AND_STREAMING_SIDE);
         robot.init();
         robotDescriptor = robot.getRobotContext().robotDescriptor;
 

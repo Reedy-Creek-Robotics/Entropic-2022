@@ -56,10 +56,11 @@ public class AutoMainLeft extends AutoMain {
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.75), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
-        //robot.getDriveTrain().waitForTileEdgeDetection(1.0);
         robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
+
+        robot.getDriveTrain().waitForTileEdgeDetection(1.0);
 
         getNewCone();
         deliverToPole(Pole.HIGH);
@@ -105,6 +106,7 @@ public class AutoMainLeft extends AutoMain {
             robot.getDriveTrain().moveToTargetPosition(new Position(2,2.60), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
+
             //todo: uncomment
             //robot.getSlide().moveDeliverOffset();
             //robot.waitForCommandsToFinish();
@@ -116,7 +118,6 @@ public class AutoMainLeft extends AutoMain {
             robot.waitForCommandsToFinish(.5);
             robot.getSlide().moveToHeight(TRAVEL);
 
-
         } else if (pole == Pole.MEDIUM) {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
             robot.getTurret().moveToOrientation(FRONT);
@@ -127,8 +128,10 @@ public class AutoMainLeft extends AutoMain {
             robot.getIntake().outtake(0.5);
             robot.waitForCommandsToFinish();
 
-            robot.getSlide().moveToHeight(TRAVEL);
             robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), new Heading(0), BASE_SPEED);
+            robot.waitForCommandsToFinish(.5);
+            robot.getSlide().moveToHeight(TRAVEL);
+
         } else if (pole == Pole.LOW) {
             robot.getSlide().moveToHeight(SMALL_POLE);
             robot.getTurret().moveToOrientation(FRONT);
@@ -154,8 +157,9 @@ public class AutoMainLeft extends AutoMain {
             robot.getSlide().moveToHeight(TRAVEL);
             robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), new Heading(0), BASE_SPEED);
         }
-        //robot.getDriveTrain().waitForTileEdgeDetection(1.0);
+
         robot.waitForCommandsToFinish();
+        robot.getDriveTrain().waitForTileEdgeDetection(1.0);
     }
 
     private void park() {

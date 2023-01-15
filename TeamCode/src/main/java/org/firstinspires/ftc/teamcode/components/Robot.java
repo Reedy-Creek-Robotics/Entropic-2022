@@ -166,6 +166,16 @@ public class Robot extends BaseComponent {
     }
 
     /**
+     * Makes the robot not perform any additional commands until the idle time is finished
+     */
+    public void idle(double idleTime) {
+        ElapsedTime time = new ElapsedTime();
+        while (!isStopRequested() && time.seconds() < idleTime) {
+            updateStatus();
+        }
+    }
+
+    /**
      * Idle until the opMode is stopped.
      */
     public void waitForStop() {

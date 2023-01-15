@@ -28,13 +28,10 @@ public class AutoMainRight extends AutoMain {
         robot.getDriveTrain().moveToTargetPosition(new Position(4.5, .5), BASE_SPEED);
 
         //move to medium pole and prepare to drop off
-        //robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2), new Heading(180), BASE_SPEED);
-        robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2.2), new Heading(180), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2), new Heading(180), BASE_SPEED);
         robot.getTurret().moveToOrientation(FRONT);
         robot.getSlide().moveToHeight(MEDIUM_POLE);
         robot.waitForCommandsToFinish();
-
-        robot.getDriveTrain().setPosition(new Position(4.5, 2));
 
         //drop off pole
         robot.getDriveTrain().moveToTargetPosition(new Position(4.45, 2), BASE_SPEED);
