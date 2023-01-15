@@ -42,9 +42,13 @@ public class AutoMainLeft extends AutoMain {
         // Wait until we get an observation to make sure we are where we expect
 
         //drop off pole
-        robot.getDriveTrain().moveToTargetPosition(new Position(1.55, 2), BASE_SPEED);
-        robot.getSlide().moveDeliverOffset(true);
+        robot.getDriveTrain().moveToTargetPosition(new Position(1.575, 2), BASE_SPEED);
         robot.waitForCommandsToFinish();
+
+        //todo: add together deliver offset and outtake
+        robot.getSlide().moveDeliverOffset();
+        robot.waitForCommandsToFinish();
+
         robot.getIntake().outtake(1);
         robot.waitForCommandsToFinish();
 
@@ -52,7 +56,7 @@ public class AutoMainLeft extends AutoMain {
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.75), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
-        robot.getDriveTrain().waitForTileEdgeDetection(1.0);
+        //robot.getDriveTrain().waitForTileEdgeDetection(1.0);
         robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
@@ -60,8 +64,8 @@ public class AutoMainLeft extends AutoMain {
         getNewCone();
         deliverToPole(Pole.HIGH);
 
-        getNewCone();
-        deliverToPole(Pole.HIGH);
+        //getNewCone();
+        //deliverToPole(Pole.HIGH);
 
         robot.getDriveTrain().moveToTargetPosition(new Position(robot.getDriveTrain().getPosition().getX(),1.5),BASE_SPEED);
         park();
@@ -80,7 +84,7 @@ public class AutoMainLeft extends AutoMain {
         //intake
         robot.getSlide().moveToIntake(coneCount);
         coneCount--;
-        robot.getIntake().intake(1);
+        robot.getIntake().intake(1.5);
         robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(10), 2.5), .3);
         robot.waitForCommandsToFinish();
 
@@ -101,14 +105,17 @@ public class AutoMainLeft extends AutoMain {
             robot.getDriveTrain().moveToTargetPosition(new Position(2,2.60), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            //robot.getSlide().moveDeliverOffset(true);
+            //todo: uncomment
+            //robot.getSlide().moveDeliverOffset();
             //robot.waitForCommandsToFinish();
 
             robot.getIntake().outtake(1);
             robot.waitForCommandsToFinish();
 
-            robot.getSlide().moveToHeight(TRAVEL);
             robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), new Heading(0), BASE_SPEED);
+            robot.waitForCommandsToFinish(.5);
+            robot.getSlide().moveToHeight(TRAVEL);
+
 
         } else if (pole == Pole.MEDIUM) {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
@@ -147,7 +154,7 @@ public class AutoMainLeft extends AutoMain {
             robot.getSlide().moveToHeight(TRAVEL);
             robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), new Heading(0), BASE_SPEED);
         }
-        robot.getDriveTrain().waitForTileEdgeDetection(1.0);
+        //robot.getDriveTrain().waitForTileEdgeDetection(1.0);
         robot.waitForCommandsToFinish();
     }
 

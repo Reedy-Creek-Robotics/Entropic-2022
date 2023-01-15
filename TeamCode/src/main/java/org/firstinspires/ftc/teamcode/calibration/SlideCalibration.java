@@ -52,7 +52,7 @@ public class SlideCalibration extends BaseDrivingTeleOp {
 
         // Manual slide movement
         if (deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
-            deliverer.analogConfig(LEFT_STICK_Y).withMaxValue(slide.getAscendingPower());
+            deliverer.analogConfig(LEFT_STICK_Y).withMaxValue(slide.getManualPower());
             slide.manualSlideMove(deliverer.leftStickY());
         }
 
@@ -77,6 +77,13 @@ public class SlideCalibration extends BaseDrivingTeleOp {
         } else if (deliverer.isPressed(LEFT_BUMPER)) {
             double power = slide.getIdlePower();
             slide.setIdlePower(power - 0.05);
+        }
+        if (driver.isPressed(RIGHT_BUMPER)) {
+            double power = slide.getIdlePower();
+            slide.setManualPower(power + 0.05);
+        } else if (driver.isPressed(LEFT_BUMPER)) {
+            double power = slide.getIdlePower();
+            slide.setManualPower(power - 0.05);
         }
 
         // Lift

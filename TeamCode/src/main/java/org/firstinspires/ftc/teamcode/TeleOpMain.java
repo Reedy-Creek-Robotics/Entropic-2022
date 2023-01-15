@@ -34,7 +34,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
     Orientation turretPosition = Orientation.FRONT;
 
     boolean outTakeOffsetDown = true;
-    boolean outTakeOffsetEnabled = false;
 
     @Override
     protected Robot.CameraMode getCameraMode() {
@@ -49,9 +48,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         robot.loadPositionFromDisk();
 
         deliverer.analogConfig(LEFT_STICK_Y)
-                .withMaxValue(robot.getSlide().getAscendingPower());
-
-
+                .withMaxValue(robot.getSlide().getManualPower());
     }
 
     @Override
@@ -72,39 +69,27 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         if (deliverer.isPressed(LEFT_STICK_Y)) {
             robot.getSlide().manualSlideMove(deliverer.leftStickY());
         } else if (deliverer.isPressed(RIGHT_STICK_BUTTON)) {
-            outTakeOffsetEnabled = false;
             robot.getSlide().moveToHeight(TRAVEL);
         } else if (deliverer.isPressed(LEFT_STICK_BUTTON)) {
-            outTakeOffsetEnabled = false;
             robot.getSlide().moveToHeight(INTAKE);
         } else if (deliverer.isPressed(X)) {
-            outTakeOffsetEnabled = false;
             robot.getSlide().moveToHeight(GROUND_LEVEL);
         } else if (deliverer.isPressed(Y)) {
-            outTakeOffsetDown = true;
-            outTakeOffsetEnabled = true;
             robot.getSlide().moveToHeight(TOP_POLE);
         } else if (deliverer.isPressed(B)) {
-            outTakeOffsetDown = true;
-            outTakeOffsetEnabled = true;
             robot.getSlide().moveToHeight(MEDIUM_POLE);
         } else if (deliverer.isPressed(A)) {
-            outTakeOffsetDown = true;
-            outTakeOffsetEnabled = true;
             robot.getSlide().moveToHeight(SMALL_POLE);
         }
 
-        if(driver.isPressed(RIGHT_STICK_BUTTON) && outTakeOffsetEnabled) {
-            robot.getSlide().moveDeliverOffset(outTakeOffsetDown);
+        if(driver.isPressed(RIGHT_STICK_BUTTON)) {
+            robot.getSlide().moveDeliverOffset();
             outTakeOffsetDown = !outTakeOffsetDown;
         }
 
         // Turret
         Heading heading = robot.getDriveTrain().getHeading();
-        // todo: field relative turret movement
-        if (deliverer.isPressed(RIGHT_STICK_X)) {
-            //turretPosition += deliverer.rightStickX() * 0.05;
-        } else if (deliverer.isPressed(DPAD_UP)) {
+        if (deliverer.isPressed(DPAD_UP)) {
             turretPosition = Turret.getFieldRelativeOrientation(Orientation.FRONT, heading);
         } else if (deliverer.isPressed(DPAD_LEFT)) {
             turretPosition = Turret.getFieldRelativeOrientation(Orientation.LEFT_SIDE, heading);

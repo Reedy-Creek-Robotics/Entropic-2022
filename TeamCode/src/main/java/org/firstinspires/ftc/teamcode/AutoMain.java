@@ -11,7 +11,7 @@ import org.openftc.apriltag.AprilTagDetection;
 
 public abstract class AutoMain extends LinearOpMode {
 
-    protected static final double BASE_SPEED = 1;
+    protected static final double BASE_SPEED = .7;
 
     protected int coneCount = 5;
 
@@ -22,22 +22,37 @@ public abstract class AutoMain extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+        telemetry.log().add("Init robot", "");
+        telemetry.update();
+
         initRobot();
 
+        telemetry.log().add("Wait for start","");
+        telemetry.update();
+
         waitForStart();
+
+        telemetry.log().add("Wait for detections","");
+        telemetry.update();
 
         aprilTagDetection = robot.getAprilTagDetector().waitForDetection(2);
         telemetry.log().add("Detected Tag: " + (aprilTagDetection != null ? aprilTagDetection.id : null));
         telemetry.update();
 
+        telemetry.log().add("deactivating","");
+        telemetry.update();
         robot.getAprilTagDetector().deactivate();
 
+        telemetry.log().add("Moving arm","");
+        telemetry.update();
         robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRAVEL);
         robot.waitForCommandsToFinish();
         robot.getTurret().moveToOrientation(Turret.Orientation.FRONT);
         robot.waitForCommandsToFinish();
 
         // Allow the child class to run its auto path.
+        telemetry.log().add("Running auto path","");
+        telemetry.update();
         runAutoPath();
 
         // Save the position to disk, so it can be picked up by the teleop

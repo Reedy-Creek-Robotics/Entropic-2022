@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.SMALL_POLE;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -8,8 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class LinearSlide extends BaseComponent {
 
-    private static final int TICKS_PER_STACKED_CONE = 140; // todo: calibrate
-    private static final int DELIVER_OFFSET = 250;  // ticks to lower before delivery
+    private static final int TICKS_PER_STACKED_CONE = 100;
+    private static final int DELIVER_OFFSET = 127;  // ticks to lower before delivery //435/4
 
     private static final int TARGET_REACHED_THRESHOLD = 5;
 
@@ -18,16 +19,13 @@ public class LinearSlide extends BaseComponent {
     private static final double MIN_POWER = 0.01;
     private static final int TURRET_SAFETY_LEEWAY = 100;
 
-    private double idlePower = 0.4;
-    private double ascendingPower = 1.0;
-    private double descendingPower = 1.0;
-
     public enum SlideHeight {
-        TOP_POLE(4125),
-        MEDIUM_POLE(2850),
-        SMALL_POLE(1800),
-        GROUND_LEVEL(200),
-        TRAVEL(500),
+        TOP_POLE(2870),
+        MEDIUM_POLE(2050
+        ),
+        SMALL_POLE(1150),
+        GROUND_LEVEL(95),
+        TRAVEL(350),
         INTAKE(0);
 
         private final int ticks;
@@ -36,6 +34,13 @@ public class LinearSlide extends BaseComponent {
             this.ticks = ticks;
         }
     }
+
+    private double idlePower = 0.4;
+    private double ascendingPower = 1.0;
+    private double descendingPower = 1.0;
+    private double manualPower = 0.5;
+
+    private boolean moveDeliverOffsetDown = false;
 
     private DcMotorEx motor;
 
@@ -64,6 +69,10 @@ public class LinearSlide extends BaseComponent {
     public void manualSlideMove(double power) {
         stopAllCommands();
 
+        if (Math.abs(power) > manualPower) {
+            power = manualPower * Math.signum(power);
+        }
+
         if (Math.abs(power) < MIN_POWER ||
                 (power < 0.0 && getPosition() <= MIN_HEIGHT) ||
                 (power > 0.0 && getPosition() >= MAX_HEIGHT)
@@ -75,11 +84,15 @@ public class LinearSlide extends BaseComponent {
         }
     }
 
-    public void moveDeliverOffset(boolean goingDown) {
-        if(goingDown) {
-            moveToTicks(targetPosition -= DELIVER_OFFSET);
-        }else {
-            moveToTicks(targetPosition += DELIVER_OFFSET);
+    //todo: move it lower
+    public void moveDeliverOffset() {
+        if (getPosition() >= SMALL_POLE.ticks) {
+            if (moveDeliverOffsetDown) {
+                moveToTicks(targetPosition -= DELIVER_OFFSET);
+            } else {
+                moveToTicks(targetPosition += DELIVER_OFFSET);
+            }
+            moveDeliverOffsetDown = !moveDeliverOffsetDown;
         }
     }
 
@@ -123,6 +136,9 @@ public class LinearSlide extends BaseComponent {
      * Move the slide to the desired height
      */
     public void moveToHeight(SlideHeight position) {
+        // If the height is at the small pole or above, also reset the deliver offset to move down.
+        moveDeliverOffsetDown = position.ticks > SMALL_POLE.ticks;
+
         moveToTicks(position.ticks);
     }
 
@@ -184,6 +200,14 @@ public class LinearSlide extends BaseComponent {
 
     public void setDescendingPower(double descendingPower) {
         this.descendingPower = descendingPower;
+    }
+
+    public double getManualPower() {
+        return manualPower;
+    }
+
+    public void setManualPower(double manualPower) {
+        this.manualPower = manualPower;
     }
 
     private class MoveToTicks implements Command {
