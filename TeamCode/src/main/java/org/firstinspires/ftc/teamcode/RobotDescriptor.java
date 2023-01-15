@@ -112,10 +112,10 @@ public class RobotDescriptor {
     public WebCamDescriptor webCamSideDescriptor = new WebCamDescriptor(
             "WebCamSide",
             WebCamOrientation.RIGHT_SIDE_FIELD,
-            anchor(new Position(0, 0), new Position(-0.157, 10.613)),
-            anchor(new Position(640, 0), new Position(17.083, 10.651)),
-            anchor(new Position(0, 360), new Position(1.778, 0.901)),
-            anchor(new Position(640, 360), new Position(15.591, 1.285))
+            anchor(new Position(0, 0), new Position(-0.167, 9.701)),
+            anchor(new Position(640, 0), new Position(16.649, 10.136)),
+            anchor(new Position(0, 360), new Position(1.868, 0.401)),
+            anchor(new Position(640, 360), new Position(15.498, 1.047))
     );
 
     /**

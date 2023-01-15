@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.game.Field.Direction.NORTH;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
 import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
@@ -127,7 +126,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         tileEdgeAggregator = new TileEdgeObservationAggregator();
         tileEdgeDetectorSide = new TileEdgeDetector(context, webCamSide, tileEdgeAggregator);
         tileEdgeDetectorFront = new TileEdgeDetector(context, webCamFront, tileEdgeAggregator);
-        addSubComponents(tileEdgeDetectorSide, tileEdgeDetectorSide);
+        addSubComponents(tileEdgeDetectorSide, tileEdgeDetectorFront);
 
         // For now starting position is to be assumed the origin (0, 0)
         position = new Position(0.5, 0.5);
@@ -437,7 +436,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * Note that this method will block, and should only be called when the robot is not doing
      * anything else.  Otherwise, the effects are unpredictable.
      */
-    public void waitForTileEdgeDetection(double maxTime) {
+    public void waitForTileEdgeDetection(double minTime, double maxTime) {
         boolean active = tileEdgeDetectorSide.isActive();
         if (!active) {
             // Activate the tile edge detector if it's not turned on.
@@ -448,9 +447,13 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         ElapsedTime waitTime = new ElapsedTime();
         while (!isStopRequested() && waitTime.seconds() < maxTime) {
             TileEdgeSolver.TileEdgeObservation observation = tileEdgeAggregator.getAggregateObservation();
-            if (observation != null && observation.distanceRight != null) {
-                sleep(5);
+            if (observation != null) {
+                updateCurrentPositionWithTileEdgeObservation();
+                if (waitTime.seconds() > minTime) {
+                    break;
+                }
             }
+            sleep(5);
         }
 
         if (!active) {

@@ -9,12 +9,9 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.teamcode.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamDescriptor;
-import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.firstinspires.ftc.teamcode.components.WebCam.FrameContext;
 import org.firstinspires.ftc.teamcode.geometry.Line;
@@ -187,7 +184,7 @@ public abstract class BaseWebCamCalibration extends BaseTeleOp {
         }
 
         if (controller.leftStickX() != 0.0 || controller.leftStickY() != 0.0) {
-            double moveSpeed = 0.5;
+            double moveSpeed = 5.0;
             activeCornerPoint.viewPosition = activeCornerPoint.viewPosition.add(
                     new Vector2(-controller.leftStickX(), -controller.leftStickY()).multiply(moveSpeed)
             );
