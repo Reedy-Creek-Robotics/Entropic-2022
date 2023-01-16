@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
-import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.A;
 import static org.firstinspires.ftc.teamcode.Controller.Button.B;
@@ -23,7 +22,6 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
@@ -31,14 +29,9 @@ import org.firstinspires.ftc.teamcode.geometry.Heading;
 @TeleOp
 public class TeleOpMain extends BaseDrivingTeleOp {
 
-    Orientation turretPosition = Orientation.FRONT;
+    private Orientation turretPosition = Orientation.FRONT;
 
-    boolean outTakeOffsetDown = true;
-
-    @Override
-    protected Robot.CameraMode getCameraMode() {
-        return Robot.CameraMode.ENABLED_AND_STREAMING_SIDE;
-    }
+    private boolean outTakeOffsetDown = true;
 
     @Override
     public void init() {

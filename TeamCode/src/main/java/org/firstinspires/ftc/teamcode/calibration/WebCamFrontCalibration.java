@@ -2,8 +2,11 @@ package org.firstinspires.ftc.teamcode.calibration;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.components.Robot.Camera;
 import org.firstinspires.ftc.teamcode.components.WebCam;
+
+import java.util.Arrays;
+import java.util.List;
 
 @TeleOp(group = "Calibration")
 public class WebCamFrontCalibration extends BaseWebCamCalibration {
@@ -14,8 +17,8 @@ public class WebCamFrontCalibration extends BaseWebCamCalibration {
     }
 
     @Override
-    protected Robot.CameraMode getCameraMode() {
-        return Robot.CameraMode.ENABLED_AND_STREAMING_FRONT;
+    protected List<Camera> getEnabledCameras() {
+        return Arrays.asList(Camera.FRONT);
     }
 
 }

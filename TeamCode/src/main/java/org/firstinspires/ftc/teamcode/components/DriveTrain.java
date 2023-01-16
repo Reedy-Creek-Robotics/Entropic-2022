@@ -437,7 +437,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * anything else.  Otherwise, the effects are unpredictable.
      */
     public void waitForTileEdgeDetection(double minTime, double maxTime) {
-        boolean active = tileEdgeDetectorSide.isActive();
+        boolean active = isTileEdgeDetectionActive();
         if (!active) {
             // Activate the tile edge detector if it's not turned on.
             activateTileEdgeDetection();
@@ -520,7 +520,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     }
 
     /**
-     * Moves to the given target position and heading
+     * Moves to the given target position and heading.
      *
      * @param targetPosition The target position at which the robot should end.
      * @param targetHeading  The end heading the robot should be oriented at.

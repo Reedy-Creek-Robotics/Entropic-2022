@@ -15,8 +15,8 @@ import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
 
+import java.util.Arrays;
 import java.util.List;
-
 
 public class Robot extends BaseComponent {
 
@@ -36,33 +36,21 @@ public class Robot extends BaseComponent {
     private ElapsedTime initTime;
     private ElapsedTime firstUpdateTime;
 
-    public enum CameraMode {
-        DISABLED,
-        ENABLED,
-        ENABLED_AND_STREAMING_APRIL,
-        ENABLED_AND_STREAMING_SIDE,
-        ENABLED_AND_STREAMING_FRONT;
-
-        public boolean isEnabled() {
-            return this != DISABLED;
-        }
+    public enum Camera {
+        APRIL,
+        SIDE,
+        FRONT
     }
 
-    public Robot(OpMode opMode, CameraMode cameraMode) {
+    public Robot(OpMode opMode, Camera streamingCamera, List<Camera> enabledCameras) {
         super(createRobotContext(opMode));
 
-        this.webCamAprilTag = new WebCam(
-                context, robotDescriptor.webCamAprilTagDescriptor,
-                cameraMode == CameraMode.ENABLED_AND_STREAMING_APRIL
-        );
-        this.webCamSide = new WebCam(
-                context, robotDescriptor.webCamSideDescriptor,
-                cameraMode == CameraMode.ENABLED_AND_STREAMING_SIDE
-        );
-        this.webCamFront = new WebCam(
-                context, robotDescriptor.webCamFrontDescriptor,
-                cameraMode == CameraMode.ENABLED_AND_STREAMING_FRONT
-        );
+        this.webCamAprilTag = new WebCam(context, robotDescriptor.webCamAprilTagDescriptor,
+                streamingCamera == Camera.APRIL);
+        this.webCamSide = new WebCam(context, robotDescriptor.webCamSideDescriptor,
+                streamingCamera == Camera.SIDE);
+        this.webCamFront = new WebCam(context, robotDescriptor.webCamFrontDescriptor,
+                streamingCamera == Camera.FRONT);
 
         this.driveTrain = new DriveTrain(context, webCamSide, webCamFront);
         getRobotContext().robotPositionProvider = driveTrain;
@@ -81,10 +69,8 @@ public class Robot extends BaseComponent {
 
         addSubComponents(driveTrain, turret, slide, intake);
 
-        if (cameraMode.isEnabled()) {
-            addSubComponents(webCamSide);
-            addSubComponents(webCamFront);
-            addSubComponents(aprilTagDetector);
+        for (Camera camera : enabledCameras) {
+            addSubComponents(getWebCam(camera));
         }
 
         TelemetryHolder.telemetry = telemetry;
@@ -105,7 +91,7 @@ public class Robot extends BaseComponent {
      * Inits with default settings.
      */
     public Robot(OpMode opMode) {
-        this(opMode, CameraMode.ENABLED);
+        this(opMode, null, Arrays.asList(Camera.FRONT, Camera.SIDE));
     }
 
     @Override
@@ -205,12 +191,29 @@ public class Robot extends BaseComponent {
         return intake;
     }
 
+    public WebCam getWebCam(Camera camera) {
+        switch (camera) {
+            case APRIL:
+                return getWebCamAprilTag();
+            case SIDE:
+                return getWebCamSide();
+            case FRONT:
+                return getWebCamFront();
+            default:
+                throw new IllegalArgumentException();
+        }
+    }
+
     public WebCam getWebCamSide() {
         return webCamSide;
     }
 
     public WebCam getWebCamFront() {
         return webCamFront;
+    }
+
+    public WebCam getWebCamAprilTag() {
+        return webCamAprilTag;
     }
 
     public AprilTagDetector getAprilTagDetector() {

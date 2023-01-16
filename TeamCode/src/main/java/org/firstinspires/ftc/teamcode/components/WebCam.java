@@ -101,6 +101,12 @@ public class WebCam extends BaseComponent {
 
     public void stop() {
         camera.setPipeline(null);
+        camera.closeCameraDeviceAsync(new OpenCvCamera.AsyncCameraCloseListener() {
+            @Override
+            public void onClose() {
+                telemetry.log().add("Stopped camera [" + webCamDescriptor.name + "]");
+            }
+        });
     }
 
     public synchronized void saveLastFrame() {
