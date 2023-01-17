@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.util;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -14,6 +15,7 @@ public class HoughLineDetector {
 
     private Mat gray = new Mat(); //image grayscaled
     private Mat edges = new Mat(); //image with edges
+    private Mat edgesMasked = new Mat(); // edges image with mask applied
 
     private HoughParameters parameters;
 
@@ -45,9 +47,11 @@ public class HoughLineDetector {
         Imgproc.cvtColor(input, gray, Imgproc.COLOR_RGBA2GRAY);
         Imgproc.Canny(gray, edges, 60, 60 * 3, 3, false);
 
+        Mat masked = applyMask(edges, parameters.imageMask, edgesMasked);
+
         Mat houghLines = new Mat();
         Imgproc.HoughLines(
-                edges,
+                masked,
                 houghLines,
                 parameters.rhoResolution,
                 parameters.thetaResolution,
@@ -67,6 +71,15 @@ public class HoughLineDetector {
         }
 
         return lines;
+    }
+
+    private Mat applyMask(Mat image, Mat mask, Mat dst) {
+        if (mask != null) {
+            Core.bitwise_and(image, mask, dst);
+            return dst;
+        } else {
+            return image;
+        }
     }
 
     private List<HoughLine> groupSimilarLines(List<HoughLine> lines) {
@@ -109,6 +122,7 @@ public class HoughLineDetector {
         public double thetaResolution = Math.toRadians(1); // 1 degree
         public double minTheta = 0;
         public double maxTheta = 180;
+        public Mat imageMask;
     }
 
     public static class HoughLine {

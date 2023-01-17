@@ -8,8 +8,6 @@ import static org.firstinspires.ftc.teamcode.util.HoughLineDetector.HoughParamet
 
 import android.annotation.SuppressLint;
 
-import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.WebCam.FrameContext;
 import org.firstinspires.ftc.teamcode.geometry.Line;
@@ -43,6 +41,12 @@ public class TileEdgeDetector extends BaseComponent {
     private RobotDescriptor.WebCamDescriptor webCamDescriptor;
 
     /**
+     * A mask that would be applied to the image to avoid detecting lines in areas of the image
+     * that show wheels, the robot, etc.
+     */
+    private Mat webCamMask;
+
+    /**
      * The detector for finding horizontal lines in the webcam image.
      */
     private HoughLineDetector houghLineDetectorHorizontal;
@@ -67,6 +71,9 @@ public class TileEdgeDetector extends BaseComponent {
      */
     private TileEdgeObservationAggregator aggregator;
 
+    /**
+     * The frame processor for the webcam that does tile edge detection.
+     */
     private FrameProcessor frameProcessor;
 
     public TileEdgeDetector(
@@ -109,6 +116,11 @@ public class TileEdgeDetector extends BaseComponent {
         this.houghLineDetectorVertical = new HoughLineDetector(verticalParameters);
 
         this.tileEdgeSolver = new TileEdgeSolver(context, webCamDescriptor);
+    }
+
+    public void setWebCamMask(Mat webCamMask) {
+        houghLineDetectorHorizontal.getParameters().imageMask = webCamMask;
+        houghLineDetectorVertical.getParameters().imageMask = webCamMask;
     }
 
     public HoughLineDetector getHoughLineDetectorHorizontal() {
@@ -155,9 +167,6 @@ public class TileEdgeDetector extends BaseComponent {
         @Override
         public void processFrame(Mat input, Mat output, FrameContext frameContext) {
 
-            // Remember the time of the current frame capture as early as possible (before all the math).
-            ElapsedTime beginFrameTime = new ElapsedTime();
-
             List<Line> lines = new ArrayList<>();
             for (HoughLine houghLine : houghLineDetectorHorizontal.detectLines(input)) {
                 lines.add(houghLine.toLine(webCam.getResolution()));
@@ -170,7 +179,7 @@ public class TileEdgeDetector extends BaseComponent {
 
             if (observation != null) {
                 // Remember the observation so that it can be used by the drivetrain.
-                observation.setObservationTime(beginFrameTime);
+                observation.setObservationTime(frameContext.frameTime);
                 TileEdgeDetector.this.observation = observation;
 
                 // If there is an aggregator, also add this observation to it.
