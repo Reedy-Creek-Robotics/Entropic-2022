@@ -10,6 +10,7 @@ import android.annotation.SuppressLint;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.WebCam.FrameContext;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
@@ -243,7 +244,8 @@ public class TileEdgeDetector extends BaseComponent {
 
             if (context.robotPositionProvider != null) {
                 Position position = context.robotPositionProvider.getPosition();
-                DrawUtil.drawText(output, "Position " + position.toString(2),
+                Heading heading = context.robotPositionProvider.getHeading();
+                DrawUtil.drawText(output, "Position " + position.toString(2) + ", " + heading,
                         new Position(50, 140), Color.ORANGE, 0.5, 1);
             }
         }

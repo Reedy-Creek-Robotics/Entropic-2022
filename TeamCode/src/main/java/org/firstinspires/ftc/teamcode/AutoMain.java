@@ -22,6 +22,8 @@ public abstract class AutoMain extends LinearOpMode {
     protected RobotDescriptor robotDescriptor;
     protected AprilTagDetection aprilTagDetection;
 
+    protected boolean usingHough = false;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -58,9 +60,10 @@ public abstract class AutoMain extends LinearOpMode {
     protected abstract void runAutoPath();
 
     protected void initRobot() {
-        robot = new Robot(this, null,
+        robot = new Robot(this, Camera.SIDE,
                 Arrays.asList(Camera.APRIL, Camera.FRONT, Camera.SIDE));
         robot.init();
+
         robotDescriptor = robot.getRobotContext().robotDescriptor;
 
         // For auto paths, don't use tile edge detection except at key points

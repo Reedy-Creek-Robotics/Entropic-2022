@@ -34,23 +34,34 @@ public class AutoMainRight extends AutoMain {
         robot.waitForCommandsToFinish();
 
         //drop off pole
-        robot.getDriveTrain().moveToTargetPosition(new Position(4.45, 2), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(4.425, 2), BASE_SPEED);
         robot.waitForCommandsToFinish();
         robot.getIntake().outtake(2);
         robot.waitForCommandsToFinish();
 
+        //todo: add together deliver offset and outtake
+        robot.getSlide().moveDeliverOffset();
+        robot.waitForCommandsToFinish();
+
+        robot.getIntake().outtake(1);
+        robot.waitForCommandsToFinish();
+
         //recenter
         robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2), BASE_SPEED);
-
-        //robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2.5), BASE_SPEED);
-        robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 1.4), BASE_SPEED);
-
+        robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2.75), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2.5), BASE_SPEED);
         robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
-        robot.getDriveTrain().setPosition(new Position(4.5, 1.5));
+        if(usingHough) {
+            robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
+        }
 
+        getNewCone();
+        deliverToPole(Pole.HIGH);
+
+        robot.getDriveTrain().moveToTargetPosition(new Position(robot.getDriveTrain().getPosition().getX(),2.5),BASE_SPEED);
         park();
 
         /*

@@ -60,8 +60,9 @@ public class AutoMainLeft extends AutoMain {
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
-        robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
-
+        if(usingHough) {
+            robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
+        }
         getNewCone();
         deliverToPole(Pole.HIGH);
 
@@ -86,7 +87,7 @@ public class AutoMainLeft extends AutoMain {
         robot.getSlide().moveToIntake(coneCount);
         coneCount--;
         robot.getIntake().intake(1.5);
-        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(10), 2.5), .3);
+        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(10), 2.5), .15);
         robot.waitForCommandsToFinish();
 
         robot.getSlide().moveToHeight(SMALL_POLE);
@@ -159,7 +160,9 @@ public class AutoMainLeft extends AutoMain {
         }
 
         robot.waitForCommandsToFinish();
-        robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
+        if(usingHough) {
+            robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
+        }
     }
 
     private void park() {

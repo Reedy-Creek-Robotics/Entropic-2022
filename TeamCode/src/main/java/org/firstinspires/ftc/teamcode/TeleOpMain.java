@@ -59,7 +59,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         }
 
         // Lift
-        if (deliverer.isPressed(LEFT_STICK_Y)) {
+        if (deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
             robot.getSlide().manualSlideMove(deliverer.leftStickY());
         } else if (deliverer.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveToHeight(TRAVEL);
