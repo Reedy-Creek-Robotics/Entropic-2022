@@ -8,8 +8,8 @@ import java.util.Arrays;
 
 public class Turret extends BaseComponent {
 
-    private static double MAXIMUM = 1;
-    private static double MINIMUM = .3;
+    //private static double MAXIMUM = 1;
+    //private static double MINIMUM = .3;
 
     private Servo servo;
     private SafetyCheck safetyCheck;
@@ -23,10 +23,10 @@ public class Turret extends BaseComponent {
     private boolean turrentStarted = false;
 
     public enum Orientation {
-        FRONT(0.313),
-        RIGHT_SIDE(0.681),
-        BACK(1.000),
-        LEFT_SIDE(0.681);
+        FRONT(0),
+        RIGHT_SIDE(.316),
+        BACK(.666),
+        LEFT_SIDE(.316);
 
         private double servoPosition;
 
@@ -103,11 +103,13 @@ public class Turret extends BaseComponent {
 
         @Override
         public void start() {
-            if (servoPosition > MAXIMUM) {
+            /*if (servoPosition > MAXIMUM) {
                 servoPosition = MAXIMUM;
             } else if (servoPosition < MINIMUM) {
                 servoPosition = MINIMUM;
             }
+
+             */
 
             servo.setPosition(servoPosition);
             servo.getController().pwmEnable();

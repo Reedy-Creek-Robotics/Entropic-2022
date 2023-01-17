@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamAnchorPoint.anchor;
 
+import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.opencv.core.Size;
 
@@ -103,7 +104,8 @@ public class RobotDescriptor {
      */
     public WebCamDescriptor webCamAprilTagDescriptor = new WebCamDescriptor(
             "WebCamAprilTag",
-            WebCamOrientation.FRONT_FORWARD
+            WebCamOrientation.FRONT_FORWARD,
+            new Size(640,480)
     );
 
     /**
@@ -208,6 +210,11 @@ public class RobotDescriptor {
             this.bottomRight = bottomRight;
         }
 
+        public WebCamDescriptor(String name, WebCamOrientation orientation, Size resolution) {
+            this.name = name;
+            this.orientation = orientation;
+            this.resolution = resolution;
+        }
     }
 
     public enum WebCamOrientation {
