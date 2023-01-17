@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.util.DrawUtil;
 import org.firstinspires.ftc.teamcode.util.HoughLineDetector;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -105,6 +106,7 @@ public class TileEdgeDetector extends BaseComponent {
         horizontalParameters.minTheta = 45;
         horizontalParameters.maxTheta = 135;
         horizontalParameters.pixelVoterThreshold = 100; //(int) (resolution.width * (1.0 / 4.0));
+        horizontalParameters.imageMask = webCamMask;
         this.houghLineDetectorHorizontal = new HoughLineDetector(horizontalParameters);
 
         HoughParameters verticalParameters = new HoughParameters();
@@ -113,14 +115,14 @@ public class TileEdgeDetector extends BaseComponent {
         verticalParameters.minTheta = -45;
         verticalParameters.maxTheta = 45;
         verticalParameters.pixelVoterThreshold = 90; //(int) (resolution.height * (1.0 / 4.0));
+        verticalParameters.imageMask = webCamMask;
         this.houghLineDetectorVertical = new HoughLineDetector(verticalParameters);
 
         this.tileEdgeSolver = new TileEdgeSolver(context, webCamDescriptor);
     }
 
     public void setWebCamMask(Mat webCamMask) {
-        houghLineDetectorHorizontal.getParameters().imageMask = webCamMask;
-        houghLineDetectorVertical.getParameters().imageMask = webCamMask;
+        this.webCamMask = webCamMask;
     }
 
     public HoughLineDetector getHoughLineDetectorHorizontal() {

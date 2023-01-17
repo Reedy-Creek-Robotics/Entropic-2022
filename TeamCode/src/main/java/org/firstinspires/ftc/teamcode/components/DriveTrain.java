@@ -185,6 +185,10 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         return tileEdgeDetectorSide;
     }
 
+    public TileEdgeDetector getTileEdgeDetectorFront() {
+        return tileEdgeDetectorFront;
+    }
+
     public BNO055IMU getImu() {
         return imu;
     }

@@ -11,9 +11,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.Arrays;
 import java.util.List;
@@ -55,6 +62,8 @@ public class Robot extends BaseComponent {
         this.driveTrain = new DriveTrain(context, webCamSide, webCamFront);
         getRobotContext().robotPositionProvider = driveTrain;
 
+        this.driveTrain.getTileEdgeDetectorFront().setWebCamMask(createFrontCameraMask());
+
         this.aprilTagDetector = new AprilTagDetector(context, webCamAprilTag);
 
         this.turret = new Turret(context, new Turret.SafetyCheck() {
@@ -74,6 +83,22 @@ public class Robot extends BaseComponent {
         }
 
         TelemetryHolder.telemetry = telemetry;
+    }
+
+    private Mat createFrontCameraMask() {
+        Mat mask = Mat.ones(robotDescriptor.webCamFrontDescriptor.resolution, CvType.CV_8UC1);
+
+        Imgproc.rectangle(mask, new Rect(
+                new Point(0, 214),
+                new Point(374, 360)
+        ), new Scalar(0), -1);
+
+        Imgproc.rectangle(mask, new Rect(
+                new Point(0, 135),
+                new Point(100, 214)
+        ), new Scalar(0), -1);
+
+        return mask;
     }
 
     private static RobotContext createRobotContext(OpMode opMode) {
