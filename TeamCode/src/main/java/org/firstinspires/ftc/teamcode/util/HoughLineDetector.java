@@ -13,9 +13,9 @@ import java.util.List;
 
 public class HoughLineDetector {
 
-    public Mat gray = new Mat(); //image grayscaled
-    public Mat edges = new Mat(); //image with edges
-    public Mat edgesMasked = new Mat(); // edges image with mask applied
+    private Mat gray = new Mat(); //image grayscaled
+    private Mat edges = new Mat(); //image with edges
+    private Mat edgesMasked = new Mat(); // edges image with mask applied
 
     private HoughParameters parameters;
 
