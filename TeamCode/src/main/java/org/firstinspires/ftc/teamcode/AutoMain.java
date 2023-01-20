@@ -22,7 +22,7 @@ public abstract class AutoMain extends LinearOpMode {
     protected RobotDescriptor robotDescriptor;
     protected AprilTagDetection aprilTagDetection;
 
-    protected boolean usingHough = false;
+    protected boolean usingHough = true;
 
     @Override
     public void runOpMode() throws InterruptedException {

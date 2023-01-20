@@ -70,28 +70,27 @@ public class RampUtil {
      * A positive return value means turning left, negative turning right.
      */
     public static double calculateRampingTurnFactor(
-            RobotDescriptor robotDescriptor,
-            Heading heading, Heading targetHeading,
-            double speedFactor
+            RobotDescriptor.RampingDescriptor rampingDescriptor,
+            double rampingTurnExponent, Heading heading,
+            Heading targetHeading, double speedFactor
     ) {
         // Calculate how far off we are from the target heading.
         double delta = targetHeading.delta(heading);
 
-        if (Math.abs(delta) < robotDescriptor.rotationTargetHeadingReachedThreshold) {
+        if (Math.abs(delta) < rampingDescriptor.distanceUntilTargetReached) {
             return 0.0;
-
         } else {
             // Scale geometrically.
-            double exponent = robotDescriptor.rampingTurnExponent;
-            double rampingMaxTurnDegrees = robotDescriptor.rampingMaxTurnDegrees * speedFactor;
+            double exponent = rampingTurnExponent;
+            double rampingMaxTurnDegrees = rampingDescriptor.distanceStartRamping * speedFactor;
             double xVal = Math.abs(delta) / rampingMaxTurnDegrees;
-            double yVal = Math.pow(xVal, exponent) * robotDescriptor.rampingMaxTurnPower;
+            double yVal = Math.pow(xVal, exponent) * rampingDescriptor.maxPower;
 
-            double turnFactor = Math.min(yVal, robotDescriptor.rampingMaxTurnPower);
+            double turnFactor = Math.min(yVal, rampingDescriptor.maxPower);
 
             turnFactor *= speedFactor;
 
-            turnFactor = Math.max(turnFactor, robotDescriptor.rampingMinTurnPower);
+            turnFactor = Math.max(turnFactor, rampingDescriptor.minPower);
 
             // Add back in direction.
             turnFactor *= Math.signum(delta);

@@ -151,6 +151,7 @@ public class MecanumUtil {
      */
     public static MotorPowers calculateWheelPowerForTargetPosition(
             RobotDescriptor robotDescriptor,
+            RobotDescriptor.RampingDescriptor rampingTurnDescriptor,
             Position position,
             Heading heading,
             Vector2 velocity,
@@ -205,7 +206,7 @@ public class MecanumUtil {
 
         // Add in turn.  For example, to turn left, give less power to the left wheels and more to the right.
         double turn = RampUtil.calculateRampingTurnFactor(
-                robotDescriptor, heading, targetHeading, speedFactor
+                rampingTurnDescriptor, robotDescriptor.rampingTurnExponent, heading, targetHeading, speedFactor
         );
 
         motorPowers = new MotorPowers(

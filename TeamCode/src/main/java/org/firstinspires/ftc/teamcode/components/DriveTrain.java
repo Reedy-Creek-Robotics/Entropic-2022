@@ -19,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.RobotContext.RobotPositionProvider;
 import org.firstinspires.ftc.teamcode.components.TileEdgeDetector.TileEdgeObservationAggregator;
 import org.firstinspires.ftc.teamcode.game.Field;
@@ -538,6 +539,10 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         executeCommand(new MoveToTargetPosition(position, targetHeading, speed));
     }
 
+    public void moveToHeading(Heading targetHeading, double speed, RobotDescriptor.RampingDescriptor rampingDescriptor) {
+        executeCommand(new MoveToTargetPosition(position, targetHeading, speed, rampingDescriptor));
+    }
+
     /**
      * Moves to the given target position and heading
      *
@@ -546,6 +551,14 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      */
     public void moveToTargetPosition(Position targetPosition, double speed) {
         executeCommand(new MoveToTargetPosition(targetPosition, heading, speed));
+    }
+
+    public void moveToTargetPosition(Position targetPosition, Heading targetHeading, double speed, RobotDescriptor.RampingDescriptor rampingDescriptor) {
+        executeCommand(new MoveToTargetPosition(targetPosition,heading, speed, rampingDescriptor));
+    }
+
+    public void moveToTargetPosition(Position targetPosition, double speed, RobotDescriptor.RampingDescriptor rampingDescriptor) {
+        executeCommand(new MoveToTargetPosition(targetPosition,heading, speed, rampingDescriptor));
     }
 
     /**
@@ -794,8 +807,19 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
          */
         private Heading startingHeading;
 
+        /**
+         * Ramping descriptor for turning
+         */
+        private RobotDescriptor.RampingDescriptor rampingTurnDescriptor;
+
+        public BaseMoveCommand(double speed, RobotDescriptor.RampingDescriptor rampingTurnDescriptor) {
+            this.speed = speed;
+            this.rampingTurnDescriptor = rampingTurnDescriptor;
+        }
+
         public BaseMoveCommand(double speed) {
             this.speed = speed;
+            this.rampingTurnDescriptor = robotDescriptor.turnRampingDescriptor;
         }
 
         /**
@@ -835,6 +859,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         public boolean updateStatus() {
             MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForTargetPosition(
                     robotDescriptor,
+                    rampingTurnDescriptor,
                     position, heading, velocity,
                     targetPosition, targetHeading,
                     speed
@@ -859,7 +884,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
             boolean targetHeadingReached =
                     headingMoved >= Math.abs(startingHeading.delta(targetHeading)) ||
-                            headingRemaining <= robotDescriptor.rotationTargetHeadingReachedThreshold;
+                            headingRemaining <= rampingTurnDescriptor.distanceUntilTargetReached;
 
             return targetPositionReached && targetHeadingReached;
         }
@@ -903,6 +928,12 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
         public MoveToTargetPosition(Position targetPosition, Heading targetHeading, double speed) {
             super(speed);
+            this.targetPosition = targetPosition;
+            this.targetHeading = targetHeading;
+        }
+
+        public MoveToTargetPosition(Position targetPosition, Heading targetHeading, double speed, RobotDescriptor.RampingDescriptor rampingDescriptor) {
+            super(speed, rampingDescriptor);
             this.targetPosition = targetPosition;
             this.targetHeading = targetHeading;
         }

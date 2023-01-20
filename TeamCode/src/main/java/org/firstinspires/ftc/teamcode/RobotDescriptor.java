@@ -2,7 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamAnchorPoint.anchor;
 
-import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.opencv.core.Size;
 
@@ -29,6 +28,10 @@ public class RobotDescriptor {
      * The number of encoder ticks that the robot's drive train motors count per full revolution.
      */
     public double wheelMotorEncoderTicksPerRevolution = 537.6;
+
+    public RampingDescriptor turnRampingDescriptor = new RampingDescriptor(
+            2, 45,1, .05
+    );
 
     /**
      * The speed, in tiles per second, after which ramping up should end.
@@ -59,22 +62,22 @@ public class RobotDescriptor {
     /**
      * The threshold in degrees under which no motor power will be applied for turning.
      */
-    public double rotationTargetHeadingReachedThreshold = 2;
+    //public double rotationTargetHeadingReachedThreshold = 2;
 
     /**
      * For turning, the maximum turn motor power to add.
      */
-    public double rampingMaxTurnPower = 1.0;
+    //public double rampingMaxTurnPower = 1.0;
 
     /**
      * For turning, the minimum turn motor power to add.
      */
-    public double rampingMinTurnPower = 0.05;
+    //public double rampingMinTurnPower = 0.05;
 
     /**
      * For turning, the degrees off the target heading at which the maximum turn power will be added.
      */
-    public double rampingMaxTurnDegrees = 45;
+    //public double rampingMaxTurnDegrees = 45;
 
     /**
      * For turning, the exponent to use when scaling.
@@ -158,6 +161,20 @@ public class RobotDescriptor {
         public EmpiricalStrafeCorrection(double motorPower, double strafeCorrection) {
             this.motorPower = motorPower;
             this.strafeCorrection = strafeCorrection;
+        }
+    }
+
+    public static class RampingDescriptor {
+        public double distanceUntilTargetReached;
+        public double distanceStartRamping;
+        public double maxPower;
+        public double minPower;
+
+        public RampingDescriptor(double distanceUntilTargetReached, double distanceStartRamping, double maxPower, double minPower) {
+            this.distanceUntilTargetReached = distanceUntilTargetReached;
+            this.distanceStartRamping = distanceStartRamping;
+            this.maxPower = maxPower;
+            this.minPower = minPower;
         }
     }
 

@@ -55,7 +55,7 @@ public class AutoMainLeft extends AutoMain {
         //recenter
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.75), BASE_SPEED);
-        robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2 + inchesToTiles(12.5)), BASE_SPEED);
         robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
@@ -76,24 +76,31 @@ public class AutoMainLeft extends AutoMain {
         //deliverToPole(Pole.HIGH);
     }
 
+    RobotDescriptor.RampingDescriptor exactRampingDescriptor = new RobotDescriptor.RampingDescriptor(
+            0, 45,1,.05
+    );
+
     //Used after recentered
     protected void getNewCone() {
         //get to stack
-        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(15), 2.5), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(16.5), 2 + inchesToTiles(12.5)), BASE_SPEED);
         robot.getTurret().moveToOrientation(BACK);
+        robot.waitForCommandsToFinish();
+
+        robot.getDriveTrain().moveToHeading(new Heading(0),.3,exactRampingDescriptor);
         robot.waitForCommandsToFinish();
 
         //intake
         robot.getSlide().moveToIntake(coneCount);
         coneCount--;
         robot.getIntake().intake(1.5);
-        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(10), 2.5), .15);
+        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(10), robot.getDriveTrain().getPosition().getY()), .10);
         robot.waitForCommandsToFinish();
 
         robot.getSlide().moveToHeight(SMALL_POLE);
         robot.waitForCommandsToFinish();
 
-        robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(.5, robot.getDriveTrain().getPosition().getY()), BASE_SPEED);
         robot.waitForCommandsToFinish();
     }
 

@@ -43,13 +43,13 @@ public class RampingCalibration extends BaseDrivingTeleOp {
 
             // Ramp Turn Power
             if (controller.isPressed(Y)) {
-                descriptor.rampingMinTurnPower -= 0.01;
+                descriptor.turnRampingDescriptor.minPower -= 0.01;
             } else if (controller.isPressed(X)) {
-                descriptor.rampingMinTurnPower += 0.01;
+                descriptor.turnRampingDescriptor.minPower += 0.01;
             } else if (controller.isPressed(B)) {
-                descriptor.rampingMaxTurnPower -= 0.01;
+                descriptor.turnRampingDescriptor.maxPower -= 0.01;
             } else if (controller.isPressed(A)) {
-                descriptor.rampingMaxTurnPower += 0.01;
+                descriptor.turnRampingDescriptor.maxPower += 0.01;
             }
 
         } else if (controller.isPressed(RIGHT_TRIGGER)) {
@@ -66,9 +66,9 @@ public class RampingCalibration extends BaseDrivingTeleOp {
 
             // Ramp Turn Power
             if (controller.isPressed(Y)) {
-                descriptor.rampingMaxTurnDegrees -= 0.5;
+                descriptor.turnRampingDescriptor.maxPower -= 0.5;
             } else if (controller.isPressed(X)) {
-                descriptor.rampingMaxTurnDegrees += 0.5;
+                descriptor.turnRampingDescriptor.maxPower += 0.5;
             } else if (controller.isPressed(B)) {
                 descriptor.rampingTurnExponent -= 0.1;
             } else if (controller.isPressed(A)) {
@@ -101,9 +101,9 @@ public class RampingCalibration extends BaseDrivingTeleOp {
         telemetry.addData("Ramp Down Begin Distance", format(descriptor.rampingDownBeginDistance) + " tiles");
         telemetry.addData("Ramp Up Min Power", format(descriptor.rampingUpMinMotorPower));
         telemetry.addData("Ramp Up End Speed", format(descriptor.rampingUpEndSpeed) + " tiles/sec");
-        telemetry.addData("Ramp Min Turn Power", format(descriptor.rampingMinTurnPower));
-        telemetry.addData("Ramp Max Turn Power", format(descriptor.rampingMaxTurnPower));
-        telemetry.addData("Ramp Max Turn Degrees", format(descriptor.rampingMaxTurnDegrees));
+        telemetry.addData("Ramp Min Turn Power", format(descriptor.turnRampingDescriptor.minPower));
+        telemetry.addData("Ramp Max Turn Power", format(descriptor.turnRampingDescriptor.maxPower));
+        telemetry.addData("Ramp Max Turn Degrees", format(descriptor.turnRampingDescriptor.distanceStartRamping));
         telemetry.addData("Ramp Turn Exponent", format(descriptor.rampingTurnExponent));
 
         robot.updateStatus();

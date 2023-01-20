@@ -106,7 +106,7 @@ public class MecanumUtilTest {
     @Test
     public void calculateWheelPowerForTargetPosition_moveForward() {
         MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
-                descriptor,
+                descriptor, descriptor.turnRampingDescriptor,
                 new Position(0.5, 0.5), new Heading(90), new Vector2(0, 0),
                 new Position(0.5, 1.5), new Heading(90),
                 0.5
@@ -126,7 +126,7 @@ public class MecanumUtilTest {
     @Test
     public void calculateWheelPowerForTargetPosition_moveBackward() {
         MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
-                descriptor,
+                descriptor, descriptor.turnRampingDescriptor,
                 new Position(0.5, 1.5), new Heading(90), new Vector2(0, 0),
                 new Position(0.5, 0.5), new Heading(90),
                 0.5
@@ -146,7 +146,7 @@ public class MecanumUtilTest {
     @Test
     public void calculateWheelPowerForTargetPosition_strafeRight() {
         MotorPowers powers = MecanumUtil.calculateWheelPowerForTargetPosition(
-                descriptor,
+                descriptor, descriptor.turnRampingDescriptor,
                 new Position(0.5, 0.5), new Heading(90), new Vector2(0, 0),
                 new Position(1.5, 0.5), new Heading(90),
                 0.5
