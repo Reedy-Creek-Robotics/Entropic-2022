@@ -5,8 +5,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.ScalingUtil;
 
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Wraps a gamepad to provide convenience functions.
@@ -126,45 +129,38 @@ public class Controller {
     private Gamepad gamepad;
 
     /**
-     * The default debounce delay for button presses.
+     * The set of currently pressed buttons.  Used for debouncing, a button in this set must be
+     * released before it can pressed again.
      */
-    private double debounceDelay = DEFAULT_DEBOUNCE_DELAY;
+    private Set<Button> pressedButtons = new HashSet<>();
 
     /**
      * Configuration for each analog control.
      */
     private Map<AnalogControl, AnalogConfig> analogConfigs = new HashMap<>();
+
     {
         // Default analog control characteristics
         analogConfigs.put(AnalogControl.LEFT_STICK_X, new AnalogConfig()
-                        .inverted()
-                        .withScalingExponent(2.0));
+                .inverted()
+                .withScalingExponent(2.0));
         analogConfigs.put(AnalogControl.LEFT_STICK_Y, new AnalogConfig()
-                        .inverted()
-                        .withScalingExponent(2.0));
+                .inverted()
+                .withScalingExponent(2.0));
 
         analogConfigs.put(AnalogControl.RIGHT_STICK_X, new AnalogConfig()
-                        .inverted()
-                        .withScalingExponent(2.0));
+                .inverted()
+                .withScalingExponent(2.0));
         analogConfigs.put(AnalogControl.RIGHT_STICK_Y, new AnalogConfig()
-                        .inverted()
-                        .withScalingExponent(2.0));
+                .inverted()
+                .withScalingExponent(2.0));
 
         analogConfigs.put(AnalogControl.LEFT_TRIGGER, new AnalogConfig());
         analogConfigs.put(AnalogControl.RIGHT_TRIGGER, new AnalogConfig());
     }
 
-    /**
-     * The time since the last registered button press (used for debouncing).
-     */
-    private Map<Button, ElapsedTime> lastButtonPress = new HashMap<>();
-
     public Controller(Gamepad gamepad) {
         this.gamepad = gamepad;
-    }
-
-    public void setDebounceDelay(double debounceDelay) {
-        this.debounceDelay = debounceDelay;
     }
 
     public AnalogConfig analogConfig(AnalogControl analogControl) {
@@ -251,15 +247,27 @@ public class Controller {
     }
 
     public boolean isPressed(Button button) {
-        ElapsedTime lastButtonPress = lastButtonPress(button);
-        if (lastButtonPress.seconds() < debounceDelay) {
-            return false;
-        } else {
-            boolean buttonDown = isButtonDown(button);
-            if (buttonDown) {
-                lastButtonPress.reset();
+        boolean buttonDown = isButtonDown(button);
+        if (buttonDown) {
+
+            boolean isPressed = pressedButtons.contains(button);
+            if (!isPressed) {
+                // Remember that the button is currently down, so it can't be pressed again.
+                pressedButtons.add(button);
+
+                // The button is pressed.
+                return true;
+
+            } else {
+                // The button is down, but it was pressed already and needs to be released before it
+                // can be pressed again (for debouncing).
+                return false;
             }
-            return buttonDown;
+
+        } else {
+            // If the button isn't down now, remove it from the list to make it eligible to press again.
+            pressedButtons.remove(button);
+            return false;
         }
     }
 
@@ -315,15 +323,6 @@ public class Controller {
             default:
                 throw new IllegalArgumentException("Unknown button: " + button);
         }
-    }
-
-    private ElapsedTime lastButtonPress(Button button) {
-        ElapsedTime time = lastButtonPress.get(button);
-        if (time == null) {
-            time = new ElapsedTime(0L);
-            lastButtonPress.put(button, time);
-        }
-        return time;
     }
 
 }

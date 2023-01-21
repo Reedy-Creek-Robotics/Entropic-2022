@@ -24,6 +24,10 @@ public abstract class AutoMain extends LinearOpMode {
 
     protected boolean usingHough = true;
 
+    protected RobotDescriptor.RampingDescriptor exactRampingDescriptor = new RobotDescriptor.RampingDescriptor(
+            0, 45,1,.05
+    );
+
     @Override
     public void runOpMode() throws InterruptedException {
 

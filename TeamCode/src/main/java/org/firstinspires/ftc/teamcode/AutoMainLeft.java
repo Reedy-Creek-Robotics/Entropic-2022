@@ -8,6 +8,7 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.BACK;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.FRONT;
 import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.LEFT_SIDE;
+import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.RIGHT_SIDE;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -42,7 +43,7 @@ public class AutoMainLeft extends AutoMain {
         // Wait until we get an observation to make sure we are where we expect
 
         //drop off pole
-        robot.getDriveTrain().moveToTargetPosition(new Position(1.575, 2), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(1.58, 2), BASE_SPEED);
         robot.waitForCommandsToFinish();
 
         //todo: add together deliver offset and outtake
@@ -60,7 +61,7 @@ public class AutoMainLeft extends AutoMain {
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
-        if(usingHough) {
+        if (usingHough) {
             robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
         }
         getNewCone();
@@ -69,25 +70,23 @@ public class AutoMainLeft extends AutoMain {
         //getNewCone();
         //deliverToPole(Pole.HIGH);
 
-        robot.getDriveTrain().moveToTargetPosition(new Position(robot.getDriveTrain().getPosition().getX(),2.5),BASE_SPEED);
         park();
 
         //getNewCone();
         //deliverToPole(Pole.HIGH);
     }
 
-    RobotDescriptor.RampingDescriptor exactRampingDescriptor = new RobotDescriptor.RampingDescriptor(
-            0, 45,1,.05
-    );
-
     //Used after recentered
     protected void getNewCone() {
-        //get to stack
-        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(16.5), 2 + inchesToTiles(12.5)), BASE_SPEED);
-        robot.getTurret().moveToOrientation(BACK);
+        robot.getDriveTrain().moveToHeading(new Heading(90),BASE_SPEED);
         robot.waitForCommandsToFinish();
 
-        robot.getDriveTrain().moveToHeading(new Heading(0),.3,exactRampingDescriptor);
+        //get to stack
+        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(16.5), 2 + inchesToTiles(12.25)), BASE_SPEED);
+        robot.getTurret().moveToOrientation(RIGHT_SIDE);
+        robot.waitForCommandsToFinish();
+
+        robot.getDriveTrain().moveToHeading(new Heading(90),.3,exactRampingDescriptor);
         robot.waitForCommandsToFinish();
 
         //intake
@@ -102,27 +101,29 @@ public class AutoMainLeft extends AutoMain {
 
         robot.getDriveTrain().moveToTargetPosition(new Position(.5, robot.getDriveTrain().getPosition().getY()), BASE_SPEED);
         robot.waitForCommandsToFinish();
+
+        if(usingHough) {
+            robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
+        }
     }
 
     protected void deliverToPole(Pole pole) {
         if (pole == Pole.HIGH) {
             robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TOP_POLE);
-            robot.getTurret().moveToOrientation(LEFT_SIDE);
+            robot.getTurret().moveToOrientation(FRONT);
             robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.5), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
             robot.getDriveTrain().moveToTargetPosition(new Position(2,2.60), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-
-            //todo: uncomment
-            //robot.getSlide().moveDeliverOffset();
-            //robot.waitForCommandsToFinish();
+            robot.getSlide().moveDeliverOffset();
+            robot.waitForCommandsToFinish();
 
             robot.getIntake().outtake(1);
             robot.waitForCommandsToFinish();
 
-            robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), new Heading(0), BASE_SPEED);
+            robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
             robot.waitForCommandsToFinish(.5);
             robot.getSlide().moveToHeight(TRAVEL);
 

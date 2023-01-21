@@ -21,8 +21,7 @@ public class LinearSlide extends BaseComponent {
 
     public enum SlideHeight {
         TOP_POLE(2870),
-        MEDIUM_POLE(2050
-        ),
+        MEDIUM_POLE(2050),
         SMALL_POLE(1150),
         GROUND_LEVEL(95),
         TRAVEL(350),
@@ -41,6 +40,7 @@ public class LinearSlide extends BaseComponent {
     private double manualPower = 0.5;
 
     private boolean moveDeliverOffsetDown = false;
+    private boolean manualControl = false;
 
     private DcMotorEx motor;
 
@@ -77,8 +77,12 @@ public class LinearSlide extends BaseComponent {
                 (power < 0.0 && getPosition() <= MIN_HEIGHT) ||
                 (power > 0.0 && getPosition() >= MAX_HEIGHT)
         ) {
-            stopMotor();
+            if (manualControl) {
+                manualControl = false;
+                stopMotor();
+            }
         } else {
+            manualControl = true;
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setPower(power);
         }
@@ -164,6 +168,7 @@ public class LinearSlide extends BaseComponent {
     public void moveToTicks(int ticks) {
         ticks = ensureSafeTicks(ticks);
         this.targetPosition = ticks;
+        this.manualControl = false;
         stopAllCommands();
         executeCommand(new MoveToTicks(ticks));
     }

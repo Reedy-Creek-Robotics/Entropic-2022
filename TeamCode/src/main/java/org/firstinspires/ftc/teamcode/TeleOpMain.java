@@ -31,8 +31,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
     private Orientation turretPosition = Orientation.FRONT;
 
-    private boolean outTakeOffsetDown = true;
-
     @Override
     public void init() {
         super.init();
@@ -77,7 +75,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         if(driver.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveDeliverOffset();
-            outTakeOffsetDown = !outTakeOffsetDown;
         }
 
         // Turret

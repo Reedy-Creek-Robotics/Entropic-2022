@@ -89,13 +89,13 @@ public class Robot extends BaseComponent {
         Mat mask = Mat.ones(robotDescriptor.webCamFrontDescriptor.resolution, CvType.CV_8UC1);
 
         Imgproc.rectangle(mask, new Rect(
-                new Point(0, 214),
-                new Point(374, 360)
+                new Point(0, 143),
+                new Point(121, 360)
         ), new Scalar(0), -1);
 
         Imgproc.rectangle(mask, new Rect(
-                new Point(0, 135),
-                new Point(100, 214)
+                new Point(0, 303),
+                new Point(610, 360)
         ), new Scalar(0), -1);
 
         return mask;
