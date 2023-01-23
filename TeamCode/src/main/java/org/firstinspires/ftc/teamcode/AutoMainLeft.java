@@ -92,8 +92,8 @@ public class AutoMainLeft extends AutoMain {
         //intake
         robot.getSlide().moveToIntake(coneCount);
         coneCount--;
-        robot.getIntake().intake(1.5);
-        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(10), robot.getDriveTrain().getPosition().getY()), .10);
+        robot.getIntake().intake(2);
+        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(9.75), robot.getDriveTrain().getPosition().getY()), .10);
         robot.waitForCommandsToFinish();
 
         robot.getSlide().moveToHeight(SMALL_POLE);
@@ -114,7 +114,7 @@ public class AutoMainLeft extends AutoMain {
             robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.5), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getDriveTrain().moveToTargetPosition(new Position(2,2.60), BASE_SPEED);
+            robot.getDriveTrain().moveToTargetPosition(new Position(2,2.65), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
             robot.getSlide().moveDeliverOffset();
