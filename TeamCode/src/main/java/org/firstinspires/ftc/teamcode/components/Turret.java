@@ -24,7 +24,7 @@ public class Turret extends BaseComponent {
 
     public enum Orientation {
         FRONT(0),
-        RIGHT_SIDE(.316),
+        RIGHT_SIDE(.323),
         BACK(.666),
         LEFT_SIDE(.316);
 
