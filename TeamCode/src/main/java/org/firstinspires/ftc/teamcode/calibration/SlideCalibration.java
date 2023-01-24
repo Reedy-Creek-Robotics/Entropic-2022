@@ -53,7 +53,7 @@ public class SlideCalibration extends BaseDrivingTeleOp {
         // Manual slide movement
         if (deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
             deliverer.analogConfig(LEFT_STICK_Y).withMaxValue(slide.getManualPower());
-            slide.manualSlideMove(deliverer.leftStickY(), false);
+            slide.manualSlideMove(deliverer.leftStickY());
         }
 
         // Adjust slide power

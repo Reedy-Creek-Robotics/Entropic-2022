@@ -75,24 +75,39 @@ public class LinearSlide extends BaseComponent {
     /**
      * Moves the slide with the given power, in the range (-1, 1).
      */
-    public void manualSlideMove(double power, boolean override) {
+    public void manualSlideMove(double power) {
         stopAllCommands();
 
-        if(override) {
-            power = manualPowerOveride * Math.signum(power);
-        }else if (Math.abs(power) > manualPower) {
+        if (Math.abs(power) > manualPower) {
             power = manualPower * Math.signum(power);
         }
 
-        if(override) {
-            manualControl = true;
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            motor.setPower(power);
-
-        }else if (Math.abs(power) < MIN_POWER ||
+        if (Math.abs(power) < MIN_POWER ||
                 (power < 0.0 && getPosition() <= MIN_HEIGHT) ||
                 (power > 0.0 && getPosition() >= MAX_HEIGHT)
         ) {
+            if (manualControl) {
+                manualControl = false;
+                stopMotor();
+            }
+        } else {
+            manualControl = true;
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setPower(power);
+        }
+    }
+
+    /**
+     * Moves the slide with the given power, works regardless of minimum and maximum height
+     */
+    public void manualSlideOverride(double power) {
+        stopAllCommands();
+
+        if (Math.abs(power) > manualPowerOveride) {
+            power = manualPowerOveride * Math.signum(power);
+        }
+
+        if(Math.abs(power) < MIN_POWER) {
             if (manualControl) {
                 manualControl = false;
                 stopMotor();
@@ -157,7 +172,7 @@ public class LinearSlide extends BaseComponent {
      */
     public void moveToHeight(SlideHeight position) {
         // If the height is at the small pole or above, also reset the deliver offset to move down.
-        moveDeliverOffsetDown = position.ticks > SMALL_POLE.ticks;
+        moveDeliverOffsetDown = position.ticks > (SMALL_POLE.ticks - DELIVER_OFFSET_LEEWAY);
 
         moveToTicks(position.ticks);
     }

@@ -71,8 +71,12 @@ public class TeleOpMain extends BaseDrivingTeleOp {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
         } else if (deliverer.isPressed(A)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
+        }else if(deliverer.isButtonDown(START)) {
+            if(deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
+                robot.getSlide().manualSlideOverride(deliverer.leftStickY());
+            }
         }else if(deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
-            robot.getSlide().manualSlideMove(deliverer.leftStickY(), deliverer.isPressed(START));
+            robot.getSlide().manualSlideMove(deliverer.leftStickY());
         }
 
         if(deliverer.isPressed(BACK)) {
