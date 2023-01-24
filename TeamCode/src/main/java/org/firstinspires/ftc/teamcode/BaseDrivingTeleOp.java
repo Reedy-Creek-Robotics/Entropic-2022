@@ -25,6 +25,7 @@ import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Vector2;
 
 public abstract class BaseDrivingTeleOp extends BaseTeleOp {
 
@@ -71,9 +72,11 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
         } else if (driver.isPressed(A)) {
             driveTrain.centerInCurrentTile(limiter);
         } else if (driver.isPressed(B)) {
-            driveTrain.stopAllCommands();
+            //driveTrain.stopAllCommands();
+            driveTrain.moveTargetDistance(new Vector2(0,1.5), limiter);
         } else if (driver.isPressed(X)) {
-            toggleDriveMode();
+            //toggleDriveMode();
+            driveTrain.moveTargetDistance(new Vector2(0,-1.5), limiter);
         }
 
         telemetry.addData("Limiter", format(limiter));
@@ -112,7 +115,7 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
     }
 
     public enum MovementMode {
-        FAST(0.9),
+        FAST(1),
         SLOW(.3);
 
         private final double power;
