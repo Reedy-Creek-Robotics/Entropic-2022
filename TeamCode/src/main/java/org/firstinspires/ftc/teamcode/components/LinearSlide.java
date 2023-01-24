@@ -18,6 +18,7 @@ public class LinearSlide extends BaseComponent {
     private static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
     private static final double MIN_POWER = 0.01;
     private static final int TURRET_SAFETY_LEEWAY = 100;
+    private static final int DELIVER_OFFSET_LEEWAY = 300;
 
     public enum SlideHeight {
         TOP_POLE(2870),
@@ -90,7 +91,7 @@ public class LinearSlide extends BaseComponent {
 
     //todo: move it lower
     public void moveDeliverOffset() {
-        if (getPosition() >= SMALL_POLE.ticks) {
+        if (getPosition() >= (SMALL_POLE.ticks - DELIVER_OFFSET_LEEWAY)) {
             if (moveDeliverOffsetDown) {
                 moveToTicks(targetPosition -= DELIVER_OFFSET);
             } else {
