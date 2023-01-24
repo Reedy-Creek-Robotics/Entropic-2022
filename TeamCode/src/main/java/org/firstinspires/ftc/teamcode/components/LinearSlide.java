@@ -39,6 +39,7 @@ public class LinearSlide extends BaseComponent {
     private double ascendingPower = 1.0;
     private double descendingPower = 1.0;
     private double manualPower = 0.5;
+    private double manualPowerOveride = .2;
 
     private boolean moveDeliverOffsetDown = false;
     private boolean manualControl = false;
@@ -65,16 +66,30 @@ public class LinearSlide extends BaseComponent {
     }
 
     /**
+     * Resets the slide ticks to 0
+     */
+    public void resetSlideTicks() {
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    /**
      * Moves the slide with the given power, in the range (-1, 1).
      */
-    public void manualSlideMove(double power) {
+    public void manualSlideMove(double power, boolean override) {
         stopAllCommands();
 
-        if (Math.abs(power) > manualPower) {
+        if(override) {
+            power = manualPowerOveride * Math.signum(power);
+        }else if (Math.abs(power) > manualPower) {
             power = manualPower * Math.signum(power);
         }
 
-        if (Math.abs(power) < MIN_POWER ||
+        if(override) {
+            manualControl = true;
+            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            motor.setPower(power);
+
+        }else if (Math.abs(power) < MIN_POWER ||
                 (power < 0.0 && getPosition() <= MIN_HEIGHT) ||
                 (power > 0.0 && getPosition() >= MAX_HEIGHT)
         ) {

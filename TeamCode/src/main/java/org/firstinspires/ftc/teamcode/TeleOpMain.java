@@ -5,12 +5,14 @@ import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGG
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.A;
 import static org.firstinspires.ftc.teamcode.Controller.Button.B;
+import static org.firstinspires.ftc.teamcode.Controller.Button.BACK;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_STICK_BUTTON;
+import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
 import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.GROUND_LEVEL;
@@ -70,7 +72,11 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         } else if (deliverer.isPressed(A)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
         }else if(deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
-            robot.getSlide().manualSlideMove(deliverer.leftStickY());
+            robot.getSlide().manualSlideMove(deliverer.leftStickY(), deliverer.isPressed(START));
+        }
+
+        if(deliverer.isPressed(BACK)) {
+            robot.getSlide().resetSlideTicks();
         }
 
         if(driver.isPressed(RIGHT_STICK_BUTTON)) {
