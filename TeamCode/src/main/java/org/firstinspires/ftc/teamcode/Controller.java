@@ -210,6 +210,8 @@ public class Controller {
             }
             return sign * value;
         }
+
+
     }
 
     public boolean isPressed(AnalogControl analogControl) {
@@ -323,6 +325,10 @@ public class Controller {
             default:
                 throw new IllegalArgumentException("Unknown button: " + button);
         }
+    }
+
+    public static boolean nonZero(double analogValue){
+        return analogValue >= DEFAULT_DEAD_ZONE ? true : false;
     }
 
 }

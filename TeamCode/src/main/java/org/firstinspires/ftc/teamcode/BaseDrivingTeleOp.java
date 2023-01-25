@@ -76,7 +76,7 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             driveTrain.moveTargetDistance(new Vector2(0,1.5), limiter);
         } else if (driver.isPressed(X)) {
             //toggleDriveMode();
-            driveTrain.moveTargetDistance(new Vector2(0,-1.5), limiter);
+            driveTrain.moveTargetDistance(new Vector2(0,-1), limiter);
         }
 
         telemetry.addData("Limiter", format(limiter));

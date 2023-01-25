@@ -125,7 +125,7 @@ public class AutoMainRight extends AutoMain {
             robot.getSlide().moveDeliverOffset();
             robot.waitForCommandsToFinish();
 
-            robot.getIntake().outtake(1);
+            robot.getIntake().outtake(1.5);
             robot.waitForCommandsToFinish();
 
             robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2.5), BASE_SPEED);

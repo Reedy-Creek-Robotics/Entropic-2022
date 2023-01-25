@@ -14,7 +14,7 @@ import java.util.Arrays;
 
 public abstract class AutoMain extends LinearOpMode {
 
-    protected static final double BASE_SPEED = .7;
+    protected static final double BASE_SPEED = 0.8;
 
     protected int coneCount = 5;
 
@@ -23,6 +23,7 @@ public abstract class AutoMain extends LinearOpMode {
     protected AprilTagDetection aprilTagDetection;
 
     protected boolean usingHough = true;
+    protected boolean samProposal = true;
 
     protected RobotDescriptor.RampingDescriptor exactRampingDescriptor = new RobotDescriptor.RampingDescriptor(
             0, 45,1,.05

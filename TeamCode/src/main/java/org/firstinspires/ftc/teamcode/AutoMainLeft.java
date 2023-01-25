@@ -44,36 +44,31 @@ public class AutoMainLeft extends AutoMain {
 
         //drop off pole
         robot.getDriveTrain().moveToTargetPosition(new Position(1.58, 2), BASE_SPEED);
-        robot.waitForCommandsToFinish();
-
-        //todo: add together deliver offset and outtake
+        robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveDeliverOffset();
-        robot.waitForCommandsToFinish();
-
+        robot.waitForCommandsToFinish(0.5);
         robot.getIntake().outtake(1);
         robot.waitForCommandsToFinish();
 
         //recenter
-        robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
+        //robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.75), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2 + inchesToTiles(12.5)), BASE_SPEED);
         robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
-        if (usingHough) {
+        if (samProposal && usingHough) {
             robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
         }
         getNewCone();
         deliverToPole(Pole.HIGH);
 
         //getNewCone();
-        //deliverToPole(Pole.HIGH);
+        //deliverToPole(Pole.LOW);
 
         park();
 
-        //getNewCone();
-        //deliverToPole(Pole.HIGH);
     }
 
     //Used after recentered
@@ -89,6 +84,10 @@ public class AutoMainLeft extends AutoMain {
         robot.getDriveTrain().moveToHeading(new Heading(90),.3,exactRampingDescriptor);
         robot.waitForCommandsToFinish();
 
+        if(!samProposal && usingHough) {
+            robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
+        }
+
         //intake
         robot.getSlide().moveToIntake(coneCount);
         coneCount--;
@@ -102,7 +101,7 @@ public class AutoMainLeft extends AutoMain {
         robot.getDriveTrain().moveToTargetPosition(new Position(.5, robot.getDriveTrain().getPosition().getY()), BASE_SPEED);
         robot.waitForCommandsToFinish();
 
-        if(usingHough) {
+        if(false && usingHough) {
             robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
         }
     }
@@ -114,15 +113,18 @@ public class AutoMainLeft extends AutoMain {
             robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.5), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getDriveTrain().moveToTargetPosition(new Position(2,2.65), BASE_SPEED);
+            //move to pole
+            robot.getDriveTrain().moveToTargetPosition(new Position(2,2.65),new Heading(90), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
             robot.getSlide().moveDeliverOffset();
             robot.waitForCommandsToFinish();
 
-            robot.getIntake().outtake(1);
+            //outtake
+            robot.getIntake().outtake(1.5);
             robot.waitForCommandsToFinish();
 
+            //recenter on tile
             robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
             robot.waitForCommandsToFinish(.5);
             robot.getSlide().moveToHeight(TRAVEL);
@@ -143,16 +145,21 @@ public class AutoMainLeft extends AutoMain {
 
         } else if (pole == Pole.LOW) {
             robot.getSlide().moveToHeight(SMALL_POLE);
-            robot.getTurret().moveToOrientation(FRONT);
-            robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), new Heading(-45), BASE_SPEED);
-            robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(19), 2 + inchesToTiles(4)), BASE_SPEED);
+            robot.getTurret().moveToOrientation(BACK);
+            robot.getDriveTrain().moveToTargetPosition(new Position(1, 2.5), new Heading(90), BASE_SPEED);
+            robot.getDriveTrain().moveToTargetPosition(new Position(1, 2.4), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getIntake().outtake(0.5);
+            robot.getSlide().moveDeliverOffset();
             robot.waitForCommandsToFinish();
 
+            robot.getIntake().outtake(1.5);
+            robot.waitForCommandsToFinish();
+
+            robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), BASE_SPEED);
+            robot.waitForCommandsToFinish(.5);
             robot.getSlide().moveToHeight(TRAVEL);
-            robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), new Heading(0), BASE_SPEED);
+
         } else if (pole == Pole.GROUND) {
             robot.getSlide().moveToHeight(GROUND_LEVEL);
             robot.getTurret().moveToOrientation(FRONT);
@@ -168,7 +175,7 @@ public class AutoMainLeft extends AutoMain {
         }
 
         robot.waitForCommandsToFinish();
-        if(usingHough) {
+        if(samProposal && usingHough) {
             robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
         }
     }

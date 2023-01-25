@@ -10,7 +10,9 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_DOWN;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_LEFT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_RIGHT;
 import static org.firstinspires.ftc.teamcode.Controller.Button.DPAD_UP;
+import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
+import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_STICK_BUTTON;
 import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
@@ -24,6 +26,7 @@ import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.components.LinearSlide;
 import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.components.Turret.Orientation;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
@@ -32,6 +35,7 @@ import org.firstinspires.ftc.teamcode.geometry.Heading;
 public class TeleOpMain extends BaseDrivingTeleOp {
 
     private Orientation turretPosition = Orientation.FRONT;
+    private int coneCount = 4;
 
     @Override
     public void init() {
@@ -77,6 +81,12 @@ public class TeleOpMain extends BaseDrivingTeleOp {
             }
         }else if(deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
             robot.getSlide().manualSlideMove(deliverer.leftStickY());
+        }else if(Controller.nonZero(deliverer.rightStickX()) || Controller.nonZero(deliverer.rightStickY()) ) {
+            robot.getSlide().moveToIntake(coneCount);
+        }else if(deliverer.isButtonDown(RIGHT_BUMPER) && coneCount<5){
+            coneCount ++;
+        }else if(deliverer.isButtonDown(LEFT_BUMPER) && coneCount>1){
+            coneCount --;
         }
 
         if(deliverer.isPressed(BACK)) {
