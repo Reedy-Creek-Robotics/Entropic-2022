@@ -23,7 +23,7 @@ public class LinearSlide extends BaseComponent {
     public enum SlideHeight {
         TOP_POLE(2870),
         MEDIUM_POLE(2050),
-        SMALL_POLE(1150),
+        SMALL_POLE(1250),
         GROUND_LEVEL(95),
         TRAVEL(350),
         INTAKE(0);
@@ -64,6 +64,8 @@ public class LinearSlide extends BaseComponent {
         motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
+
+
 
     /**
      * Resets the slide ticks to 0

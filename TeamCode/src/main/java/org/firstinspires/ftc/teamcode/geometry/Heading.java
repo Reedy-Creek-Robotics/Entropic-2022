@@ -78,7 +78,11 @@ public class Heading {
 
     @SuppressLint("DefaultLocale")
     public String toString() {
-        return String.format("%.2f deg", value);
+        try {
+            return String.format("%.2f deg", value);
+        }catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

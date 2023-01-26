@@ -43,7 +43,7 @@ public class AutoMainLeft extends AutoMain {
         // Wait until we get an observation to make sure we are where we expect
 
         //drop off pole
-        robot.getDriveTrain().moveToTargetPosition(new Position(1.58, 2), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(1.6, 2), BASE_SPEED);
         robot.waitForCommandsToFinish(0.5);
         robot.getSlide().moveDeliverOffset();
         robot.waitForCommandsToFinish(0.5);

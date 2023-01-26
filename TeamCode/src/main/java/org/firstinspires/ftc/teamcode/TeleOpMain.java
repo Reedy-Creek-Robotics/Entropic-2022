@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_TRIGGER;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
+import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.A;
 import static org.firstinspires.ftc.teamcode.Controller.Button.B;
@@ -75,25 +77,27 @@ public class TeleOpMain extends BaseDrivingTeleOp {
             robot.getSlide().moveToHeight(MEDIUM_POLE);
         } else if (deliverer.isPressed(A)) {
             robot.getSlide().moveToHeight(SMALL_POLE);
-        }else if(deliverer.isButtonDown(START)) {
-            if(deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
+        } else if (deliverer.isPressed(RIGHT_STICK_Y, RIGHT_STICK_X)) {
+            robot.getSlide().moveToIntake(coneCount);
+        } else if (deliverer.isButtonDown(START)) {
+            if (deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
                 robot.getSlide().manualSlideOverride(deliverer.leftStickY());
             }
-        }else if(deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
+        } else if (deliverer.isPressed(LEFT_STICK_Y) || !robot.getSlide().isBusy()) {
             robot.getSlide().manualSlideMove(deliverer.leftStickY());
-        }else if(Controller.nonZero(deliverer.rightStickX()) || Controller.nonZero(deliverer.rightStickY()) ) {
-            robot.getSlide().moveToIntake(coneCount);
-        }else if(deliverer.isButtonDown(RIGHT_BUMPER) && coneCount<5){
-            coneCount ++;
-        }else if(deliverer.isButtonDown(LEFT_BUMPER) && coneCount>1){
-            coneCount --;
         }
 
-        if(deliverer.isPressed(BACK)) {
+        if (deliverer.isPressed(RIGHT_BUMPER)) {
+            coneCount++;
+        } else if (deliverer.isPressed(LEFT_BUMPER)) {
+            coneCount--;
+        }
+
+        if (deliverer.isPressed(BACK)) {
             robot.getSlide().resetSlideTicks();
         }
 
-        if(driver.isPressed(RIGHT_STICK_BUTTON)) {
+        if (driver.isPressed(RIGHT_STICK_BUTTON)) {
             robot.getSlide().moveDeliverOffset();
         }
 
@@ -103,7 +107,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
             turretPosition = Turret.getFieldRelativeOrientation(Orientation.FRONT, heading);
         } else if (deliverer.isPressed(DPAD_LEFT)) {
             turretPosition = Turret.getFieldRelativeOrientation(Orientation.LEFT_SIDE, heading);
-        } else if(deliverer.isPressed(DPAD_RIGHT)) {
+        } else if (deliverer.isPressed(DPAD_RIGHT)) {
             turretPosition = Turret.getFieldRelativeOrientation(Orientation.RIGHT_SIDE, heading);
         } else if (deliverer.isPressed(DPAD_DOWN)) {
             turretPosition = Turret.getFieldRelativeOrientation(Orientation.BACK, heading);
@@ -111,6 +115,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         robot.getTurret().moveToOrientation(turretPosition);
 
         //telemetry.addData("Turret Safe to Move", robot.getTurret().isSafeToMove() ? "yes" : "no");
+        telemetry.addData("Cone Count", coneCount);
 
         robot.updateStatus();
     }

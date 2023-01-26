@@ -58,13 +58,17 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
         // Hough assisted driving
         double driverAssistDistance = driver.isButtonDown(Y) ? 0.5 : 1.0;
         if (driver.isPressed(DPAD_UP)) {
-            driveTrain.moveAlignedToTileCenter(driverAssistDistance, NORTH, limiter);
+            //driveTrain.moveAlignedToTileCenter(driverAssistDistance, NORTH, limiter);
+            driveTrain.moveTargetDistance(new Vector2(0, driverAssistDistance), limiter);
         } else if (driver.isPressed(DPAD_LEFT)) {
-            driveTrain.moveAlignedToTileCenter(driverAssistDistance, WEST, limiter);
+            //driveTrain.moveAlignedToTileCenter(driverAssistDistance, WEST, limiter);
+            driveTrain.moveTargetDistance(new Vector2(-driverAssistDistance, 0), limiter);
         } else if (driver.isPressed(DPAD_DOWN)) {
-            driveTrain.moveAlignedToTileCenter(driverAssistDistance, SOUTH, limiter);
+            //driveTrain.moveAlignedToTileCenter(driverAssistDistance, SOUTH, limiter);
+            driveTrain.moveTargetDistance(new Vector2(0, -driverAssistDistance), limiter);
         } else if (driver.isPressed(DPAD_RIGHT)) {
-            driveTrain.moveAlignedToTileCenter(driverAssistDistance, EAST, limiter);
+            //driveTrain.moveAlignedToTileCenter(driverAssistDistance, EAST, limiter);
+            driveTrain.moveTargetDistance(new Vector2(driverAssistDistance, 0), limiter);
         } else if (driver.isPressed(LEFT_BUMPER)) {
             driveTrain.rotateAlignedToTile(90, limiter);
         } else if (driver.isPressed(RIGHT_BUMPER)) {
@@ -73,10 +77,10 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             driveTrain.centerInCurrentTile(limiter);
         } else if (driver.isPressed(B)) {
             //driveTrain.stopAllCommands();
-            driveTrain.moveTargetDistance(new Vector2(0,1.5), limiter);
+            driveTrain.moveTargetDistance(new Vector2(0, 1.5), limiter);
         } else if (driver.isPressed(X)) {
             //toggleDriveMode();
-            driveTrain.moveTargetDistance(new Vector2(0,-1), limiter);
+            driveTrain.moveTargetDistance(new Vector2(0, -1), limiter);
         }
 
         telemetry.addData("Limiter", format(limiter));
