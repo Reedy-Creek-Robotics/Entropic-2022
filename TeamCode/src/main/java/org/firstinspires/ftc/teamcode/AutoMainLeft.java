@@ -54,7 +54,7 @@ public class AutoMainLeft extends AutoMain {
         //robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.75), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2 + inchesToTiles(12.5)), BASE_SPEED);
-        robot.waitForCommandsToFinish(0.5);
+        robot.waitForCommandsToFinish(0.75);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
