@@ -6,12 +6,10 @@ import com.qualcomm.robotcore.hardware.TouchSensor;
 public class Intake extends BaseComponent {
 
     private CRServo intakeServo;
-    private TouchSensor touchSensor;
 
     public Intake(RobotContext context) {
         super(context);
         intakeServo = hardwareMap.crservo.get("Intake");
-        touchSensor = hardwareMap.touchSensor.get("IntakeTouchSensor");
     }
 
     @Override
@@ -85,8 +83,7 @@ public class Intake extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            telemetry.addData("Am I beeping and booping:", "yes I am");
-            return commandTime.seconds() > getTime();//|| (touchSensor != null ? touchSensor.isPressed() : false);
+            return commandTime.seconds() > getTime();
         }
     }
 
@@ -97,7 +94,6 @@ public class Intake extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            telemetry.addData("Am I beeping and booping:", "yes I am");
             return commandTime.seconds() > getTime();
         }
     }
