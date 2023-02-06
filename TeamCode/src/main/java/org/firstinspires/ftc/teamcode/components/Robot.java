@@ -33,7 +33,9 @@ public class Robot extends BaseComponent {
     private WebCam webCamAprilTag;
     private WebCam webCamSide;
     private WebCam webCamFront;
+
     private AprilTagDetector aprilTagDetector;
+    private PoleDetector poleDetector;
 
     private Turret turret;
     private Intake intake;
@@ -61,6 +63,8 @@ public class Robot extends BaseComponent {
 
         this.driveTrain = new DriveTrain(context, webCamSide, webCamFront);
         getRobotContext().robotPositionProvider = driveTrain;
+
+        this.poleDetector = new PoleDetector(context, webCamAprilTag);
 
         this.driveTrain.getTileEdgeDetectorFront().setWebCamMask(createFrontCameraMask());
 
