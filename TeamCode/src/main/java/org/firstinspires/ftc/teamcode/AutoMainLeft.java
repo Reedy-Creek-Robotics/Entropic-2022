@@ -54,18 +54,19 @@ public class AutoMainLeft extends AutoMain {
         //robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.75), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2 + inchesToTiles(12.5)), BASE_SPEED);
-        robot.waitForCommandsToFinish(0.75);
+        robot.waitForCommandsToFinish(POLE_WAIT_TIME);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
         if (samProposal && usingHough) {
             robot.getDriveTrain().waitForTileEdgeDetection(0.5, 1.0);
         }
-        getNewCone();
-        deliverToPole(Pole.HIGH);
 
         //getNewCone();
-        //deliverToPole(Pole.LOW);
+        //deliverToPole(Pole.HIGH);
+
+        getNewCone();
+        deliverToPole(Pole.LOW);
 
         park();
 
@@ -108,6 +109,7 @@ public class AutoMainLeft extends AutoMain {
 
     protected void deliverToPole(Pole pole) {
         if (pole == Pole.HIGH) {
+            //line up
             robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TOP_POLE);
             robot.getTurret().moveToOrientation(FRONT);
             robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.5), BASE_SPEED);
@@ -126,52 +128,79 @@ public class AutoMainLeft extends AutoMain {
 
             //recenter on tile
             robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
-            robot.waitForCommandsToFinish(.5);
+            robot.waitForCommandsToFinish(POLE_WAIT_TIME);
             robot.getSlide().moveToHeight(TRAVEL);
 
         } else if (pole == Pole.MEDIUM) {
+            // Todo: Calibrate
+            //line up
             robot.getSlide().moveToHeight(MEDIUM_POLE);
-            robot.getTurret().moveToOrientation(FRONT);
-            robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), new Heading(-45), BASE_SPEED);
-            robot.getDriveTrain().moveToTargetPosition(new Position(1 + inchesToTiles(19), 2 + inchesToTiles(4)), BASE_SPEED);
-            robot.waitForCommandsToFinish();
-
-            robot.getIntake().outtake(0.5);
-            robot.waitForCommandsToFinish();
-
-            robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), new Heading(0), BASE_SPEED);
-            robot.waitForCommandsToFinish(.5);
-            robot.getSlide().moveToHeight(TRAVEL);
-
-        } else if (pole == Pole.LOW) {
-            robot.getSlide().moveToHeight(SMALL_POLE);
             robot.getTurret().moveToOrientation(BACK);
-            robot.getDriveTrain().moveToTargetPosition(new Position(1, 2.5), new Heading(90), BASE_SPEED);
-            robot.getDriveTrain().moveToTargetPosition(new Position(1, 2.4), BASE_SPEED);
+            robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.5), new Heading(90), BASE_SPEED);
+            robot.waitForCommandsToFinish();
+
+            //move to pole
+            robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.45), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
             robot.getSlide().moveDeliverOffset();
             robot.waitForCommandsToFinish();
 
+            //outtake
             robot.getIntake().outtake(1.5);
             robot.waitForCommandsToFinish();
 
-            robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), BASE_SPEED);
-            robot.waitForCommandsToFinish(.5);
+            //recenter on tile
+            robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), new Heading(90), BASE_SPEED);
+            robot.waitForCommandsToFinish(POLE_WAIT_TIME);
+            robot.getSlide().moveToHeight(TRAVEL);
+
+        } else if (pole == Pole.LOW) {
+            // Todo: Calibrate
+            //line up
+            robot.getSlide().moveToHeight(SMALL_POLE);
+            robot.getTurret().moveToOrientation(BACK);
+            robot.getDriveTrain().moveToTargetPosition(new Position(.9, 2.5), new Heading(90), BASE_SPEED);
+            robot.waitForCommandsToFinish();
+
+            //move up to pole
+            robot.getDriveTrain().moveToTargetPosition(new Position(.9, 2.475), new Heading(90), BASE_SPEED);
+            robot.waitForCommandsToFinish();
+
+            robot.getSlide().moveDeliverOffset();
+            robot.waitForCommandsToFinish();
+
+            //outtake
+            robot.getIntake().outtake(1.5);
+            robot.waitForCommandsToFinish();
+
+            //recenter on tile
+            robot.getDriveTrain().moveToTargetPosition(new Position(.9, 2.5), BASE_SPEED);
+            robot.waitForCommandsToFinish(POLE_WAIT_TIME);
             robot.getSlide().moveToHeight(TRAVEL);
 
         } else if (pole == Pole.GROUND) {
+            // Todo: Calibrate
+            //line up
             robot.getSlide().moveToHeight(GROUND_LEVEL);
             robot.getTurret().moveToOrientation(FRONT);
-            robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), new Heading(45), BASE_SPEED);
-            robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(19), 2 + inchesToTiles(18.5)), BASE_SPEED);
+            robot.getDriveTrain().moveToTargetPosition(new Position(1, 2.5), new Heading(90), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
-            robot.getIntake().outtake(0.5);
+            robot.getSlide().moveDeliverOffset();
             robot.waitForCommandsToFinish();
 
-            robot.getSlide().moveToHeight(TRAVEL);
+            //move up to pole
+            robot.getDriveTrain().moveToTargetPosition(new Position(1, 2.65), new Heading(90), BASE_SPEED);
+            robot.waitForCommandsToFinish();
+
+            //outtake
+            robot.getIntake().outtake(1.5);
+            robot.waitForCommandsToFinish();
+
+            //recenter on tile
             robot.getDriveTrain().moveToTargetPosition(new Position(.5, 2.5), new Heading(0), BASE_SPEED);
+            robot.getSlide().moveToHeight(TRAVEL);
         }
 
         robot.waitForCommandsToFinish();

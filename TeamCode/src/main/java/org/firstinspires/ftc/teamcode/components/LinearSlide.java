@@ -23,9 +23,9 @@ public class LinearSlide extends BaseComponent {
     public enum SlideHeight {
         TOP_POLE(2870),
         MEDIUM_POLE(2050),
-        SMALL_POLE(1250),
-        GROUND_LEVEL(95),
+        SMALL_POLE(1175),
         TRAVEL(350),
+        GROUND_LEVEL(95),
         INTAKE(0);
 
         private final int ticks;

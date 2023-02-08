@@ -15,6 +15,7 @@ import java.util.Arrays;
 public abstract class AutoMain extends LinearOpMode {
 
     protected static final double BASE_SPEED = 0.8;
+    protected static final double POLE_WAIT_TIME = .75;
 
     protected int coneCount = 5;
 
@@ -46,7 +47,7 @@ public abstract class AutoMain extends LinearOpMode {
             telemetry.log().add("Detected Tag: " + (aprilTagDetection != null ? aprilTagDetection.id : null));
 
             robot.getAprilTagDetector().deactivate();
-            robot.getPoleDetector().activate();
+            //robot.getPoleDetector().activate();
             //robot.getWebCamAprilTag().stop();
 
             robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRAVEL);
