@@ -47,6 +47,18 @@ public class Rectangle {
         return new Position(right, bottom);
     }
 
+    public double getWidth() {
+        return Math.abs(right - left);
+    }
+
+    public double getHeight() {
+        return Math.abs(bottom - top);
+    }
+
+    public double getArea() {
+        return getWidth() * getHeight();
+    }
+
     /**
      * Returns true if this rectangle contains the given position, false otherwise.
      */

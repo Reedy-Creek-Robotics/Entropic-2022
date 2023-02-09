@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.util;
 
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
 public class DrawUtil {
@@ -38,6 +40,19 @@ public class DrawUtil {
                 toPoint(line.getP2()),
                 color.toRGBA(),
                 thickness
+        );
+    }
+
+    public static void drawRect(Mat output, Rectangle rectangle, Color color) {
+        Imgproc.rectangle(output, toRect(rectangle), color.toBGR(), 2);
+    }
+
+    private static Rect toRect(Rectangle rectangle) {
+        return new Rect(
+                (int) rectangle.getLeft(),
+                (int) rectangle.getTop(),
+                (int) rectangle.getWidth(),
+                (int) rectangle.getHeight()
         );
     }
 

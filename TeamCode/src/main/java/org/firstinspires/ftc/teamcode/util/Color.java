@@ -25,6 +25,8 @@ public enum Color {
         return new Scalar(red, green, blue, 255);
     }
 
-    public Scalar toBGR() { return new Scalar(blue,green,red); }
+    public Scalar toBGR() {
+        return new Scalar(blue, green, red);
+    }
 
 }

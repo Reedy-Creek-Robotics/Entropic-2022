@@ -98,6 +98,19 @@ public class RobotDescriptor {
     );
 
     /**
+     * Empirically measured pole distance values based on the bounding box size to determine an
+     * accurate distance away from the pole.
+     */
+    public List<EmpiricalPoleDetection> empiricalPoleDetections = Arrays.asList(
+            new EmpiricalPoleDetection(10,0),
+            new EmpiricalPoleDetection(8, 0),
+            new EmpiricalPoleDetection(6,0),
+            new EmpiricalPoleDetection(4, 0),
+            new EmpiricalPoleDetection(2, 0),
+            new EmpiricalPoleDetection(0, 0)
+    );
+
+    /**
      * Indicates whether empirical strafe correction using the above measurements should be enabled.
      */
     public boolean enableEmpiricalStrafeCorrection = true;
@@ -161,6 +174,22 @@ public class RobotDescriptor {
         public EmpiricalStrafeCorrection(double motorPower, double strafeCorrection) {
             this.motorPower = motorPower;
             this.strafeCorrection = strafeCorrection;
+        }
+    }
+
+    public static class EmpiricalPoleDetection {
+        /**
+         * How big the bounding box is on the screen
+         */
+        public double boundingBoxWidth;
+        /**
+         * How far away the pole is, in inches.
+         */
+        public double distance;
+
+        public EmpiricalPoleDetection(double distance, double boundingBoxWidth) {
+            this.boundingBoxWidth = boundingBoxWidth;
+            this.distance = distance;
         }
     }
 

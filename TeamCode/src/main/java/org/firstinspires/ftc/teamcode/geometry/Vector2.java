@@ -60,6 +60,11 @@ public class Vector2 {
 
     @SuppressLint("DefaultLocale")
     public String toString() {
-        return String.format("(%.3f, %.3f)", x, y);
+        return toString(2);
     }
+
+    public String toString(int precision) {
+        return String.format("(%." + precision + "f, %." + precision + "f)", x, y);
+    }
+
 }

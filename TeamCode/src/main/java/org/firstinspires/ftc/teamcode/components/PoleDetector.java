@@ -1,15 +1,18 @@
 package org.firstinspires.ftc.teamcode.components;
 
 
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
 import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import org.firstinspires.ftc.teamcode.components.WebCam.FrameContext;
-import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
-import org.firstinspires.ftc.teamcode.util.FormatUtil;
+import org.firstinspires.ftc.teamcode.util.PoleDetectionSolver;
+import org.firstinspires.ftc.teamcode.util.PoleDetectionSolver.PoleContour;
+import org.firstinspires.ftc.teamcode.util.PoleDetectionSolver.PoleDetection;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -21,7 +24,7 @@ import org.opencv.imgproc.Imgproc;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PoleDetector extends BaseComponent{
+public class PoleDetector extends BaseComponent {
 
     /**
      * The webcam to use for detection.
@@ -38,7 +41,7 @@ public class PoleDetector extends BaseComponent{
     /**
      * The most recent pole detection.
      */
-    private Detection detection;
+    private PoleDetection detection;
 
     public PoleDetector(RobotContext context, WebCam webCam) {
         super(context);
@@ -62,112 +65,115 @@ public class PoleDetector extends BaseComponent{
 
     public static class PoleDetectionParameters {
 
-        /**
-         * The color of the pole in RGBA format.
-         */
-        public Scalar poleColor = Color.BLUE.toRGBA();
+        // Base pole color HSV (41 deg, 73%, 96%)
+        // todo: calibrate this using the robot webcam
 
         /**
-         * The color detection threshold from (0-1).
+         * The lower bound for the pole color detection.
          */
-        public double colorThreshold = 0.1;
-
-    }
-
-    public static class Detection {
+        public Scalar poleColorLowerBound = new Scalar(30 / 2.0, 0, 0);
 
         /**
-         * The distance from the front edge of the robot to the pole.
-         * Measured in tiles, with the x component being lateral offset, and y being forward offset.
+         * The upper bound for the pole color detection.
          */
-        public Vector2 distance;
-
-        public Detection(Vector2 distance) {
-            this.distance = distance;
-        }
+        public Scalar poleColorUpperBound = new Scalar(50 / 2.0, 255, 255);
 
     }
 
     private class FrameProcessor implements WebCam.FrameProcessor {
-
-        private Mat mask = new Mat();
+        private Mat hsv = new Mat();
         private Mat threshold = new Mat();
-
         private Mat morphed = new Mat();
-        private Mat temp = new Mat();
         private Mat kernel = Mat.ones(7, 7, CvType.CV_8U);
-
-        Mat hierarchy = new Mat();
-
-        private Mat contoured = new Mat();
-        private Mat bounded = new Mat();
-
-
-
+        private Mat hierarchy = new Mat();
 
         @Override
         public void processFrame(Mat input, Mat output, FrameContext frameContext) {
-            // todo: change all the mats to the right stuff. Set detection somewhere.
+            // Attempt to locate junction poles, by isolating their color.
             // https://techvidvan.com/tutorials/detect-objects-of-similar-color-using-opencv-in-python/
 
-            Scalar colorDiff = Scalar.all(255).mul(Scalar.all(parameters.colorThreshold));
+            // First, convert to HSV format.  We have to do this detection in HSV space in order to handle variance
+            // in lighting in the room.
+            Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
-            Scalar lowerBound = add(parameters.poleColor, negate(colorDiff));
-            Scalar upperBound = add(parameters.poleColor, colorDiff);
+            // Create a mask with only the pixels that are in the given color range.
+            Core.inRange(input, parameters.poleColorLowerBound, parameters.poleColorUpperBound, threshold);
 
+            // Remove noise in the form of small patches of white or black pixels, ideally leaving us with
+            // only a single large contour per pole.
+            Imgproc.morphologyEx(threshold, morphed, Imgproc.MORPH_CLOSE, kernel);
+            Imgproc.morphologyEx(morphed, morphed, Imgproc.MORPH_OPEN, kernel);
 
-            Core.inRange(input, lowerBound, upperBound, threshold);
-
-            Imgproc.morphologyEx(threshold, temp, Imgproc.MORPH_CLOSE, kernel);
-            Imgproc.morphologyEx(temp, morphed, Imgproc.MORPH_OPEN, kernel);
-
+            // Detect the contours found on the screen, which are the connected white pixels in the mask.
             List<MatOfPoint> contours = new ArrayList<>();
             Imgproc.findContours(morphed, contours, hierarchy, Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
 
-            input.copyTo(contoured);
-
+            // Convert the OpenCv contours into pole contours.
+            List<PoleContour> poleContours = new ArrayList<>();
             for (int i = 0; i < contours.size(); i++) {
-                Imgproc.drawContours(contoured, contours, i, Color.RED.toBGR(), 2, Imgproc.LINE_8);
+                poleContours.add(createPoleContour(i, contours.get(i)));
             }
 
-            telemetry.addData("Number of Contours", contours.size());
+            // Now use the solver to convert from contours to an actual pole distance.
+            PoleDetectionSolver solver = new PoleDetectionSolver(
+                    robotDescriptor,
+                    new PoleDetectionSolver.Parameters(webCam.getResolution())
+            );
+            PoleDetection detection = solver.solve(poleContours);
+            if (detection != null) {
+                detection.observationTime = frameContext.frameTime;
+                PoleDetector.this.detection = detection;
+            }
 
-            assert !contours.isEmpty();
-            MatOfPoint contour = contours.get(0);
+            if (webCam.isStreaming()) {
+                // If streaming, draw the contours to the output image
+                for (int i = 0; i < contours.size(); i++) {
+                    Color color = (detection != null && i == detection.observedContour.id) ?
+                            Color.GREEN :
+                            Color.BLUE;
+                    Imgproc.drawContours(output, contours, i, color.toRGBA(), 2, Imgproc.LINE_8);
+                }
 
-            input.copyTo(bounded);
+                if (detection != null) {
+                    PoleContour contour = detection.observedContour;
+                    double area = contour.area;
+                    double fill = area / (contour.boundingRect.getWidth() * contour.boundingRect.getHeight()) * 100;
 
+                    Vector2 distance = detection.distance;
+                    Vector2 distanceInches = new Vector2(
+                            tilesToInches(distance.getX()),
+                            tilesToInches(distance.getY())
+                    );
+
+                    DrawUtil.drawRect(output, contour.boundingRect, Color.ORANGE);
+
+                    DrawUtil.drawText(output, "Area: " + format(contour.area, 0), linePos(0), Color.ORANGE);
+                    DrawUtil.drawText(output, "Distance: " + distanceInches.toString(1) + " inches", linePos(1), Color.ORANGE);
+                    DrawUtil.drawText(output, "Fill: " + format(fill, 1), linePos(2), Color.GREEN);
+                }
+            }
+        }
+
+        private PoleContour createPoleContour(int id, MatOfPoint contour) {
             Rect boundingRect = Imgproc.boundingRect(contour);
-            Imgproc.rectangle(bounded, boundingRect, Color.GREEN.toBGR(), 2);
-
             double area = Imgproc.contourArea(contour);
-            double width = boundingRect.width;
-            double height = boundingRect.height;
+            return new PoleContour(
+                    id,
+                    new Rectangle(
+                            boundingRect.y,
+                            boundingRect.x + boundingRect.width,
+                            boundingRect.y + boundingRect.height,
+                            boundingRect.x
+                    ),
+                    area
+            );
+        }
 
+        private Position linePos(int number) {
             int textStart = 30;
             int textHeight = 25;
-            double fontScale = 1.2;
-            int font = Imgproc.FONT_HERSHEY_PLAIN;
-
-            DrawUtil.drawText(bounded, "Area: " + format(area,1),new Position(10, textStart), Color.GREEN);
-            DrawUtil.drawText(bounded, "Width: " + format(width), new Position(10, textStart + textHeight), Color.GREEN);
-            DrawUtil.drawText(bounded, "Height: " + format(height), new Position(10, textStart + 2 * textHeight), Color.GREEN);
-            DrawUtil.drawText(bounded, "Fill: " + format(area / (width * height) * 100,1), new Position(10, textStart + 3 * textHeight), Color.GREEN);
-
-            input.copyTo(output);
+            return new Position(10, textStart + (textHeight * number));
         }
-    }
-
-    private static Scalar negate(Scalar a) {
-        return a.mul(Scalar.all(-1.0));
-    }
-
-    private static Scalar add(Scalar a, Scalar b) {
-        double[] result = new double[a.val.length];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = a.val[i] + b.val[i];
-        }
-        return new Scalar(result);
     }
 
 }

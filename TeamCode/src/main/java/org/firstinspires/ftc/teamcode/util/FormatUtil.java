@@ -2,12 +2,11 @@ package org.firstinspires.ftc.teamcode.util;
 
 public class FormatUtil {
 
-    public static String format(Double value) {
+    public static String format(double value) {
         return format(value, 3);
     }
 
-    public static String format(Double value, int precision) {
-        if (value == null) return "";
+    public static String format(double value, int precision) {
         return String.format("%." + precision + "f", value);
     }
 
