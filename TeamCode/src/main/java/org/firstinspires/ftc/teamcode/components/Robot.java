@@ -249,6 +249,10 @@ public class Robot extends BaseComponent {
         return aprilTagDetector;
     }
 
+    public PoleDetector getPoleDetector() {
+        return poleDetector;
+    }
+
     public void savePositionToDisk() {
         savePositionToDisk("robot-position");
     }

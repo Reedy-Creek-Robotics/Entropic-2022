@@ -65,19 +65,23 @@ public class PoleDetector extends BaseComponent {
 
     public static class PoleDetectionParameters {
 
-        // Base pole color HSV (41 deg, 73%, 96%)
+        // Base pole color HSV (20 deg, 255, 3)
         // todo: calibrate this using the robot webcam
 
         /**
          * The lower bound for the pole color detection.
          */
-        public Scalar poleColorLowerBound = new Scalar(30 / 2.0, 0, 0);
+        public Scalar poleColorLowerBound = new Scalar(15, 0, 0);
 
         /**
          * The upper bound for the pole color detection.
          */
-        public Scalar poleColorUpperBound = new Scalar(50 / 2.0, 255, 255);
+        public Scalar poleColorUpperBound = new Scalar(25, 255, 255);
 
+    }
+
+    public PoleDetectionParameters getParameters() {
+        return parameters;
     }
 
     private class FrameProcessor implements WebCam.FrameProcessor {
@@ -92,12 +96,13 @@ public class PoleDetector extends BaseComponent {
             // Attempt to locate junction poles, by isolating their color.
             // https://techvidvan.com/tutorials/detect-objects-of-similar-color-using-opencv-in-python/
 
-            // First, convert to HSV format.  We have to do this detection in HSV space in order to handle variance
+            // First, convert to HSV format.  We have to do this detection in HSV space to better handle variance
             // in lighting in the room.
-            Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
+            Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGBA2RGB);
+            Imgproc.cvtColor(hsv, hsv, Imgproc.COLOR_RGB2HSV);
 
             // Create a mask with only the pixels that are in the given color range.
-            Core.inRange(input, parameters.poleColorLowerBound, parameters.poleColorUpperBound, threshold);
+            Core.inRange(hsv, parameters.poleColorLowerBound, parameters.poleColorUpperBound, threshold);
 
             // Remove noise in the form of small patches of white or black pixels, ideally leaving us with
             // only a single large contour per pole.

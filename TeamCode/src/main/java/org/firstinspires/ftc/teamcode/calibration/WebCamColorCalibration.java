@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.calibration;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.BaseTeleOp;
+import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.components.Robot.Camera;
 import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.firstinspires.ftc.teamcode.geometry.Position;
@@ -22,6 +23,11 @@ public class WebCamColorCalibration extends BaseTeleOp {
     private WebCam webCam;
 
     private Position target;
+
+    private double[] hsvValueStored;
+
+    double[] hsvValue;
+
 
     @Override
     protected List<Camera> getEnabledCameras() {
@@ -44,15 +50,17 @@ public class WebCamColorCalibration extends BaseTeleOp {
             @Override
             public void processFrame(Mat input, Mat output, WebCam.FrameContext frameContext) {
                 // Convert frame to HSV
-                Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
+                Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGBA2RGB);
+                Imgproc.cvtColor(hsv, hsv, Imgproc.COLOR_RGB2HSV);
 
                 DrawUtil.drawMarker(output, target, Color.GREEN);
 
                 double[] rgbValue = input.get((int) target.getX(), (int) target.getY());
-                double[] hsvValue = hsv.get((int) target.getX(), (int) target.getY());
+                hsvValue = hsv.get((int) target.getX(), (int) target.getY());
 
                 DrawUtil.drawText(output, "RGB [" + formatColor(rgbValue) + "]", new Position(10, 30), Color.GREEN);
                 DrawUtil.drawText(output, "HSV [" + formatColor(hsvValue) + "]", new Position(10, 60), Color.GREEN);
+                DrawUtil.drawText(output, "HSV Stored[" + formatColor(hsvValueStored) + "]", new Position(10, 90), Color.GREEN);
             }
         });
     }
@@ -64,6 +72,10 @@ public class WebCamColorCalibration extends BaseTeleOp {
 
         telemetry.addData("Pixel", target.toString(0));
 
+        if(controller.isPressed(Controller.Button.A)) {
+            hsvValueStored = hsvValue.clone();
+        }
+
         robot.updateStatus();
     }
 
@@ -71,7 +83,7 @@ public class WebCamColorCalibration extends BaseTeleOp {
         StringBuilder sb = new StringBuilder();
         for (double value : color) {
             if (sb.length() > 0) sb.append(',');
-            sb.append(Integer.toHexString((int) value));
+            sb.append((int) value);
         }
         return sb.toString();
     }

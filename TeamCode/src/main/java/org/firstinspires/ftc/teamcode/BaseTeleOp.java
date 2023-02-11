@@ -34,7 +34,6 @@ public abstract class BaseTeleOp extends OpMode {
 
     protected List<Camera> getEnabledCameras() {
         return Arrays.asList(
-                Camera.APRIL,
                 Camera.FRONT,
                 Camera.SIDE
         );
