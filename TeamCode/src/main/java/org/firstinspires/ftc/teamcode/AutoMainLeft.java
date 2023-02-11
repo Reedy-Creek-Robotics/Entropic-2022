@@ -66,7 +66,7 @@ public class AutoMainLeft extends AutoMain {
         //deliverToPole(Pole.HIGH);
 
         getNewCone();
-        deliverToPole(Pole.LOW);
+        deliverToPole(Pole.HIGH);
 
         park();
 

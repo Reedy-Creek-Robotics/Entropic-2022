@@ -178,17 +178,19 @@ public class RobotDescriptor {
     }
 
     public static class EmpiricalPoleDetection {
+
         /**
          * How big the bounding box is on the screen
          */
-        public double boundingBoxWidth;
+        public double averageWidth;
+
         /**
          * How far away the pole is, in inches.
          */
         public double distance;
 
-        public EmpiricalPoleDetection(double distance, double boundingBoxWidth) {
-            this.boundingBoxWidth = boundingBoxWidth;
+        public EmpiricalPoleDetection(double distance, double averageWidth) {
+            this.averageWidth = averageWidth;
             this.distance = distance;
         }
     }

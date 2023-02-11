@@ -47,7 +47,7 @@ public abstract class AutoMain extends LinearOpMode {
             telemetry.log().add("Detected Tag: " + (aprilTagDetection != null ? aprilTagDetection.id : null));
 
             robot.getAprilTagDetector().deactivate();
-            robot.getPoleDetector().activate();
+            //robot.getPoleDetector().activate();
             robot.getWebCamAprilTag().stop();
 
             robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRAVEL);

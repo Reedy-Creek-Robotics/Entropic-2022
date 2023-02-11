@@ -9,6 +9,8 @@ import org.firstinspires.ftc.teamcode.components.PoleDetector;
 import org.firstinspires.ftc.teamcode.components.PoleDetector.PoleDetectionParameters;
 import org.firstinspires.ftc.teamcode.components.Robot.Camera;
 import org.firstinspires.ftc.teamcode.util.PoleDetectionSolver;
+import org.firstinspires.ftc.teamcode.util.PoleDetectionSolver.PoleContour;
+import org.firstinspires.ftc.teamcode.util.PoleDetectionSolver.PoleDetection;
 import org.opencv.core.Scalar;
 import org.openftc.apriltag.AprilTagDetection;
 
@@ -37,6 +39,13 @@ public class PoleDetectionCalibration extends BaseTeleOp {
 
     @Override
     public void loop() {
+
+        PoleDetection detection = robot.getPoleDetector().getDetection();
+        PoleContour contour = detection.observedContour;
+
+        telemetry.addData("Pole Center:", contour.centroid);
+        telemetry.addData("Pole Average Width:", contour.averageWidth);
+        telemetry.addData("Pole Distance:", detection.distance);
 
         robot.updateStatus();
     }

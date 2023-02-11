@@ -4,11 +4,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.RobotDescriptor.EmpiricalPoleDetection;
-import org.firstinspires.ftc.teamcode.components.PoleDetector;
+import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
-import org.opencv.core.MatOfPoint;
-import org.opencv.core.Rect;
 import org.opencv.core.Size;
 
 import java.util.Collections;
@@ -41,15 +39,15 @@ public class PoleDetectionSolver {
                 @Override
                 public int compare(RobotDescriptor.EmpiricalPoleDetection first, RobotDescriptor.EmpiricalPoleDetection second) {
                     return Double.compare(
-                            Math.abs(first.boundingBoxWidth - width),
-                            Math.abs(second.boundingBoxWidth - width)
+                            Math.abs(first.averageWidth - width),
+                            Math.abs(second.averageWidth - width)
                     );
                 }
             });
 
             EmpiricalPoleDetection low = detections.get(0);
             EmpiricalPoleDetection high = detections.get(1);
-            if (low.boundingBoxWidth > high.boundingBoxWidth) {
+            if (low.averageWidth > high.averageWidth) {
                 EmpiricalPoleDetection swap = low;
                 low = high;
                 high = swap;
@@ -57,10 +55,12 @@ public class PoleDetectionSolver {
 
             double distanceY = ScalingUtil.scaleLinear(
                     width,
-                    low.boundingBoxWidth, high.boundingBoxWidth,
+                    low.averageWidth, high.averageWidth,
                     low.distance, high.distance
             );
 
+            // todo: once we have the y coordinate, calculate the x coordinate by either using bilinear interpolation
+            // todo: from multiple x coordinates at each y, or by solving the geometry equations directly.
             double distanceX = 0;
 
             return new PoleDetection(new Vector2(distanceX, distanceY), contour);
@@ -93,7 +93,7 @@ public class PoleDetectionSolver {
 
     public boolean isValidDetection(PoleContour contour) {
 
-        // A contour is valid if it has a certain fill percentage, and is not near the edges of the screen.
+        // A contour is valid if it has a certain fill percentage.
         double fill = contour.area / contour.boundingRect.getArea();
         if (fill < parameters.fillThreshold) {
             return false;
@@ -132,10 +132,22 @@ public class PoleDetectionSolver {
          */
         public double area;
 
-        public PoleContour(int id, Rectangle boundingRect, double area) {
+        /**
+         * The centroid of the contour.
+         */
+        public Position centroid;
+
+        /**
+         * The average width of the contour;
+         */
+        public double averageWidth;
+
+        public PoleContour(int id, Rectangle boundingRect, double area, Position centroid, double averageWidth) {
             this.id = id;
             this.boundingRect = boundingRect;
             this.area = area;
+            this.centroid = centroid;
+            this.averageWidth = averageWidth;
         }
     }
 
@@ -173,7 +185,7 @@ public class PoleDetectionSolver {
         /**
          * The fraction of the image's height that a pole must fill for it to be considered valid.
          */
-        public double heightThreshold = 0.9;
+        public double heightThreshold = 0.5;
 
         /**
          * The fraction of a contour's bounding rect that must be filled in for it to be considered valid.

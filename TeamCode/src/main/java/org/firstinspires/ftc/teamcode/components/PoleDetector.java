@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
 import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import org.firstinspires.ftc.teamcode.components.WebCam.FrameContext;
+import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
@@ -17,9 +18,11 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,20 +66,24 @@ public class PoleDetector extends BaseComponent {
         frameProcessor = null;
     }
 
+    public PoleDetection getDetection() {
+        return detection;
+    }
+
     public static class PoleDetectionParameters {
 
-        // Base pole color HSV (20 deg, 255, 3)
+        // Base pole color HSV (22 deg, 220, 180)
         // todo: calibrate this using the robot webcam
 
         /**
          * The lower bound for the pole color detection.
          */
-        public Scalar poleColorLowerBound = new Scalar(15, 0, 0);
+        public Scalar poleColorLowerBound = new Scalar(10, 200, 100);
 
         /**
          * The upper bound for the pole color detection.
          */
-        public Scalar poleColorUpperBound = new Scalar(25, 255, 255);
+        public Scalar poleColorUpperBound = new Scalar(30, 255, 255);
 
     }
 
@@ -98,8 +105,7 @@ public class PoleDetector extends BaseComponent {
 
             // First, convert to HSV format.  We have to do this detection in HSV space to better handle variance
             // in lighting in the room.
-            Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGBA2RGB);
-            Imgproc.cvtColor(hsv, hsv, Imgproc.COLOR_RGB2HSV);
+            Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
             // Create a mask with only the pixels that are in the given color range.
             Core.inRange(hsv, parameters.poleColorLowerBound, parameters.poleColorUpperBound, threshold);
@@ -150,11 +156,18 @@ public class PoleDetector extends BaseComponent {
                             tilesToInches(distance.getY())
                     );
 
+                    DrawUtil.drawLine(output, new Line(
+                            contour.centroid.add(new Vector2(-contour.averageWidth / 2, 0)),
+                            contour.centroid.add(new Vector2(contour.averageWidth / 2, 0))
+                    ),Color.LIGHT_GRAY);
+                    DrawUtil.drawMarker(output, contour.centroid, Color.GREEN);
+
                     DrawUtil.drawRect(output, contour.boundingRect, Color.ORANGE);
 
-                    DrawUtil.drawText(output, "Area: " + format(contour.area, 0), linePos(0), Color.ORANGE);
-                    DrawUtil.drawText(output, "Distance: " + distanceInches.toString(1) + " inches", linePos(1), Color.ORANGE);
-                    DrawUtil.drawText(output, "Fill: " + format(fill, 1), linePos(2), Color.GREEN);
+                    DrawUtil.drawText(output, "Distance: " + distanceInches.toString(1) + " inches", linePos(0), Color.ORANGE);
+                    DrawUtil.drawText(output, "Fill: " + format(fill, 1), linePos(1), Color.GREEN);
+                    DrawUtil.drawText(output, "Centroid: " + contour.centroid.toString(0), linePos(2), Color.GREEN);
+                    DrawUtil.drawText(output, "Width: " + contour.averageWidth, linePos(3), Color.GREEN);
                 }
             }
         }
@@ -162,6 +175,12 @@ public class PoleDetector extends BaseComponent {
         private PoleContour createPoleContour(int id, MatOfPoint contour) {
             Rect boundingRect = Imgproc.boundingRect(contour);
             double area = Imgproc.contourArea(contour);
+            Moments moments = Imgproc.moments(contour);
+            Position centroid = new Position(
+                    moments.m10 / moments.m00,
+                    moments.m01 / moments.m00
+            );
+            double averageWidth = (area / boundingRect.area()) * boundingRect.width;
             return new PoleContour(
                     id,
                     new Rectangle(
@@ -170,7 +189,9 @@ public class PoleDetector extends BaseComponent {
                             boundingRect.y + boundingRect.height,
                             boundingRect.x
                     ),
-                    area
+                    area,
+                    centroid,
+                    averageWidth
             );
         }
 

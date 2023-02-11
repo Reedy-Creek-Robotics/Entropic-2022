@@ -50,17 +50,17 @@ public class WebCamColorCalibration extends BaseTeleOp {
             @Override
             public void processFrame(Mat input, Mat output, WebCam.FrameContext frameContext) {
                 // Convert frame to HSV
-                Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGBA2RGB);
-                Imgproc.cvtColor(hsv, hsv, Imgproc.COLOR_RGB2HSV);
+                Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
                 DrawUtil.drawMarker(output, target, Color.GREEN);
 
-                double[] rgbValue = input.get((int) target.getX(), (int) target.getY());
-                hsvValue = hsv.get((int) target.getX(), (int) target.getY());
+                double[] rgbValue = input.get((int) target.getY(), (int) target.getX());
+                hsvValue = hsv.get((int) target.getY(), (int) target.getX());
 
                 DrawUtil.drawText(output, "RGB [" + formatColor(rgbValue) + "]", new Position(10, 30), Color.GREEN);
                 DrawUtil.drawText(output, "HSV [" + formatColor(hsvValue) + "]", new Position(10, 60), Color.GREEN);
-                DrawUtil.drawText(output, "HSV Stored[" + formatColor(hsvValueStored) + "]", new Position(10, 90), Color.GREEN);
+                DrawUtil.drawText(output, "HSV Stored [" + formatColor(hsvValueStored) + "]", new Position(10, 90), Color.GREEN);
+                DrawUtil.drawText(output, "[" + formatHsvColor(hsvValueStored) + "]", new Position(10, 120), Color.GREEN);
             }
         });
     }
@@ -87,4 +87,10 @@ public class WebCamColorCalibration extends BaseTeleOp {
         }
         return sb.toString();
     }
+
+    private String formatHsvColor(double[] color) {
+        assert color.length == 3;
+        return String.format("H %.0f deg, S %.1f pct, V %.1f pct", color[0] * 2, color[1] / 255 * 100, color[2] / 255 * 100);
+    }
+
 }
