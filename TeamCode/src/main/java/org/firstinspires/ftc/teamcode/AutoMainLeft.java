@@ -16,6 +16,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.components.LinearSlide;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Vector2;
 
 @Autonomous
 public class AutoMainLeft extends AutoMain {
@@ -73,11 +74,12 @@ public class AutoMainLeft extends AutoMain {
 
     //Used after recentered
     protected void getNewCone() {
+        Vector2 fudge = new Vector2(0,0.03);
         robot.getDriveTrain().moveToHeading(new Heading(90),BASE_SPEED);
         robot.waitForCommandsToFinish();
 
         //get to stack
-        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(16.5), 2 + inchesToTiles(12.25)), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(inchesToTiles(16.5), 2 + inchesToTiles(12.25)).add(fudge), BASE_SPEED);
         robot.getTurret().moveToOrientation(RIGHT_SIDE);
         robot.waitForCommandsToFinish();
 
@@ -107,14 +109,15 @@ public class AutoMainLeft extends AutoMain {
     }
 
     protected void deliverToPole(Pole pole) {
+        Vector2 fudge = new Vector2(0,.07);
         if (pole == Pole.HIGH) {
             robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TOP_POLE);
             robot.getTurret().moveToOrientation(FRONT);
-            robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.5), BASE_SPEED);
+            robot.getDriveTrain().moveToTargetPosition(new Position(2, 2.5).add(fudge), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
             //move to pole
-            robot.getDriveTrain().moveToTargetPosition(new Position(2,2.65),new Heading(90), BASE_SPEED);
+            robot.getDriveTrain().moveToTargetPosition(new Position(2,2.65).add(fudge),new Heading(90), BASE_SPEED);
             robot.waitForCommandsToFinish();
 
             robot.getSlide().moveDeliverOffset();
@@ -125,8 +128,8 @@ public class AutoMainLeft extends AutoMain {
             robot.waitForCommandsToFinish();
 
             //recenter on tile
-            robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5), BASE_SPEED);
-            robot.waitForCommandsToFinish(.5);
+            robot.getDriveTrain().moveToTargetPosition(new Position(1.5, 2.5).add(fudge), BASE_SPEED);
+            robot.waitForCommandsToFinish(.75);
             robot.getSlide().moveToHeight(TRAVEL);
 
         } else if (pole == Pole.MEDIUM) {

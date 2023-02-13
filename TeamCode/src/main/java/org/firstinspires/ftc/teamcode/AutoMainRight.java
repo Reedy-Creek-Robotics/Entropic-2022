@@ -35,21 +35,21 @@ public class AutoMainRight extends AutoMain {
         robot.waitForCommandsToFinish();
 
         //drop off pole
-        robot.getDriveTrain().moveToTargetPosition(new Position(4.37, 2.05), BASE_SPEED);
+        robot.getDriveTrain().moveToTargetPosition(new Position(4.4, 2.05), BASE_SPEED);
         robot.waitForCommandsToFinish();
 
         //todo: add together deliver offset and outtake
         robot.getSlide().moveDeliverOffset();
         robot.waitForCommandsToFinish();
 
-        robot.getIntake().outtake(1);
+        robot.getIntake().outtake(1.5);
         robot.waitForCommandsToFinish();
 
         //recenter
         //robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2.75), BASE_SPEED);
         robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2+ inchesToTiles(12.25)), BASE_SPEED);
-        robot.waitForCommandsToFinish(0.5);
+        robot.waitForCommandsToFinish(0.75);
         robot.getSlide().moveToHeight(TRAVEL);
         robot.waitForCommandsToFinish();
 
@@ -129,7 +129,7 @@ public class AutoMainRight extends AutoMain {
             robot.waitForCommandsToFinish();
 
             robot.getDriveTrain().moveToTargetPosition(new Position(4.5, 2.5), BASE_SPEED);
-            robot.waitForCommandsToFinish(0.5);
+            robot.waitForCommandsToFinish(0.75);
             robot.getSlide().moveToHeight(SMALL_POLE);
 
         } else if (pole == Pole.MEDIUM) {
