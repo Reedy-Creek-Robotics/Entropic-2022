@@ -11,9 +11,9 @@ import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
-import org.firstinspires.ftc.teamcode.geometry.PoleDetectionSolver;
-import org.firstinspires.ftc.teamcode.geometry.PoleDetectionSolver.PoleContour;
-import org.firstinspires.ftc.teamcode.geometry.PoleDetectionSolver.PoleDetection;
+import org.firstinspires.ftc.teamcode.geometry.PoleDistanceSolver;
+import org.firstinspires.ftc.teamcode.geometry.PoleDistanceSolver.PoleContour;
+import org.firstinspires.ftc.teamcode.geometry.PoleDistanceSolver.PoleDetection;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
@@ -125,9 +125,12 @@ public class PoleDetector extends BaseComponent {
             }
 
             // Now use the solver to convert from contours to an actual pole distance.
-            PoleDetectionSolver solver = new PoleDetectionSolver(
+            PoleDistanceSolver solver = new PoleDistanceSolver(
                     robotDescriptor,
-                    new PoleDetectionSolver.Parameters(webCam.getResolution())
+                    new PoleDistanceSolver.Parameters(
+                            webCam.getResolution(),
+                            webCam.getWebCamDescriptor().fieldOfViewDegrees
+                    )
             );
             PoleDetection detection = solver.solve(poleContours);
             if (detection != null) {
@@ -166,7 +169,7 @@ public class PoleDetector extends BaseComponent {
                     DrawUtil.drawText(output, "Distance: " + distanceInches.toString(1) + " inches", linePos(0), Color.ORANGE);
                     DrawUtil.drawText(output, "Fill: " + format(fill, 1), linePos(1), Color.GREEN);
                     DrawUtil.drawText(output, "Centroid: " + contour.centroid.toString(0), linePos(2), Color.GREEN);
-                    DrawUtil.drawText(output, "Width: " + contour.averageWidth, linePos(3), Color.GREEN);
+                    DrawUtil.drawText(output, "Width: " + format(contour.averageWidth, 1), linePos(3), Color.GREEN);
                 }
             }
         }

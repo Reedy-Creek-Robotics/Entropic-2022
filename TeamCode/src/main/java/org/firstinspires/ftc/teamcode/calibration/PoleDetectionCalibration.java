@@ -5,8 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.components.Robot.Camera;
-import org.firstinspires.ftc.teamcode.geometry.PoleDetectionSolver.PoleContour;
-import org.firstinspires.ftc.teamcode.geometry.PoleDetectionSolver.PoleDetection;
+import org.firstinspires.ftc.teamcode.geometry.PoleDistanceSolver.PoleContour;
+import org.firstinspires.ftc.teamcode.geometry.PoleDistanceSolver.PoleDetection;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,11 +35,12 @@ public class PoleDetectionCalibration extends BaseTeleOp {
     public void loop() {
 
         PoleDetection detection = robot.getPoleDetector().getDetection();
-        PoleContour contour = detection.observedContour;
-
-        telemetry.addData("Pole Center:", contour.centroid);
-        telemetry.addData("Pole Average Width:", contour.averageWidth);
-        telemetry.addData("Pole Distance:", detection.distance);
+        if (detection != null) {
+            PoleContour contour = detection.observedContour;
+            telemetry.addData("Pole Center:", contour.centroid);
+            telemetry.addData("Pole Average Width:", contour.averageWidth);
+            telemetry.addData("Pole Distance:", detection.distance);
+        }
 
         robot.updateStatus();
     }

@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.util;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.geometry.Vector2;
 
 public class DistanceUtil {
 
@@ -25,6 +26,12 @@ public class DistanceUtil {
      */
     public static double inchesToTiles(double inches) {
         return inches / INCHES_PER_TILE;
+    }
+
+    public static Vector2 inchesToTiles(Vector2 vectorInInches) {
+        double xInTiles = inchesToTiles(vectorInInches.getX());
+        double yInTiles = inchesToTiles(vectorInInches.getY());
+        return new Vector2(xInTiles, yInTiles);
     }
 
 }

@@ -29,6 +29,13 @@ public class Vector2 {
         );
     }
 
+    public Vector2 minus(Vector2 other) {
+        return new Vector2(
+                x - other.x,
+                y - other.y
+        );
+    }
+
     public Vector2 rotate(double angle) {
         double theta = Math.toRadians(angle);
         return new Vector2(

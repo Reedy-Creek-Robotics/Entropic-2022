@@ -1,25 +1,24 @@
 package org.firstinspires.ftc.teamcode.geometry;
 
+import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
+
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.RobotDescriptor.EmpiricalPoleDetection;
-import org.firstinspires.ftc.teamcode.geometry.Position;
-import org.firstinspires.ftc.teamcode.geometry.Rectangle;
-import org.firstinspires.ftc.teamcode.geometry.Vector2;
-import org.firstinspires.ftc.teamcode.util.ScalingUtil;
 import org.opencv.core.Size;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class PoleDetectionSolver {
+public class PoleDistanceSolver {
 
     private RobotDescriptor robotDescriptor;
     private Parameters parameters;
 
-    public PoleDetectionSolver(RobotDescriptor robotDescriptor, Parameters parameters) {
+    public PoleDistanceSolver(RobotDescriptor robotDescriptor, Parameters parameters) {
         this.robotDescriptor = robotDescriptor;
         this.parameters = parameters;
     }
@@ -33,9 +32,9 @@ public class PoleDetectionSolver {
             // Get the detections and scale the values between detections
             double width = contour.boundingRect.getWidth();
 
-            List<EmpiricalPoleDetection> detections = robotDescriptor.empiricalPoleDetections;
+            List<EmpiricalPoleDetection> detections = new ArrayList<>(robotDescriptor.empiricalPoleDetections);
 
-            // Find the two closest empirical measurements for this motor power.
+            // Find the closest empirical measurement for this perceived pole width (in pixels).
             Collections.sort(detections, new Comparator<RobotDescriptor.EmpiricalPoleDetection>() {
                 @Override
                 public int compare(RobotDescriptor.EmpiricalPoleDetection first, RobotDescriptor.EmpiricalPoleDetection second) {
@@ -46,25 +45,37 @@ public class PoleDetectionSolver {
                 }
             });
 
-            EmpiricalPoleDetection low = detections.get(0);
-            EmpiricalPoleDetection high = detections.get(1);
-            if (low.averageWidth > high.averageWidth) {
-                EmpiricalPoleDetection swap = low;
-                low = high;
-                high = swap;
-            }
+            EmpiricalPoleDetection bestMatch = detections.get(0);
+            double bestMatchDistanceToCamera = bestMatch.distance - robotDescriptor.poleDetectionCameraOffset.getY();
 
-            double distanceY = ScalingUtil.scaleLinear(
-                    width,
-                    low.averageWidth, high.averageWidth,
-                    low.distance, high.distance
-            );
+            // Now that we have the best empirical match, calculate the focal length of the camera.
+            // https://pyimagesearch.com/2015/01/19/find-distance-camera-objectmarker-using-python-opencv/
 
-            // todo: once we have the y coordinate, calculate the x coordinate by either using bilinear interpolation
-            // todo: from multiple x coordinates at each y, or by solving the geometry equations directly.
-            double distanceX = 0;
+            // The formula for focal length is:
+            //   Focal-Length = (Perceived-Width * Distance) / Object-Width
 
-            return new PoleDetection(new Vector2(distanceX, distanceY), contour);
+            double poleWidth = 1.0; // inches
+            double focalLength = (bestMatch.averageWidth * bestMatchDistanceToCamera) / poleWidth;
+
+            // Now that we have the calculated focal length from the empirical measurement, we can find the distance
+            // to the pole in the current image by solving for Distance in the equation above.
+            //   Distance = (Focal-Length * Object-Width) / Perceived-Width
+            double distanceY = (focalLength * poleWidth) / contour.averageWidth;
+
+            // Now use trigonometry to determine the distanceX from the camera middle.
+            double imageWidth = parameters.resolution.width;
+            double imageCenter = imageWidth / 2;
+            double imageX = contour.centroid.getX();
+            double theta = (imageCenter - imageX) / imageWidth * parameters.fieldOfViewDegrees;
+            double distanceX = distanceY * Math.tan(Math.toRadians(theta));
+
+            Vector2 distance = new Vector2(distanceX, distanceY);
+            Vector2 distanceRelativeToFrontCenter = distance.add(robotDescriptor.poleDetectionCameraOffset);
+
+            // Convert the distance to tiles.
+            Vector2 distanceInTiles = inchesToTiles(distanceRelativeToFrontCenter);
+
+            return new PoleDetection(distanceInTiles, contour);
 
         } else {
             // There was no valid pole detection to solve.
@@ -184,6 +195,11 @@ public class PoleDetectionSolver {
         public Size resolution;
 
         /**
+         * The field of view of the webcam in degrees.
+         */
+        public double fieldOfViewDegrees;
+
+        /**
          * The fraction of the image's height that a pole must fill for it to be considered valid.
          */
         public double heightThreshold = 0.5;
@@ -191,10 +207,12 @@ public class PoleDetectionSolver {
         /**
          * The fraction of a contour's bounding rect that must be filled in for it to be considered valid.
          */
-        public double fillThreshold = 0.8;
+        //public double fillThreshold = 0.8;
+        public double fillThreshold = 0.7;
 
-        public Parameters(Size resolution) {
+        public Parameters(Size resolution, double fieldOfViewDegrees) {
             this.resolution = resolution;
+            this.fieldOfViewDegrees = fieldOfViewDegrees;
         }
     }
 

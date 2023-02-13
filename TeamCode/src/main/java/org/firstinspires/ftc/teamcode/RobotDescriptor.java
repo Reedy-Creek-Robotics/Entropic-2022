@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamAnchorPoint.anchor;
 
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.opencv.core.Size;
 
 import java.util.Arrays;
@@ -30,7 +31,7 @@ public class RobotDescriptor {
     public double wheelMotorEncoderTicksPerRevolution = 537.6;
 
     public RampingDescriptor turnRampingDescriptor = new RampingDescriptor(
-            2, 45,1, .05
+            2, 45, 1, .05
     );
 
     /**
@@ -98,22 +99,40 @@ public class RobotDescriptor {
     );
 
     /**
-     * Empirically measured pole distance values based on the bounding box size to determine an
-     * accurate distance away from the pole.
-     */
-    public List<EmpiricalPoleDetection> empiricalPoleDetections = Arrays.asList(
-            new EmpiricalPoleDetection(10,0),
-            new EmpiricalPoleDetection(8, 0),
-            new EmpiricalPoleDetection(6,0),
-            new EmpiricalPoleDetection(4, 0),
-            new EmpiricalPoleDetection(2, 0),
-            new EmpiricalPoleDetection(0, 0)
-    );
-
-    /**
      * Indicates whether empirical strafe correction using the above measurements should be enabled.
      */
     public boolean enableEmpiricalStrafeCorrection = true;
+
+    /**
+     * Empirically measured pole distance values based on the average width in pixels.
+     * <p>
+     * Distance is the distance from the front of the robot in inches.
+     */
+    public List<EmpiricalPoleDetection> empiricalPoleDetections = Arrays.asList(
+            new EmpiricalPoleDetection(4, 68),
+            new EmpiricalPoleDetection(8, 44),
+            new EmpiricalPoleDetection(12, 32)
+    );
+
+    /**
+     * The offset of the camera used for pole detection, relative to the front-center of the robot, in inches (the pole
+     * reference point).  In other words, add this vector to the front center of the robot to get location of the
+     * camera.
+     */
+    // todo: calibrate this
+    /*
+    public Vector2 poleDetectionCameraOffset = new Vector2(
+            -1.0,
+            -robotDimensionsInInches.height / 2.0
+    );
+    */
+    public Vector2 poleDetectionCameraOffset = new Vector2(
+            0,
+            -3.0
+    );
+
+    public static final double LOGITECH_C310_FOV = 60; // diagonal FOV from the data sheet
+    public static final double LOGITECH_C310_FOV_HORIZONTAL = (640 / new Vector2(640, 360).magnitude()) * LOGITECH_C310_FOV;
 
     /**
      * The webcam used for detecting April tags.
@@ -121,7 +140,8 @@ public class RobotDescriptor {
     public WebCamDescriptor webCamAprilTagDescriptor = new WebCamDescriptor(
             "WebCamAprilTag",
             WebCamOrientation.FRONT_FORWARD,
-            new Size(640,480)
+            new Size(640, 480),
+            LOGITECH_C310_FOV_HORIZONTAL
     );
 
     /**
@@ -180,12 +200,12 @@ public class RobotDescriptor {
     public static class EmpiricalPoleDetection {
 
         /**
-         * How big the bounding box is on the screen
+         * How wide the pole is on the screen, measured in pixels
          */
         public double averageWidth;
 
         /**
-         * How far away the pole is, in inches.
+         * How far away the pole is in the y direction, measured in inches.
          */
         public double distance;
 
@@ -232,9 +252,13 @@ public class RobotDescriptor {
         public WebCamOrientation orientation;
 
         /**
+         * The field of view of the webcam, if known.
+         */
+        public Double fieldOfViewDegrees;
+
+        /**
          * For field facing webcams, the list of known anchor points obtained through calibration.
          */
-        //public List<WebCamAnchorPoint> anchorPoints = new ArrayList<>();
         public WebCamAnchorPoint topLeft;
         public WebCamAnchorPoint topRight;
         public WebCamAnchorPoint bottomLeft;
@@ -258,10 +282,11 @@ public class RobotDescriptor {
             this.bottomRight = bottomRight;
         }
 
-        public WebCamDescriptor(String name, WebCamOrientation orientation, Size resolution) {
+        public WebCamDescriptor(String name, WebCamOrientation orientation, Size resolution, double fieldOfViewDegrees) {
             this.name = name;
             this.orientation = orientation;
             this.resolution = resolution;
+            this.fieldOfViewDegrees = fieldOfViewDegrees;
         }
     }
 

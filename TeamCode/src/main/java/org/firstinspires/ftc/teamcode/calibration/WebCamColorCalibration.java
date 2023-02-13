@@ -89,8 +89,9 @@ public class WebCamColorCalibration extends BaseTeleOp {
     }
 
     private String formatHsvColor(double[] color) {
+        if (color == null) return "";
         assert color.length == 3;
-        return String.format("H %.0f deg, S %.1f pct, V %.1f pct", color[0] * 2, color[1] / 255 * 100, color[2] / 255 * 100);
+        return String.format("H=%.0f deg, S=%.1f pct, V=%.1f pct", color[0] * 2, color[1] / 255 * 100, color[2] / 255 * 100);
     }
 
 }

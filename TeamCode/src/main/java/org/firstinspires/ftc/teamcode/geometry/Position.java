@@ -82,6 +82,13 @@ public class Position {
         return new Position(Math.round(x * 2.0) / 2.0, Math.round(y * 2.0) / 2.0);
     }
 
+    /**
+     * Convert this position to a vector.
+     */
+    public Vector2 toVector2() {
+        return new Vector2(x, y);
+    }
+
     @SuppressLint("DefaultLocale")
     public String toString() {
         return String.format("(%.3f, %.3f)", x, y);
