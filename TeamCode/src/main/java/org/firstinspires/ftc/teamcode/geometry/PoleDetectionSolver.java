@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.util;
+package org.firstinspires.ftc.teamcode.geometry;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.RobotDescriptor.EmpiricalPoleDetection;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
+import org.firstinspires.ftc.teamcode.util.ScalingUtil;
 import org.opencv.core.Size;
 
 import java.util.Collections;
