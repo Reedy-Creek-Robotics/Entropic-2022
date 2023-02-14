@@ -34,6 +34,11 @@ public class PoleDetectionCalibration extends BaseTeleOp {
     @Override
     public void loop() {
 
+        if(controller.isPressed(Controller.Button.A)) {
+            robot.getWebCamAprilTag().saveLastFrame();
+            robot.waitForCommandsToFinish();
+        }
+
         PoleDetection detection = robot.getPoleDetector().getDetection();
         if (detection != null) {
             PoleContour contour = detection.observedContour;

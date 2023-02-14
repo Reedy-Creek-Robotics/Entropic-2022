@@ -202,13 +202,14 @@ public class PoleDistanceSolver {
         /**
          * The fraction of the image's height that a pole must fill for it to be considered valid.
          */
-        public double heightThreshold = 0.5;
+        public double heightThreshold = 0.3;
 
         /**
          * The fraction of a contour's bounding rect that must be filled in for it to be considered valid.
          */
-        //public double fillThreshold = 0.8;
+        //public double fillThreshold = 0.7;
         public double fillThreshold = 0.7;
+
 
         public Parameters(Size resolution, double fieldOfViewDegrees) {
             this.resolution = resolution;

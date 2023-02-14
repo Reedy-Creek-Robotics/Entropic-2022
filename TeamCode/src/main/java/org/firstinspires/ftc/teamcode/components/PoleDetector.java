@@ -77,12 +77,12 @@ public class PoleDetector extends BaseComponent {
         /**
          * The lower bound for the pole color detection.
          */
-        public Scalar poleColorLowerBound = new Scalar(10, 200, 100);
+        public Scalar poleColorLowerBound = new Scalar(10, 100, 100);
 
         /**
          * The upper bound for the pole color detection.
          */
-        public Scalar poleColorUpperBound = new Scalar(30, 255, 255);
+        public Scalar poleColorUpperBound = new Scalar(35, 255, 255);
 
     }
 
