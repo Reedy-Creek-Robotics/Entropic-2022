@@ -16,13 +16,9 @@ import static org.firstinspires.ftc.teamcode.Controller.Button.RIGHT_BUMPER;
 import static org.firstinspires.ftc.teamcode.Controller.Button.START;
 import static org.firstinspires.ftc.teamcode.Controller.Button.X;
 import static org.firstinspires.ftc.teamcode.Controller.Button.Y;
-import static org.firstinspires.ftc.teamcode.game.Field.Direction.EAST;
-import static org.firstinspires.ftc.teamcode.game.Field.Direction.NORTH;
-import static org.firstinspires.ftc.teamcode.game.Field.Direction.SOUTH;
-import static org.firstinspires.ftc.teamcode.game.Field.Direction.WEST;
 import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
-import org.firstinspires.ftc.teamcode.components.DriveTrain;
+import org.firstinspires.ftc.teamcode.components.drive.DriveTrain;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;

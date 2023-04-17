@@ -37,7 +37,7 @@ public class HoughTransformTest extends OpMode {
         if (gamepad1.a && waitTime.seconds() > 1) {
             waitTime.reset();
 
-            robot.getDriveTrain().moveForwardSimple(inchesToTiles(12),.5);
+            //robot.getDriveTrain().moveForwardSimple(inchesToTiles(12),.5);
             robot.waitForCommandsToFinish(.2);
 
             robot.getWebCamSide().saveLastFrame();

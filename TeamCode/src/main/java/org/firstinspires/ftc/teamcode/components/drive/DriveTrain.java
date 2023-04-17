@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.components;
+package org.firstinspires.ftc.teamcode.components.drive;
 
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
@@ -20,16 +20,20 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.components.BaseComponent;
+import org.firstinspires.ftc.teamcode.components.CombinableCommand;
+import org.firstinspires.ftc.teamcode.components.Command;
+import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.components.RobotContext.RobotPositionProvider;
+import org.firstinspires.ftc.teamcode.components.TileEdgeDetector;
 import org.firstinspires.ftc.teamcode.components.TileEdgeDetector.TileEdgeObservationAggregator;
+import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Field.Direction;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
-import org.firstinspires.ftc.teamcode.util.MecanumUtil;
-import org.firstinspires.ftc.teamcode.util.MecanumUtil.MotorPowers;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +45,11 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * A representation of the playing field.
      */
     private Field field = new Field();
+
+    /**
+     * The physical drive model for the robot.
+     */
+    private DriveModel model = new MecanumDriveModel();
 
     /**
      * Detects tile edges to provide empirical correction to the robot's position and heading.
@@ -264,7 +273,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
             int deltaFrontLeft = ticks.frontLeft - previousMotorTicks.frontLeft;
             int deltaFrontRight = ticks.frontRight - previousMotorTicks.frontRight;
 
-            Vector2 deltaPositionRelativeToField = MecanumUtil.calculatePositionOffsetFromWheelRotations(
+            Vector2 deltaPositionRelativeToField = model.calculatePositionOffsetFromWheelRotations(
                     robotDescriptor,
                     deltaBackLeft,
                     deltaBackRight,
@@ -475,7 +484,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         // Stop any current command from executing.
         stopAllCommands();
 
-        MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDrive(
+        MotorPowers motorPowers = model.calculateWheelPowerForDrive(
                 drive,
                 strafe,
                 turn,
@@ -491,7 +500,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         // Stop any current command from executing.
         stopAllCommands();
 
-        MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForDriverRelative(
+        MotorPowers motorPowers = model.calculateWheelPowerForDriverRelative(
                 drive,
                 strafe,
                 turn,
@@ -591,86 +600,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     }
 
     /**
-     * Moves forward the given distance.
-     *
-     * @param distance the distance to move in tiles
-     * @param speed    a factor 0-1 that indicates how fast to move
-     */
-    public void moveForwardSimple(double distance, double speed) {
-        executeCommand(new MoveForward(distance, speed));
-    }
-
-    /**
-     * Moves forward the given distance
-     *
-     * @param distance the distance to move in tiles. Positive to the left, Negative to the right
-     * @param speed    a factor 0-1 that indicates how fast to move
-     */
-    public void strafeSimple(double distance, double speed) {
-        executeCommand(new Strafe(distance, speed));
-    }
-
-    /**
-     * Turns the given angle
-     *
-     * @param angle Positive is left, negative is right, turns the given angle in degrees
-     * @param speed 0-1, how fast we move
-     */
-    public void rotateSimple(double angle, double speed) {
-        executeCommand(new Rotate(angle, speed));
-    }
-
-    /**
-     * Aligns the robot to the given angle from the edge of the tile.
-     *
-     * @param targetAngle the desired angle from the tile edge, in degrees.
-     * @param speed       the master speed at which we travel
-     * @param time        the time the detector will wait in seconds
-     */
-    /*
-    public void alignToTileAngle(double targetAngle, double speed, double time) {
-        if (tileEdgeDetectorSide.waitForDetection(time)) {
-            double initialAngle = tileEdgeDetectorSide.getAngleToTile();
-            double angle = targetAngle - initialAngle;
-
-            double maxRotationForAlignment = 45.0;
-            if (Math.abs(angle) < maxRotationForAlignment) {
-                rotate(angle, speed);
-            }
-        }
-    }
-
-    public void alignToTileAngle(double targetAngle, double speed) {
-        alignToTileAngle(targetAngle, speed, 1);
-    }*/
-
-    /**
-     * Strafes the robot so that the edge of the right wheel is the requested distance from the edge of the closest
-     * tile to the right.
-     *
-     * @param targetDistance the desired distance from the edge of the tile, in tiles.
-     * @param speed          the master speed at which we travel
-     * @param time           the time the detector will wait in seconds
-     */
-    /*
-    public void moveDistanceFromTileEdge(double targetDistance, double speed, double time) {
-        if (tileEdgeDetectorSide.waitForDetection(time)) {
-            double initialDistance = tileEdgeDetectorSide.getDistanceToTileHorizontal();
-            double distance = targetDistance - initialDistance;
-
-            // Sanity check - don't try to move more than 10 inches
-            double maxDistance = inchesToTiles(10);
-            if (Math.abs(distance) < maxDistance) {
-                strafe(distance, speed);
-            }
-        }
-    }
-
-    public void moveDistanceFromTileEdge(double targetDistance, double speed) {
-        moveDistanceFromTileEdge(targetDistance, speed, 1);
-    }*/
-
-    /**
      * Turns off all the motors.
      */
     private void stopMotors() {
@@ -711,52 +640,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         if (mode == DcMotor.RunMode.RUN_WITHOUT_ENCODER || mode == DcMotor.RunMode.STOP_AND_RESET_ENCODER) {
             previousMotorTicks = null;
         }
-    }
-
-    /**
-     * Calculates the average position for each motor.
-     */
-    private int averageMotorPosition() {
-        int sum = 0;
-        for (DcMotorEx motor : motors) {
-            sum += Math.abs(motor.getCurrentPosition());
-        }
-        return sum / motors.size();
-    }
-
-    /**
-     * Calculates a smooth power curve between any two positions (in ticks, degrees, inches, etc),
-     * based on the current position, the initial position, and the target position.
-     *
-     * @param current the current measured position
-     * @param initial the initial position that was moved from
-     * @param target  the target position being moved to
-     * @param speed   the master speed, with range 0.0 - 1.0
-     */
-    private double getPowerCurveForPosition(double current, double initial, double target, double speed) {
-        // Scale the position to between 0 - 1
-        double xVal = scaleProgress(current, initial, target);
-
-        double minPower = 0.15;
-
-        double power;
-        if (xVal < 0.25) {
-            power = 1 / (1 + Math.pow(Math.E, -16 * (2 * xVal - 0.125)));
-
-            // While accelerating, gradually increase the min power with time
-            //minPower += time.seconds() / 4.0;
-
-        } else {
-            power = 1 / (1 + Math.pow(Math.E, 8 * (2 * xVal - 1.675)));
-        }
-
-        power *= speed;
-
-        if (power < minPower) {
-            power = minPower;
-        }
-
-        return power;
     }
 
     /**
@@ -857,7 +740,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
         @Override
         public boolean updateStatus() {
-            MotorPowers motorPowers = MecanumUtil.calculateWheelPowerForTargetPosition(
+            MotorPowers motorPowers = model.calculateWheelPowerForTargetPosition(
                     robotDescriptor,
                     rampingTurnDescriptor,
                     position, heading, velocity,
@@ -1103,166 +986,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
             }
 
             return null;
-        }
-
-    }
-
-    private class MoveForward extends BaseCommand {
-
-        /**
-         * The distance we want to move.
-         */
-        private double distance;
-
-        /**
-         * The speed at which to move (0 - 1).
-         */
-        private double speed;
-
-        /**
-         * The number of ticks we want to move.
-         */
-        private int ticks;
-
-        ////////////////////////////////////////////////
-        //Test Code
-        private double progress;
-        ////////////////////////////////////////////////
-
-        public MoveForward(double distance, double speed) {
-            this.distance = distance;
-            this.speed = speed;
-        }
-
-        @Override
-        public void start() {
-
-            ////////////////////////////////////////////////
-            //Test Code
-            progress = 0;
-            ////////////////////////////////////////////////
-
-            // Figure out the distance in ticks
-            ticks = MecanumUtil.tilesToTicks(robotDescriptor, distance);
-
-            setMotorMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-
-            for (DcMotorEx motor : motors) {
-                motor.setTargetPosition(ticks);
-            }
-
-            setMotorMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        }
-
-        @Override
-        public boolean updateStatus() {
-
-            // Check if we've reached the correct number of ticks
-            int ticksMoved = averageMotorPosition();
-
-            telemetry.addData("ticks moved", ticksMoved);
-            telemetry.addData("ticks", ticks);
-
-            setMotorPower(getPowerCurveForPosition(ticksMoved, 0, Math.abs(ticks), speed));
-            return progress >= 1.0;
-        }
-    }
-
-    private class Strafe extends BaseCommand {
-
-        /**
-         * The distance we want to move. Negative direction is to the right, Positive to the left
-         */
-        private double distance;
-
-        /**
-         * The speed at which to move.
-         */
-        private double speed;
-
-        private int ticks;
-
-        ////////////////////////////////////////////////
-        //Test Code
-        private double progress;
-        ////////////////////////////////////////////////
-
-        public Strafe(double distance, double speed) {
-            this.distance = distance;
-            this.speed = speed;
-        }
-
-        @Override
-        public void start() {
-            ////////////////////////////////////////////////
-            //Test Code
-            progress = 0;
-            ////////////////////////////////////////////////
-
-            ticks = MecanumUtil.tilesToTicks(robotDescriptor, distance);
-
-            setMotorMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-
-            frontLeft.setTargetPosition(-ticks);
-            frontRight.setTargetPosition(ticks);
-            backLeft.setTargetPosition(ticks);
-            backRight.setTargetPosition(-ticks);
-
-            setMotorMode(DcMotor.RunMode.RUN_TO_POSITION);
-        }
-
-        @Override
-        public boolean updateStatus() {
-            int ticksMoved = averageMotorPosition();
-
-            telemetry.addData("tick moved", ticksMoved);
-            telemetry.addData("ticks", ticks);
-
-            setMotorPower(getPowerCurveForPosition(ticksMoved, 0, Math.abs(ticks), speed));
-
-            return progress >= 1.0;
-        }
-    }
-
-    private class Rotate extends BaseCommand {
-
-        private Heading initialHeading;
-        private Heading targetHeading;
-        private double speed;
-
-        public Rotate(double angle, double speed) {
-            this.initialHeading = heading;
-            this.targetHeading = heading.add(angle);
-            this.speed = speed;
-        }
-
-        @Override
-        public void start() {
-            setMotorMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
-        }
-
-        @Override
-        public boolean updateStatus() {
-
-            double power = getPowerCurveForPosition(heading.getValue(), initialHeading.getValue(), targetHeading.getValue(), speed);
-
-            //if problems check this
-            if (targetHeading.delta(heading) < 0) {
-                power = -power;
-            }
-            double progress = scaleProgress(heading.getValue(), initialHeading.getValue(), targetHeading.getValue());
-
-            telemetry.addData("Heading", heading);
-            telemetry.addData("Initial Heading", initialHeading);
-            telemetry.addData("Target Heading", targetHeading);
-            telemetry.addData("Motor Power Curve", power);
-
-            frontLeft.setPower(-power);
-            backLeft.setPower(-power);
-            frontRight.setPower(power);
-            backRight.setPower(power);
-
-            return progress >= 1.0;
         }
 
     }
