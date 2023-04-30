@@ -2,12 +2,15 @@ package org.firstinspires.ftc.teamcode.calibration;
 
 import static org.firstinspires.ftc.teamcode.Controller.*;
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
 import org.firstinspires.ftc.teamcode.BaseDrivingTeleOp;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 
+@TeleOp
 public class HoughDemo extends BaseDrivingTeleOp {
     @Override
     protected Robot.Camera getStreamingCamera() {
@@ -23,5 +26,6 @@ public class HoughDemo extends BaseDrivingTeleOp {
         }
 
         applyBasicDriving();
+        robot.updateStatus();
     }
 }
