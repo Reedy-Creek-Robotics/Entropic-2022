@@ -54,37 +54,37 @@ public class Robot extends BaseComponent {
     public Robot(OpMode opMode, Camera streamingCamera, List<Camera> enabledCameras) {
         super(createRobotContext(opMode));
 
-        this.webCamAprilTag = new WebCam(context, robotDescriptor.webCamAprilTagDescriptor,
-                streamingCamera == Camera.APRIL);
-        this.webCamSide = new WebCam(context, robotDescriptor.webCamSideDescriptor,
-                streamingCamera == Camera.SIDE);
-        this.webCamFront = new WebCam(context, robotDescriptor.webCamFrontDescriptor,
-                streamingCamera == Camera.FRONT);
+//        this.webCamAprilTag = new WebCam(context, robotDescriptor.webCamAprilTagDescriptor,
+//                streamingCamera == Camera.APRIL);
+//        this.webCamSide = new WebCam(context, robotDescriptor.webCamSideDescriptor,
+//                streamingCamera == Camera.SIDE);
+//        this.webCamFront = new WebCam(context, robotDescriptor.webCamFrontDescriptor,
+//                streamingCamera == Camera.FRONT);
 
         this.driveTrain = new DriveTrain(context, webCamSide, webCamFront);
         getRobotContext().robotPositionProvider = driveTrain;
 
-        this.poleDetector = new PoleDetector(context, webCamAprilTag);
+//        this.poleDetector = new PoleDetector(context, webCamAprilTag);
 
-        this.driveTrain.getTileEdgeDetectorFront().setWebCamMask(createFrontCameraMask());
+        //this.driveTrain.getTileEdgeDetectorFront().setWebCamMask(createFrontCameraMask());
 
-        this.aprilTagDetector = new AprilTagDetector(context, webCamAprilTag);
+        //this.aprilTagDetector = new AprilTagDetector(context, webCamAprilTag);
 
-        this.turret = new Turret(context, new Turret.SafetyCheck() {
+        /*this.turret = new Turret(context, new Turret.SafetyCheck() {
             @Override
             public boolean isSafeToMove() {
                 return slide.isAtOrAbove(TRAVEL);
             }
-        });
+        });*/
 
-        this.slide = new LinearSlide(context);
-        this.intake = new Intake(context);
+//        this.slide = new LinearSlide(context);
+//        this.intake = new Intake(context);
 
-        addSubComponents(driveTrain, turret, slide, intake);
+        addSubComponents(driveTrain);//, turret, slide, intake);
 
-        for (Camera camera : enabledCameras) {
+        /*for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));
-        }
+        }*/
 
         TelemetryHolder.telemetry = telemetry;
     }

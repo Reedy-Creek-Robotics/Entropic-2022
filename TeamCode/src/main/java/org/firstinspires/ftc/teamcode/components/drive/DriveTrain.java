@@ -49,9 +49,10 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     /**
      * The physical drive model for the robot.
      */
-    private DriveModel model = new MecanumDriveModel();
+    private DriveModel model = new XDriveModel();
 
     /**
+     * Detects tile edges to provide empirical correction to the robot's position and heading.
      * Detects tile edges to provide empirical correction to the robot's position and heading.
      */
     private TileEdgeDetector tileEdgeDetectorSide;
@@ -133,10 +134,10 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
 
-        tileEdgeAggregator = new TileEdgeObservationAggregator();
+        /*tileEdgeAggregator = new TileEdgeObservationAggregator();
         tileEdgeDetectorSide = new TileEdgeDetector(context, webCamSide, tileEdgeAggregator);
         tileEdgeDetectorFront = new TileEdgeDetector(context, webCamFront, tileEdgeAggregator);
-        addSubComponents(tileEdgeDetectorSide, tileEdgeDetectorFront);
+        addSubComponents(tileEdgeDetectorSide, tileEdgeDetectorFront);*/
 
         // For now starting position is to be assumed the origin (0, 0)
         position = new Position(0.5, 0.5);
@@ -160,8 +161,8 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         }
 
         // Activate the side tile edge detector immediately
-        tileEdgeDetectorSide.activate();
-        tileEdgeDetectorFront.activate();
+//        tileEdgeDetectorSide.activate();
+//        tileEdgeDetectorFront.activate();
 
         previousUpdateTime = new ElapsedTime();
     }
@@ -254,7 +255,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         updateCurrentPositionWithMotorTicks();
 
         // Override this with a visual observation from hough code, if there is one.
-        updateCurrentPositionWithTileEdgeObservation();
+        //updateCurrentPositionWithTileEdgeObservation();
     }
 
     private void updateCurrentPositionWithMotorTicks() {

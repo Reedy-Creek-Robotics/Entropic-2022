@@ -8,7 +8,6 @@ import com.qualcomm.robotcore.hardware.DigitalChannel;
 public class DistanceBreakTest extends OpMode {
     DigitalChannel distanceBreakSensor;
 
-    boolean swit = false;
     @Override
     public void init(){
         distanceBreakSensor = hardwareMap.digitalChannel.get("distanceSensor");
@@ -18,8 +17,6 @@ public class DistanceBreakTest extends OpMode {
     public void loop(){
         telemetry.addData("is within distance",distanceBreakSensor.getState());
 
-        if(distanceBreakSensor.getState()){swit = true;}
-        if(swit){telemetry.addData("test: ",true);}
         telemetry.update();
     }
 }

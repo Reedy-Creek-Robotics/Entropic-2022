@@ -46,8 +46,8 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         // Load the position from disk, so it can pick up the previous position from the auto path.
         robot.loadPositionFromDisk();
 
-        deliverer.analogConfig(LEFT_STICK_Y)
-                .withMaxValue(robot.getSlide().getManualPower());
+        /*deliverer.analogConfig(LEFT_STICK_Y)
+                .withMaxValue(robot.getSlide().getManualPower());*/
     }
 
     @Override
@@ -55,7 +55,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         // Driving
         applyDriving();
 
-        // Intake
+        /*// Intake
         if (driver.isPressed(RIGHT_TRIGGER)) {
             robot.getIntake().intakeManual();
         } else if (driver.isPressed(LEFT_TRIGGER)) {
@@ -115,7 +115,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         robot.getTurret().moveToOrientation(turretPosition);
 
         //telemetry.addData("Turret Safe to Move", robot.getTurret().isSafeToMove() ? "yes" : "no");
-        telemetry.addData("Cone Count", coneCount);
+        telemetry.addData("Cone Count", coneCount);*/
 
         robot.updateStatus();
     }
