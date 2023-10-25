@@ -8,6 +8,15 @@ public class Rectangle {
         this(height, width, 0, 0);
     }
 
+    public Rectangle(Position position, double width, double height) {
+        this(
+                position.getY(),
+                position.getX() + width,
+                position.getY() + height,
+                position.getX()
+        );
+    }
+
     public Rectangle(double top, double right, double bottom, double left) {
         this.top = top;
         this.right = right;
