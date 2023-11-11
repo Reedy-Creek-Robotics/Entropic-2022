@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.bareBones;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.ColorDetector;
@@ -10,6 +11,7 @@ import org.firstinspires.ftc.teamcode.components.WebCam;
 
 import java.util.List;
 
+@TeleOp(group = "Barebone Component Testing")
 public class ColorDetectorTester extends OpMode {
 
     ColorDetector colorDetector;
