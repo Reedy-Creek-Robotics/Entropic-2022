@@ -68,12 +68,12 @@ public class ColorDetector extends BaseComponent {
         /**
          * The lower bound for the color detection.
          */
-        public Scalar colorLowerBound = new Scalar(10, 100, 100);
+        public Scalar colorLowerBound = new Scalar(180, 100, 100);
 
         /**
          * The upper bound for the color detection.
          */
-        public Scalar colorUpperBound = new Scalar(35, 255, 255);
+        public Scalar colorUpperBound = new Scalar(220, 255, 255);
 
     }
 

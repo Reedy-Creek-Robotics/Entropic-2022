@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.calibration;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.BaseTeleOp;
-import org.firstinspires.ftc.teamcode.components.Robot.Camera;
 import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
@@ -13,9 +12,6 @@ import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
-import java.util.Arrays;
-import java.util.List;
-
 @TeleOp(group = "Calibration")
 public class WebCamColorCalibration extends BaseTeleOp {
 
@@ -24,15 +20,10 @@ public class WebCamColorCalibration extends BaseTeleOp {
     private Position target;
 
     @Override
-    protected List<Camera> getEnabledCameras() {
-        return Arrays.asList(Camera.APRIL);
-    }
-
-    @Override
     public void init() {
         super.init();
 
-        webCam = robot.getWebCamAprilTag();
+        webCam = robot.getWebCamFront();
         Size resolution = webCam.getResolution();
 
         target = new Position(resolution.width / 2, resolution.height / 2);

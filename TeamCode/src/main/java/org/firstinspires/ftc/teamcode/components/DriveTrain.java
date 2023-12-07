@@ -1,12 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
-import static org.firstinspires.ftc.teamcode.util.DistanceUtil.tilesToInches;
-import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.FieldSpaceCoordinates;
-import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.RobotSpaceCoordinates;
-import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.convertToFieldSpace;
-import static org.firstinspires.ftc.teamcode.util.RobotFieldConversionUtil.convertToRobotSpace;
-
 import android.annotation.SuppressLint;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -21,12 +14,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.RobotContext.RobotPositionProvider;
-import org.firstinspires.ftc.teamcode.components.TileEdgeDetector.TileEdgeObservationAggregator;
 import org.firstinspires.ftc.teamcode.game.Field;
 import org.firstinspires.ftc.teamcode.game.Field.Direction;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
-import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 import org.firstinspires.ftc.teamcode.util.MecanumUtil;
 import org.firstinspires.ftc.teamcode.util.MecanumUtil.MotorPowers;
@@ -41,21 +32,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * A representation of the playing field.
      */
     private Field field = new Field();
-
-    /**
-     * Detects tile edges to provide empirical correction to the robot's position and heading.
-     */
-    private TileEdgeDetector tileEdgeDetectorSide;
-
-    /**
-     * Detects tile edges to provide empirical correction to the robot's position and heading.
-     */
-    private TileEdgeDetector tileEdgeDetectorFront;
-
-    /**
-     * Aggregates tile edge observations.
-     */
-    private TileEdgeObservationAggregator tileEdgeAggregator;
 
     /**
      * The hardware for the drive train
@@ -107,13 +83,8 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      */
     private ElapsedTime previousUpdateTime;
 
-    /**
-     * Statistics about Hough tile edge correction.
-     */
-    private HoughStatistics houghStatistics = new HoughStatistics();
 
-
-    public DriveTrain(RobotContext context, WebCam webCamSide, WebCam webCamFront) {
+    public DriveTrain(RobotContext context) {
         super(context);
 
         frontLeft = (DcMotorEx) hardwareMap.dcMotor.get("FrontLeft");
@@ -123,11 +94,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         motors = Arrays.asList(frontLeft, frontRight, backLeft, backRight);
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
-
-        tileEdgeAggregator = new TileEdgeObservationAggregator();
-        tileEdgeDetectorSide = new TileEdgeDetector(context, webCamSide, tileEdgeAggregator);
-        tileEdgeDetectorFront = new TileEdgeDetector(context, webCamFront, tileEdgeAggregator);
-        addSubComponents(tileEdgeDetectorSide, tileEdgeDetectorFront);
 
         // For now starting position is to be assumed the origin (0, 0)
         position = new Position(0.5, 0.5);
@@ -149,10 +115,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
-
-        // Activate the side tile edge detector immediately
-        tileEdgeDetectorSide.activate();
-        tileEdgeDetectorFront.activate();
 
         previousUpdateTime = new ElapsedTime();
     }
@@ -180,14 +142,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
         // Start integration background thread, so we can get updated position in a loop.
         //imu.startAccelerationIntegration(null, null, 5);
-    }
-
-    public TileEdgeDetector getTileEdgeDetectorSide() {
-        return tileEdgeDetectorSide;
-    }
-
-    public TileEdgeDetector getTileEdgeDetectorFront() {
-        return tileEdgeDetectorFront;
     }
 
     public BNO055IMU getImu() {
@@ -231,8 +185,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         //telemetry.addData("Current Command", getCurrentCommand());
         //telemetry.addData("Next Commands", getNextCommands());
 
-        telemetry.addData("Hough Stats", houghStatistics);
-
         // Now allow any commands to run with the updated data
         super.updateStatus();
     }
@@ -243,9 +195,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     private void updateCurrentPosition() {
         // Use the motor encoders to approximate the change in position.
         updateCurrentPositionWithMotorTicks();
-
-        // Override this with a visual observation from hough code, if there is one.
-        updateCurrentPositionWithTileEdgeObservation();
     }
 
     private void updateCurrentPositionWithMotorTicks() {
@@ -279,76 +228,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
         // Remember the current motor ticks for the next loop iteration
         previousMotorTicks = ticks;
-    }
-
-    private void updateCurrentPositionWithTileEdgeObservation() {
-
-        // If the bot is moving, just reset the aggregation.
-        if (velocity == null || velocity.magnitude() > 0.01) {
-            tileEdgeAggregator.reset();
-            return;
-        }
-
-        // Check whether there is an observation, and if we have not yet seen it.
-        TileEdgeSolver.TileEdgeObservation observation = tileEdgeAggregator.getAggregateObservation();
-        if (observation != null) {
-
-            // First, compute the expected robot space coordinates using our theoretical position.
-            RobotSpaceCoordinates robotSpaceCoordinates = convertToRobotSpace(new FieldSpaceCoordinates(heading, position));
-
-            // Then using the observation overwrite the expected with the actual values.
-            if (observation.distanceRight != null) {
-                houghStatistics.rightEdgeCorrections++;
-                houghStatistics.rightEdgeCorrectionDistance += Math.abs(observation.distanceRight - robotSpaceCoordinates.distanceRight);
-                robotSpaceCoordinates.distanceRight = observation.distanceRight;
-            }
-            if (observation.distanceFront != null) {
-                houghStatistics.frontEdgeCorrections++;
-                houghStatistics.frontEdgeCorrectionDistance += Math.abs(observation.distanceFront - robotSpaceCoordinates.distanceFront);
-                robotSpaceCoordinates.distanceFront = observation.distanceFront;
-            }
-            if (observation.headingOffset != null) {
-                robotSpaceCoordinates.headingOffset = observation.headingOffset;
-            }
-
-            // Convert back to field space.
-            FieldSpaceCoordinates updatedFieldSpaceCoordinates = convertToFieldSpace(robotSpaceCoordinates);
-
-            // Apply the current velocity as well, taking into account how old this observation is.
-            double elapsed = observation.observationTime.seconds();
-            Vector2 velocityCorrection = velocity != null ?
-                    velocity.multiply(elapsed) :
-                    new Vector2(0, 0);
-
-            Position updatedPosition = updatedFieldSpaceCoordinates.position.add(velocityCorrection);
-
-            // Sanity check - make sure that the distance we would be correcting is less than a maximum.
-            double maxHoughCorrectionDistance = inchesToTiles(12);
-
-            Vector2 correction = updatedPosition.minus(position);
-            double correctionDistance = correction.magnitude();
-
-            if (correctionDistance < maxHoughCorrectionDistance) {
-                // Finally update the current position to be the actual position.
-                //heading = updatedFieldSpaceCoordinates.heading;
-                position = updatedPosition;
-
-                // Also update the previous position by the same amount, so the velocity doesn't jump.
-                if (previousPosition != null) {
-                    previousPosition = previousPosition.add(correction);
-                }
-
-                houghStatistics.totalCorrections++;
-                houghStatistics.totalCorrectionDistance += correctionDistance;
-                houghStatistics.totalObservationAge += observation.observationTime.seconds();
-
-                if (velocity != null && velocity.magnitude() > 0.01) {
-                    houghStatistics.movingCorrections++;
-                } else {
-                    houghStatistics.stationaryCorrections++;
-                }
-            }
-        }
     }
 
     public void setPosition(Position position) {
@@ -409,62 +288,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         }
 
         previousPosition = position;
-    }
-
-    /**
-     * Indicates if tile edge detection is active.
-     */
-    public boolean isTileEdgeDetectionActive() {
-        return tileEdgeDetectorSide.isActive() || tileEdgeDetectorFront.isActive();
-    }
-
-    /**
-     * Activates the tile edge detectors.
-     */
-    public void activateTileEdgeDetection() {
-        tileEdgeDetectorSide.activate();
-        tileEdgeDetectorFront.activate();
-    }
-
-    /**
-     * Deactivates the tile edge detectors.
-     */
-    public void deactivateTileEdgeDetection() {
-        tileEdgeDetectorSide.deactivate();
-        tileEdgeDetectorFront.deactivate();
-        tileEdgeAggregator.reset();
-    }
-
-    /**
-     * Waits for a tile edge detection up to the given number of seconds.
-     * <p>
-     * Note that this method will block, and should only be called when the robot is not doing
-     * anything else.  Otherwise, the effects are unpredictable.
-     */
-    public void waitForTileEdgeDetection(double minTime, double maxTime) {
-        boolean active = isTileEdgeDetectionActive();
-        if (!active) {
-            // Activate the tile edge detector if it's not turned on.
-            activateTileEdgeDetection();
-        }
-
-        // Wait for up to the requested time until we have a valid observation.
-        ElapsedTime waitTime = new ElapsedTime();
-        while (!isStopRequested() && waitTime.seconds() < maxTime) {
-            TileEdgeSolver.TileEdgeObservation observation = tileEdgeAggregator.getAggregateObservation();
-            if (observation != null) {
-                updateCurrentPositionWithTileEdgeObservation();
-                if (waitTime.seconds() > minTime) {
-                    break;
-                }
-            }
-            sleep(5);
-        }
-
-        if (!active) {
-            // If we turned on edge detection just for this method, now disable it.
-            deactivateTileEdgeDetection();
-        }
     }
 
     /**
@@ -1286,35 +1109,6 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
                     backLeft, backRight, frontLeft, frontRight
             );
         }
-    }
-
-    private class HoughStatistics {
-
-        public double totalCorrectionDistance;
-        public int totalCorrections;
-        public double totalObservationAge;
-        public double frontEdgeCorrectionDistance;
-        public int frontEdgeCorrections;
-        public double rightEdgeCorrectionDistance;
-        public int rightEdgeCorrections;
-        public int stationaryCorrections;
-        public int movingCorrections;
-
-        @Override
-        public String toString() {
-            double averageObservationAge = totalCorrections != 0 ?
-                    totalObservationAge / totalCorrections :
-                    0.0;
-
-            return String.format(
-                    "Total [%.1f in, %d], Front [%.1f in, %d], Right [%.1f in, %d], Stationary [%d], Moving [%d], Avg Age [%.3f s]",
-                    tilesToInches(totalCorrectionDistance), totalCorrections,
-                    tilesToInches(frontEdgeCorrectionDistance), frontEdgeCorrections,
-                    tilesToInches(rightEdgeCorrectionDistance), rightEdgeCorrections,
-                    stationaryCorrections, movingCorrections, averageObservationAge
-            );
-        }
-
     }
 
 }

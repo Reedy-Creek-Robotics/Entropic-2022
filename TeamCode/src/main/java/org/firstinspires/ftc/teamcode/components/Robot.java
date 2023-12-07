@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
-
 import android.annotation.SuppressLint;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -14,12 +12,6 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,79 +21,36 @@ public class Robot extends BaseComponent {
     private static final double VOLTAGE_WARNING_THRESHOLD = 12.0;
 
     private DriveTrain driveTrain;
-    private WebCam webCamAprilTag;
-    private WebCam webCamSide;
+
     private WebCam webCamFront;
-
-    private AprilTagDetector aprilTagDetector;
-    private PoleDetector poleDetector;
-
-    private Turret turret;
-    private Intake intake;
-    private LinearSlide slide;
+    private TeamPropDetector teamPropDetector;
 
     private int updateCount;
     private ElapsedTime initTime;
     private ElapsedTime firstUpdateTime;
 
     public enum Camera {
-        APRIL,
-        SIDE,
         FRONT
     }
 
     public Robot(OpMode opMode, Camera streamingCamera, List<Camera> enabledCameras) {
         super(createRobotContext(opMode));
 
-        this.webCamAprilTag = new WebCam(context, robotDescriptor.webCamAprilTagDescriptor,
-                streamingCamera == Camera.APRIL);
-        this.webCamSide = new WebCam(context, robotDescriptor.webCamSideDescriptor,
-                streamingCamera == Camera.SIDE);
         this.webCamFront = new WebCam(context, robotDescriptor.webCamFrontDescriptor,
                 streamingCamera == Camera.FRONT);
 
-        this.driveTrain = new DriveTrain(context, webCamSide, webCamFront);
+        this.driveTrain = new DriveTrain(context);
         getRobotContext().robotPositionProvider = driveTrain;
 
-        this.poleDetector = new PoleDetector(context, webCamAprilTag);
+        this.teamPropDetector = new TeamPropDetector(context, webCamFront);
 
-        this.driveTrain.getTileEdgeDetectorFront().setWebCamMask(createFrontCameraMask());
-
-        this.aprilTagDetector = new AprilTagDetector(context, webCamAprilTag);
-
-        this.turret = new Turret(context, new Turret.SafetyCheck() {
-            @Override
-            public boolean isSafeToMove() {
-                return slide.isAtOrAbove(TRAVEL);
-            }
-        });
-
-        this.slide = new LinearSlide(context);
-        this.intake = new Intake(context);
-
-        addSubComponents(driveTrain, turret, slide, intake);
+        addSubComponents(driveTrain, teamPropDetector);
 
         for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));
         }
 
         TelemetryHolder.telemetry = telemetry;
-    }
-
-    private Mat createFrontCameraMask() {
-        Mat mask = Mat.ones(robotDescriptor.webCamFrontDescriptor.resolution, CvType.CV_8UC1);
-
-        Imgproc.rectangle(mask, new Rect(
-                new Point(0, 143),
-                new Point(121, 360)
-        ), new Scalar(0), -1);
-
-        Imgproc.rectangle(mask, new Rect(
-                new Point(0, 303),
-                new Point(610, 360)
-        ), new Scalar(0), -1);
-
-        return mask;
     }
 
     private static RobotContext createRobotContext(OpMode opMode) {
@@ -119,7 +68,7 @@ public class Robot extends BaseComponent {
      * Inits with default settings.
      */
     public Robot(OpMode opMode) {
-        this(opMode, null, Arrays.asList(Camera.FRONT, Camera.SIDE));
+        this(opMode, null, Arrays.asList(Camera.FRONT));
     }
 
     @Override
@@ -207,24 +156,12 @@ public class Robot extends BaseComponent {
         return driveTrain;
     }
 
-    public LinearSlide getSlide() {
-        return slide;
-    }
-
-    public Turret getTurret() {
-        return turret;
-    }
-
-    public Intake getIntake() {
-        return intake;
+    public TeamPropDetector getTeamPropDetector() {
+        return teamPropDetector;
     }
 
     public WebCam getWebCam(Camera camera) {
         switch (camera) {
-            case APRIL:
-                return getWebCamAprilTag();
-            case SIDE:
-                return getWebCamSide();
             case FRONT:
                 return getWebCamFront();
             default:
@@ -232,20 +169,8 @@ public class Robot extends BaseComponent {
         }
     }
 
-    public WebCam getWebCamSide() {
-        return webCamSide;
-    }
-
     public WebCam getWebCamFront() {
         return webCamFront;
-    }
-
-    public WebCam getWebCamAprilTag() {
-        return webCamAprilTag;
-    }
-
-    public AprilTagDetector getAprilTagDetector() {
-        return aprilTagDetector;
     }
 
     public void savePositionToDisk() {

@@ -25,20 +25,37 @@ public class TeamPropDetector extends BaseComponent {
      */
     private ColorDetector colorDetector;
 
-    public TeamPropPosition getDetectedPosition() {
-        // Get the latest detections from the color detector
-        List<ColorDetection> detections = this.colorDetector.getDetections();
-
-
-
-        return null;
-    }
-
     public TeamPropDetector(RobotContext context, WebCam webCam) {
         super(context);
 
         this.colorDetector = new ColorDetector(context, webCam);
         addSubComponents(colorDetector);
+    }
+
+    public void activate() {
+        colorDetector.activate();
+    }
+
+    public boolean isActive() {
+        return colorDetector.isActive();
+    }
+
+    public void deactivate() {
+        colorDetector.deactivate();
+    }
+
+    public TeamPropPosition waitForDetection(double timeOutInSeconds) {
+        if (!isActive()) activate();
+
+        // todo: implement!
+        return null;
+    }
+
+    public TeamPropPosition getDetectedPosition() {
+        // Get the latest detections from the color detector
+        List<ColorDetection> detections = this.colorDetector.getDetections();
+
+        return null;
     }
 
 }
