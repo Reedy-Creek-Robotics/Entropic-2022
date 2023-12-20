@@ -12,10 +12,11 @@ import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.RIGHT
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
-
+@Disabled
 @Autonomous
 public class AutoMainRight extends AutoMain {
 

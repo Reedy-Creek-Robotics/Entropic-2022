@@ -17,7 +17,7 @@ public abstract class BaseComponent implements Component {
     private OpMode opMode;
 
     protected RobotContext context;
-    protected RobotDescriptor robotDescriptor;
+    protected RobotDescriptor descriptor;
 
     protected HardwareMap hardwareMap;
 
@@ -35,7 +35,7 @@ public abstract class BaseComponent implements Component {
         this.opMode = context.opMode;
         this.hardwareMap = opMode.hardwareMap;
         this.telemetry = opMode.telemetry;
-        this.robotDescriptor = context.robotDescriptor;
+        this.descriptor = context.descriptor;
         this.commandTime = new ElapsedTime();
         this.currentCommand = null;
         this.nextCommands = new ArrayList<>();
@@ -70,6 +70,13 @@ public abstract class BaseComponent implements Component {
             currentCommand = null;
         }
         nextCommands.clear();
+    }
+
+    protected static RobotContext createRobotContext(OpMode opMode) {
+        return new RobotContext(
+                opMode,
+                new RobotDescriptor()
+        );
     }
 
     protected Command getCurrentCommand() {

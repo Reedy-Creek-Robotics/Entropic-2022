@@ -20,7 +20,7 @@ public abstract class BaseTeleOp extends OpMode {
         robot = new Robot(this, getStreamingCamera(), getEnabledCameras());
         robot.init();
 
-        descriptor = robot.getRobotContext().robotDescriptor;
+        descriptor = robot.getRobotContext().descriptor;
 
         controller = new Controller(gamepad1);
     }

@@ -44,7 +44,8 @@ public class LinearSlide extends BaseComponent {
     private boolean moveDeliverOffsetDown = false;
     private boolean manualControl = false;
 
-    private DcMotorEx motor;
+    private DcMotorEx leftMotor;
+    private DcMotorEx rightMotor;
 
     /**
      * The target position in motor ticks that the slide is trying to achieve.
@@ -53,16 +54,21 @@ public class LinearSlide extends BaseComponent {
 
     public LinearSlide(RobotContext context) {
         super(context);
-        motor = (DcMotorEx) hardwareMap.dcMotor.get("Slide");
+        leftMotor = (DcMotorEx) hardwareMap.dcMotor.get("LeftSlide");
+        rightMotor = (DcMotorEx) hardwareMap.dcMotor.get("RightSlide");
     }
 
     @Override
     public void init() {
         targetPosition = SlideHeight.INTAKE.ticks;
 
-        motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+
+        rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
 
@@ -71,7 +77,8 @@ public class LinearSlide extends BaseComponent {
      * Resets the slide ticks to 0
      */
     public void resetSlideTicks() {
-        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     /**
@@ -94,8 +101,11 @@ public class LinearSlide extends BaseComponent {
             }
         } else {
             manualControl = true;
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            motor.setPower(power);
+            leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftMotor.setPower(power);
+
+            rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightMotor.setPower(power);
         }
     }
 
@@ -116,8 +126,11 @@ public class LinearSlide extends BaseComponent {
             }
         } else {
             manualControl = true;
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            motor.setPower(power);
+            leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            leftMotor.setPower(power);
+
+            rightMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            rightMotor.setPower(power);
         }
     }
 
@@ -145,13 +158,17 @@ public class LinearSlide extends BaseComponent {
      * Returns the current position of the slide
      */
     public double getPosition() {
-        return motor.getCurrentPosition();
+        return (leftMotor.getCurrentPosition() + rightMotor.getCurrentPosition())/2;
     }
 
     public void stopMotor() {
-        motor.setTargetPosition(motor.getCurrentPosition());
-        motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        motor.setPower(idlePower);
+        leftMotor.setTargetPosition(leftMotor.getCurrentPosition());
+        leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftMotor.setPower(idlePower);
+
+        rightMotor.setTargetPosition(leftMotor.getCurrentPosition());
+        rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        rightMotor.setPower(idlePower);
     }
 
     @Override
@@ -257,14 +274,18 @@ public class LinearSlide extends BaseComponent {
 
         @Override
         public void start() {
-            motor.setTargetPosition(ticks);
-            motor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            leftMotor.setTargetPosition(ticks);
+            leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+            rightMotor.setTargetPosition(ticks);
+            rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             double power = ticks > getPosition() ?
                     ascendingPower :
                     descendingPower;
 
-            motor.setPower(power);
+            leftMotor.setPower(power);
+            rightMotor.setPower(power);
         }
 
         @Override
@@ -274,7 +295,7 @@ public class LinearSlide extends BaseComponent {
 
         @Override
         public boolean updateStatus() {
-            return Math.abs(motor.getCurrentPosition() - ticks) <= TARGET_REACHED_THRESHOLD;
+            return Math.abs(getPosition() - ticks) <= TARGET_REACHED_THRESHOLD;
         }
     }
 }

@@ -70,7 +70,7 @@ public abstract class AutoMain extends LinearOpMode {
                 Arrays.asList(Camera.APRIL, Camera.FRONT, Camera.SIDE));
         robot.init();
 
-        robotDescriptor = robot.getRobotContext().robotDescriptor;
+        robotDescriptor = robot.getRobotContext().descriptor;
 
         // For auto paths, don't use tile edge detection except at key points
         robot.getDriveTrain().deactivateTileEdgeDetection();

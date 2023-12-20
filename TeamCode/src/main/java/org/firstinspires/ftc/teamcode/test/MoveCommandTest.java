@@ -52,7 +52,7 @@ public class MoveCommandTest extends OpMode {
     @Override
     public void loop() {
 
-        RobotDescriptor robotDescriptor = robot.getRobotContext().robotDescriptor;
+        RobotDescriptor robotDescriptor = robot.getRobotContext().descriptor;
 
         double drive = controller.leftStickY();
         double strafe = controller.leftStickX();

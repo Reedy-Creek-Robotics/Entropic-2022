@@ -38,7 +38,7 @@ public class TileEdgeSolverTest {
                 anchor(new Position(0, 360), new Position(0, 1)),
                 anchor(new Position(640, 360), new Position(12, 1))
         );
-        descriptor.robotDimensionsInInches = new Size(10.0, 12.0);
+        descriptor.ROBOT_DIMENSIONS_IN_INCHES = new Size(10.0, 12.0);
 
         solver = new TileEdgeSolver(context, webCamDescriptor);
     }

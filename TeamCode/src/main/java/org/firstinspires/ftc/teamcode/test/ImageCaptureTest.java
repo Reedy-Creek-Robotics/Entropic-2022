@@ -30,7 +30,7 @@ public class ImageCaptureTest extends OpMode {
 
         controller = new Controller(gamepad1);
 
-        robotDescriptor = robot.getRobotContext().robotDescriptor;
+        robotDescriptor = robot.getRobotContext().descriptor;
     }
 
     public void loop() {

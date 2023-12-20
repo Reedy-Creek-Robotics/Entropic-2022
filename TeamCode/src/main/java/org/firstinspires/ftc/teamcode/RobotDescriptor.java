@@ -2,11 +2,20 @@ package org.firstinspires.ftc.teamcode;
 
 import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamAnchorPoint.anchor;
 
+import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.trajectory.constraints.AngularVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MecanumVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.MinVelocityConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.ProfileAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.opencv.core.Size;
 
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Variables that indicate the physical characteristics of the robot.
@@ -17,95 +26,123 @@ public class RobotDescriptor {
      * The size of the robot in inches, with the x axis being left to right and the y axis being
      * back to front.
      */
-    public Size robotDimensionsInInches = new Size(15.5, 15.5);
+    public static final Size ROBOT_DIMENSIONS_IN_INCHES = new Size(15.5, 15.5);
 
-    /**
-     * The diameter of the robot's wheels in mm.
+    /*
+     * These are motor constants that should be listed online for your motors.
      */
-    public double wheelSizeInMm = 96;
+    public static final double DRIVE_TICKS_PER_REV = 2000;
+    public static final double DRIVE_MAX_RPM = 1;
 
-    /**
-     * The number of encoder ticks that the robot's drive train motors count per full revolution.
+    /*
+     * Set RUN_USING_ENCODER to true to enable built-in hub velocity control using drive encoders.
+     * Set this flag to false if drive encoders are not present and an alternative localization
+     * method is in use (e.g., tracking wheels).
+     *
+     * If using the built-in motor velocity PID, update MOTOR_VELO_PID with the tuned coefficients
+     * from DriveVelocityPIDTuner.
      */
-    public double wheelMotorEncoderTicksPerRevolution = 537.6;
+    public static final boolean RUN_USING_ENCODER = false;
+    public static PIDFCoefficients DRIVE_MOTOR_VELO_PID = new PIDFCoefficients(0, 0, 0,
+            getMotorVelocityF(DRIVE_MAX_RPM / 60 * DRIVE_TICKS_PER_REV));
 
-    public RampingDescriptor turnRampingDescriptor = new RampingDescriptor(
-            2, 45,1, .05
-    );
-
-    /**
-     * The speed, in tiles per second, after which ramping up should end.
+    /*
+     * These are physical constants that can be determined from your robot (including the track
+     * width; it will be tune empirically later although a rough estimate is important). Users are
+     * free to chose whichever linear distance unit they would like so long as it is consistently
+     * used. The default values were selected with inches in mind. Road runner uses radians for
+     * angular distances although most angular parameters are wrapped in Math.toRadians() for
+     * convenience. Make sure to exclude any gear ratio included in MOTOR_CONFIG from GEAR_RATIO.
      */
-    public double rampingUpEndSpeed = 1.0; // tiles / sec
+    public static double DRIVE_WHEEL_RADIUS = 2; // in
+    public static double DRIVE_GEAR_RATIO = 1; // output (wheel) speed / input (motor) speed
+    public static double DRIVE_TRACK_WIDTH = 1; // in
 
-    /**
-     * For ramping up, the minimum motor power that will be applied to move the robot.
+    /*
+     * These are the feedforward parameters used to model the drive motor behavior. If you are using
+     * the built-in velocity PID, *these values are fine as is*. However, if you do not have drive
+     * motor encoders or have elected not to use them for velocity control, these values should be
+     * empirically tuned.
      */
-    public double rampingUpMinMotorPower = 0.3;
+    public static double kV = 1.0 / rpmToVelocity(DRIVE_MAX_RPM);
+    public static double kA = 0;
+    public static double kStatic = 0;
 
-    /**
-     * The distance, in tiles, at which to begin ramping down.
+    /*
+     * These values are used to generate the trajectories for you robot. To ensure proper operation,
+     * the constraints should never exceed ~80% of the robot's actual capabilities. While Road
+     * Runner is designed to enable faster autonomous motion, it is a good idea for testing to start
+     * small and gradually increase them later after everything is working. All distance units are
+     * inches.
      */
-    public double rampingDownBeginDistance = 0.75; // tiles
+    public static double MAX_VEL = 30;
+    public static double MAX_ACCEL = 30;
+    public static double MAX_ANG_VEL = Math.toRadians(60);
+    public static double MAX_ANG_ACCEL = Math.toRadians(60);
 
-    /**
-     * For ramping down, the minimum motor power that will be applied to move the robot.
+    /*
+     * Adjust the orientations here to match your robot. See the FTC SDK documentation for details.
      */
-    public double rampingDownMinMotorPower = 0.10;
+    public static RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR =
+            RevHubOrientationOnRobot.LogoFacingDirection.UP;
+    public static RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR =
+            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD;
 
-    /**
-     * For ramping down, the distance threshold under which no motor power will be applied for movement.
-     * Even within this distance threshold, power may still be applied for turning to the target heading.
-     */
-    public double movementTargetPositionReachedThreshold = 0.01;
 
-    /**
-     * The threshold in degrees under which no motor power will be applied for turning.
-     */
-    //public double rotationTargetHeadingReachedThreshold = 2;
+    public static double encoderTicksToInches(double ticks) {
+        return DRIVE_WHEEL_RADIUS * 2 * Math.PI * DRIVE_GEAR_RATIO * ticks / DRIVE_TICKS_PER_REV;
+    }
 
-    /**
-     * For turning, the maximum turn motor power to add.
-     */
-    //public double rampingMaxTurnPower = 1.0;
+    public static double rpmToVelocity(double rpm) {
+        return rpm * DRIVE_GEAR_RATIO * 2 * Math.PI * DRIVE_WHEEL_RADIUS / 60.0;
+    }
 
-    /**
-     * For turning, the minimum turn motor power to add.
-     */
-    //public double rampingMinTurnPower = 0.05;
+    public static double getMotorVelocityF(double ticksPerSecond) {
+        // see https://docs.google.com/document/d/1tyWrXDfMidwYyP_5H4mZyVgaEswhOC35gvdmP-V-5hA/edit#heading=h.61g9ixenznbx
+        return 32767 / ticksPerSecond;
+    }
 
-    /**
-     * For turning, the degrees off the target heading at which the maximum turn power will be added.
-     */
-    //public double rampingMaxTurnDegrees = 45;
+    public static PIDCoefficients TRANSLATIONAL_PID = new PIDCoefficients(0, 0, 0);
+    public static PIDCoefficients HEADING_PID = new PIDCoefficients(0, 0, 0);
 
-    /**
-     * For turning, the exponent to use when scaling.
-     */
-    public double rampingTurnExponent = 2.0;
+    public static double LATERAL_MULTIPLIER = 1;
 
-    /**
-     * Empirically measured strafe correction values, for more accurate encoder position tracking.
-     * Note that these should be measured after calibrating ramping values above.
-     */
-    public List<EmpiricalStrafeCorrection> empiricalStrafeCorrections = Arrays.asList(
-            new EmpiricalStrafeCorrection(0.0, 0.865),
-            new EmpiricalStrafeCorrection(0.3, 0.865),
-            new EmpiricalStrafeCorrection(0.5, 0.865),
-            new EmpiricalStrafeCorrection(0.7, 0.865),
-            new EmpiricalStrafeCorrection(0.8, 0.855),
-            new EmpiricalStrafeCorrection(1.0, 0.845)
-    );
+    public static double VX_WEIGHT = 1;
+    public static double VY_WEIGHT = 1;
+    public static double OMEGA_WEIGHT = 1;
 
-    /**
-     * Indicates whether empirical strafe correction using the above measurements should be enabled.
-     */
-    public boolean enableEmpiricalStrafeCorrection = true;
+    public static final TrajectoryVelocityConstraint VEL_CONSTRAINT = getVelocityConstraint(MAX_VEL, MAX_ANG_VEL, DRIVE_TRACK_WIDTH);
+    public static final TrajectoryAccelerationConstraint ACCEL_CONSTRAINT = getAccelerationConstraint(MAX_ACCEL);
+
+    public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
+        return new MinVelocityConstraint(Arrays.asList(
+                new AngularVelocityConstraint(maxAngularVel),
+                new MecanumVelocityConstraint(maxVel, trackWidth)
+        ));
+    }
+
+    public static TrajectoryAccelerationConstraint getAccelerationConstraint(double maxAccel) {
+        return new ProfileAccelerationConstraint(maxAccel);
+    }
+
+    public static double mm(double value) {
+        return value / 25.4;
+    }
+
+    public static double ODOMETRY_TICKS_PER_REV = 2000 * 2;
+    public static double ODOMETRY_WHEEL_RADIUS = mm(48); // in
+    public static double ODOMETRY_GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
+
+    public static double X_MULTIPLIER = 1; // Multiplier in the X direction
+    public static double Y_MULTIPLIER = 1; // Multiplier in the Y direction
+
+    public static double ODOMETRY_LATERAL_DISTANCE = mm(196.525); // in; distance between the left and right wheels
+    public static double ODOMETRY_FORWARD_OFFSET = mm(-150); // in; offset of the lateral wheel
 
     /**
      * The webcam used for detecting April tags.
      */
-    public WebCamDescriptor webCamAprilTagDescriptor = new WebCamDescriptor(
+    public static final WebCamDescriptor WEBCAM_APRILTAG_DESCRIPTOR = new WebCamDescriptor(
             "WebCamAprilTag",
             WebCamOrientation.FRONT_FORWARD,
             new Size(640,480)
@@ -114,7 +151,7 @@ public class RobotDescriptor {
     /**
      * The webcam used for detecting tile edges on the right side.
      */
-    public WebCamDescriptor webCamSideDescriptor = new WebCamDescriptor(
+    public static final WebCamDescriptor WEBCAM_SIDE_DESCRIPTOR = new WebCamDescriptor(
             "WebCamSide",
             WebCamOrientation.RIGHT_SIDE_FIELD,
             anchor(new Position(0, 0), new Position(-0.125, 9.660)),
@@ -126,7 +163,7 @@ public class RobotDescriptor {
     /**
      * The webcam used for detecting tile edges on the right side.
      */
-    public WebCamDescriptor webCamFrontDescriptor = new WebCamDescriptor(
+    public static final WebCamDescriptor WEBCAM_FRONT_DESCRIPTOR = new WebCamDescriptor(
             "WebCamFront",
             WebCamOrientation.FRONT_FIELD,
             anchor(new Position(0, 0), new Position(0.361, 8.352)),
@@ -135,48 +172,6 @@ public class RobotDescriptor {
             anchor(new Position(640, 360), new Position(13.570, -0.670))
     );
 
-    /**
-     * An empirically measured strafe correction value for a given motor power.
-     * <p>
-     * Using encoder ticks to track position will lead to inaccuracy for lateral movement due to
-     * wheel slippage inherent in mecanum wheels.  This slippage tends to be higher with higher
-     * motor power.  By measuring the amount of slippage at various motor powers we can correct
-     * for this and get better position tracking.
-     */
-    public static class EmpiricalStrafeCorrection {
-
-        /**
-         * The motor power at which the empirical strafe correction was measured.
-         */
-        public double motorPower;
-
-        /**
-         * The strafe correction amount - any lateral movement indicated by encoder ticks will be
-         * multipied by this fraction to account for wheel slippage while strafing.  For example,
-         * if the encoders indicate strafing movement of 1 tile, a value of 0.95 will result in
-         * the robot's position only being updated by 0.95 tiles.
-         */
-        public double strafeCorrection;
-
-        public EmpiricalStrafeCorrection(double motorPower, double strafeCorrection) {
-            this.motorPower = motorPower;
-            this.strafeCorrection = strafeCorrection;
-        }
-    }
-
-    public static class RampingDescriptor {
-        public double distanceUntilTargetReached;
-        public double distanceStartRamping;
-        public double maxPower;
-        public double minPower;
-
-        public RampingDescriptor(double distanceUntilTargetReached, double distanceStartRamping, double maxPower, double minPower) {
-            this.distanceUntilTargetReached = distanceUntilTargetReached;
-            this.distanceStartRamping = distanceStartRamping;
-            this.maxPower = maxPower;
-            this.minPower = minPower;
-        }
-    }
 
     public static class WebCamDescriptor {
 
@@ -279,5 +274,4 @@ public class RobotDescriptor {
         }
 
     }
-
 }

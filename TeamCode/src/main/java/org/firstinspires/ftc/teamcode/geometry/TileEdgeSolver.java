@@ -31,7 +31,7 @@ public class TileEdgeSolver {
 
     public TileEdgeSolver(RobotContext context, WebCamDescriptor webCamDescriptor) {
         this.context = context;
-        this.descriptor = context.robotDescriptor;
+        this.descriptor = context.descriptor;
         this.webCamDescriptor = webCamDescriptor;
     }
 
@@ -174,8 +174,8 @@ public class TileEdgeSolver {
 
             // Translate the coordinates to robot center.
             Vector2 robotCenterToRobotFrontRight = new Vector2(
-                    descriptor.robotDimensionsInInches.width / 2,
-                    descriptor.robotDimensionsInInches.height / 2
+                    descriptor.ROBOT_DIMENSIONS_IN_INCHES.width / 2,
+                    descriptor.ROBOT_DIMENSIONS_IN_INCHES.height / 2
             );
 
             // New coordinates in inches from robot center.
@@ -187,8 +187,8 @@ public class TileEdgeSolver {
 
             // Translate the coordinates to robot center.
             Vector2 robotCenterToRobotFrontRight = new Vector2(
-                    descriptor.robotDimensionsInInches.width / 2,
-                    descriptor.robotDimensionsInInches.height / 2
+                    descriptor.ROBOT_DIMENSIONS_IN_INCHES.width / 2,
+                    descriptor.ROBOT_DIMENSIONS_IN_INCHES.height / 2
             );
 
             // New coordinates in inches from robot center.

@@ -223,12 +223,12 @@ public class TileEdgeDetector extends BaseComponent {
             if (aggregate != null) {
                 String distanceRightInches = aggregate.distanceRight != null ?
                         format(tilesToInches(aggregate.distanceRight) -
-                                robotDescriptor.robotDimensionsInInches.width / 2, 1) +
+                                descriptor.ROBOT_DIMENSIONS_IN_INCHES.width / 2, 1) +
                                 " in, [" + aggregator.countRight + " obs]" :
                         "___";
                 String distanceFrontInches = aggregate.distanceFront != null ?
                         format(tilesToInches(aggregate.distanceFront) -
-                                robotDescriptor.robotDimensionsInInches.height / 2, 1) +
+                                descriptor.ROBOT_DIMENSIONS_IN_INCHES.height / 2, 1) +
                                 " in, [" + aggregator.countFront + " obs]" :
                         "___";
                 String headingOffset = aggregate.headingOffset != null ?

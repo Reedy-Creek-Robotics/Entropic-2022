@@ -53,15 +53,14 @@ public class Robot extends BaseComponent {
     public Robot(OpMode opMode, Camera streamingCamera, List<Camera> enabledCameras) {
         super(createRobotContext(opMode));
 
-        this.webCamAprilTag = new WebCam(context, robotDescriptor.webCamAprilTagDescriptor,
+        this.webCamAprilTag = new WebCam(context, descriptor.WEBCAM_APRILTAG_DESCRIPTOR,
                 streamingCamera == Camera.APRIL);
-        this.webCamSide = new WebCam(context, robotDescriptor.webCamSideDescriptor,
+        this.webCamSide = new WebCam(context, descriptor.WEBCAM_SIDE_DESCRIPTOR,
                 streamingCamera == Camera.SIDE);
-        this.webCamFront = new WebCam(context, robotDescriptor.webCamFrontDescriptor,
+        this.webCamFront = new WebCam(context, descriptor.WEBCAM_FRONT_DESCRIPTOR,
                 streamingCamera == Camera.FRONT);
 
-        this.driveTrain = new DriveTrain(context, webCamSide, webCamFront);
-        getRobotContext().robotPositionProvider = driveTrain;
+        this.driveTrain = new DriveTrain(context);
 
         this.poleDetector = new PoleDetector(context, webCamAprilTag);
 
@@ -102,13 +101,6 @@ public class Robot extends BaseComponent {
         ), new Scalar(0), -1);
 
         return mask;
-    }
-
-    private static RobotContext createRobotContext(OpMode opMode) {
-        return new RobotContext(
-                opMode,
-                new RobotDescriptor()
-        );
     }
 
     public RobotContext getRobotContext() {

@@ -11,12 +11,14 @@ import static org.firstinspires.ftc.teamcode.components.Turret.Orientation.RIGHT
 import static org.firstinspires.ftc.teamcode.util.DistanceUtil.inchesToTiles;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 import org.firstinspires.ftc.teamcode.components.LinearSlide;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 
+@Disabled
 @Autonomous
 public class AutoMainLeft extends AutoMain {
 
