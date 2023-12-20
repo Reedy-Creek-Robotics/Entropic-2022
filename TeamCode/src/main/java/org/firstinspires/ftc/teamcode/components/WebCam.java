@@ -20,6 +20,8 @@ import org.openftc.easyopencv.OpenCvWebcam;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+
+//TODO: redo with new FTC portal thing
 public class WebCam extends BaseComponent {
 
     /**

@@ -27,7 +27,7 @@ public class DriveTrain extends BaseComponent {
     private IMU imu;
     private VoltageSensor batteryVoltageSensor;
 
-    private ModifiedMecanumDrive roadrunner;
+    public ModifiedMecanumDrive roadrunner;
 
     public DriveTrain(RobotContext context) {
         super(context);

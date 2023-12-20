@@ -3,14 +3,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.teamcode.components.LinearSlide;
 import org.firstinspires.ftc.teamcode.components.Robot;
-import org.firstinspires.ftc.teamcode.components.Robot.Camera;
-import org.firstinspires.ftc.teamcode.components.Turret;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.openftc.apriltag.AprilTagDetection;
-
-import java.util.Arrays;
 
 public abstract class AutoMain extends LinearOpMode {
 
@@ -25,10 +20,6 @@ public abstract class AutoMain extends LinearOpMode {
     protected boolean usingHough = true;
     protected boolean samProposal = true;
 
-    protected RobotDescriptor.RampingDescriptor exactRampingDescriptor = new RobotDescriptor.RampingDescriptor(
-            0, 45,1,.05
-    );
-
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -42,18 +33,6 @@ public abstract class AutoMain extends LinearOpMode {
 
             waitForStart();
 
-            aprilTagDetection = robot.getAprilTagDetector().waitForDetection(2);
-            telemetry.log().add("Detected Tag: " + (aprilTagDetection != null ? aprilTagDetection.id : null));
-
-            robot.getAprilTagDetector().deactivate();
-            //robot.getPoleDetector().activate();
-            //robot.getWebCamAprilTag().stop();
-
-            robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRAVEL);
-            robot.waitForCommandsToFinish();
-            robot.getTurret().moveToOrientation(Turret.Orientation.FRONT);
-            robot.waitForCommandsToFinish();
-
             // Allow the child class to run its auto path.
             runAutoPath();
 
@@ -66,32 +45,11 @@ public abstract class AutoMain extends LinearOpMode {
     protected abstract void runAutoPath();
 
     protected void initRobot() {
-        robot = new Robot(this, Camera.SIDE,
-                Arrays.asList(Camera.APRIL, Camera.FRONT, Camera.SIDE));
-        robot.init();
 
-        robotDescriptor = robot.getRobotContext().descriptor;
-
-        // For auto paths, don't use tile edge detection except at key points
-        robot.getDriveTrain().deactivateTileEdgeDetection();
-
-        //robot.getWebCamFront().waitUntilReady();
-        robot.getAprilTagDetector().activate();
-
-        robot.getDriveTrain().setPosition(getStartPosition());
     }
 
     protected abstract Position getStartPosition();
 
-    protected int getAprilTagPosition() {
-        return aprilTagDetection != null ? aprilTagDetection.id : 2;
-    }
 
-    public enum Pole {
-        HIGH,
-        MEDIUM,
-        LOW,
-        GROUND
-    }
 
 }

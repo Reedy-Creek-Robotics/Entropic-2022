@@ -16,9 +16,7 @@ import com.qualcomm.robotcore.util.WebHandlerManager;
 
 import org.firstinspires.ftc.ftccommon.external.WebHandlerRegistrar;
 import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleTankDrive;
+import org.firstinspires.ftc.teamcode.RobotDescriptor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,33 +45,35 @@ public final class LogFiles {
         public long nsInit = System.nanoTime();
         public long nsStart, nsStop;
 
-        public double ticksPerRev = DriveConstants.DRIVE_TICKS_PER_REV;
-        public double maxRpm = DriveConstants.DRIVE_MAX_RPM;
-        public boolean runUsingEncoder = DriveConstants.RUN_USING_ENCODER;
-        public double motorP = DriveConstants.DRIVE_MOTOR_VELO_PID.p;
-        public double motorI = DriveConstants.DRIVE_MOTOR_VELO_PID.i;
-        public double motorD = DriveConstants.DRIVE_MOTOR_VELO_PID.d;
-        public double motorF = DriveConstants.DRIVE_MOTOR_VELO_PID.f;
-        public double wheelRadius = DriveConstants.DRIVE_WHEEL_RADIUS;
-        public double gearRatio = DriveConstants.DRIVE_GEAR_RATIO;
-        public double trackWidth = DriveConstants.DRIVE_TRACK_WIDTH;
-        public double kV = DriveConstants.kV;
-        public double kA = DriveConstants.kA;
-        public double kStatic = DriveConstants.kStatic;
-        public double maxVel = DriveConstants.MAX_VEL;
-        public double maxAccel = DriveConstants.MAX_ACCEL;
-        public double maxAngVel = DriveConstants.MAX_ANG_VEL;
-        public double maxAngAccel = DriveConstants.MAX_ANG_ACCEL;
+        public double ticksPerRev = RobotDescriptor.DRIVE_TICKS_PER_REV;
+        public double maxRpm = RobotDescriptor.DRIVE_MAX_RPM;
+        public boolean runUsingEncoder = RobotDescriptor.RUN_USING_ENCODER;
+        public double motorP = RobotDescriptor.DRIVE_MOTOR_VELO_PID.p;
+        public double motorI = RobotDescriptor.DRIVE_MOTOR_VELO_PID.i;
+        public double motorD = RobotDescriptor.DRIVE_MOTOR_VELO_PID.d;
+        public double motorF = RobotDescriptor.DRIVE_MOTOR_VELO_PID.f;
+        public double wheelRadius = RobotDescriptor.DRIVE_WHEEL_RADIUS;
+        public double gearRatio = RobotDescriptor.DRIVE_GEAR_RATIO;
+        public double trackWidth = RobotDescriptor.DRIVE_TRACK_WIDTH;
+        public double kV = RobotDescriptor.kV;
+        public double kA = RobotDescriptor.kA;
+        public double kStatic = RobotDescriptor.kStatic;
+        public double maxVel = RobotDescriptor.MAX_VEL;
+        public double maxAccel = RobotDescriptor.MAX_ACCEL;
+        public double maxAngVel = RobotDescriptor.MAX_ANG_VEL;
+        public double maxAngAccel = RobotDescriptor.MAX_ANG_ACCEL;
 
-        public double mecTransP = SampleMecanumDrive.TRANSLATIONAL_PID.kP;
-        public double mecTransI = SampleMecanumDrive.TRANSLATIONAL_PID.kI;
-        public double mecTransD = SampleMecanumDrive.TRANSLATIONAL_PID.kD;
-        public double mecHeadingP = SampleMecanumDrive.HEADING_PID.kP;
-        public double mecHeadingI = SampleMecanumDrive.HEADING_PID.kI;
-        public double mecHeadingD = SampleMecanumDrive.HEADING_PID.kD;
-        public double mecLateralMultiplier = SampleMecanumDrive.LATERAL_MULTIPLIER;
+        public double mecTransP = RobotDescriptor.TRANSLATIONAL_PID.kP;
+        public double mecTransI = RobotDescriptor.TRANSLATIONAL_PID.kI;
+        public double mecTransD = RobotDescriptor.TRANSLATIONAL_PID.kD;
+        public double mecHeadingP = RobotDescriptor.HEADING_PID.kP;
+        public double mecHeadingI = RobotDescriptor.HEADING_PID.kI;
+        public double mecHeadingD = RobotDescriptor.HEADING_PID.kD;
+        public double mecLateralMultiplier = RobotDescriptor.LATERAL_MULTIPLIER;
 
-        public double tankAxialP = SampleTankDrive.AXIAL_PID.kP;
+
+        //For tank drive
+        /*public double tankAxialP = SampleTankDrive.AXIAL_PID.kP;
         public double tankAxialI = SampleTankDrive.AXIAL_PID.kI;
         public double tankAxialD = SampleTankDrive.AXIAL_PID.kD;
         public double tankCrossTrackP = SampleTankDrive.CROSS_TRACK_PID.kP;
@@ -81,16 +81,16 @@ public final class LogFiles {
         public double tankCrossTrackD = SampleTankDrive.CROSS_TRACK_PID.kD;
         public double tankHeadingP = SampleTankDrive.HEADING_PID.kP;
         public double tankHeadingI = SampleTankDrive.HEADING_PID.kI;
-        public double tankHeadingD = SampleTankDrive.HEADING_PID.kD;
+        public double tankHeadingD = SampleTankDrive.HEADING_PID.kD;*/
 
-        public double trackingTicksPerRev = DriveConstants.ODOMETRY_TICKS_PER_REV;
-        public double trackingWheelRadius = DriveConstants.ODOMETRY_WHEEL_RADIUS;
-        public double trackingGearRatio = DriveConstants.ODOMETRY_GEAR_RATIO;
-        public double trackingLateralDistance = DriveConstants.ODOMETRY_LATERAL_DISTANCE;
-        public double trackingForwardOffset = DriveConstants.ODOMETRY_FORWARD_OFFSET;
+        public double trackingTicksPerRev = RobotDescriptor.ODOMETRY_TICKS_PER_REV;
+        public double trackingWheelRadius = RobotDescriptor.ODOMETRY_WHEEL_RADIUS;
+        public double trackingGearRatio = RobotDescriptor.ODOMETRY_GEAR_RATIO;
+        public double trackingLateralDistance = RobotDescriptor.ODOMETRY_LATERAL_DISTANCE;
+        public double trackingForwardOffset = RobotDescriptor.ODOMETRY_FORWARD_OFFSET;
 
-        public RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR = DriveConstants.LOGO_FACING_DIR;
-        public RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR = DriveConstants.USB_FACING_DIR;
+        public RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR = RobotDescriptor.LOGO_FACING_DIR;
+        public RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR = RobotDescriptor.USB_FACING_DIR;
 
         public List<Long> nsTimes = new ArrayList<>();
 

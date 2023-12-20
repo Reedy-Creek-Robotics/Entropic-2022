@@ -1,14 +1,12 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.components.LinearSlide.SlideHeight.TRAVEL;
-
 import android.annotation.SuppressLint;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
@@ -30,14 +28,6 @@ public class Robot extends BaseComponent {
 
     private DriveTrain driveTrain;
     private WebCam webCamAprilTag;
-    private WebCam webCamSide;
-    private WebCam webCamFront;
-
-    private AprilTagDetector aprilTagDetector;
-    private PoleDetector poleDetector;
-
-    private Turret turret;
-    private Intake intake;
     private LinearSlide slide;
 
     private int updateCount;
@@ -55,30 +45,12 @@ public class Robot extends BaseComponent {
 
         this.webCamAprilTag = new WebCam(context, descriptor.WEBCAM_APRILTAG_DESCRIPTOR,
                 streamingCamera == Camera.APRIL);
-        this.webCamSide = new WebCam(context, descriptor.WEBCAM_SIDE_DESCRIPTOR,
-                streamingCamera == Camera.SIDE);
-        this.webCamFront = new WebCam(context, descriptor.WEBCAM_FRONT_DESCRIPTOR,
-                streamingCamera == Camera.FRONT);
 
         this.driveTrain = new DriveTrain(context);
 
-        this.poleDetector = new PoleDetector(context, webCamAprilTag);
-
-        this.driveTrain.getTileEdgeDetectorFront().setWebCamMask(createFrontCameraMask());
-
-        this.aprilTagDetector = new AprilTagDetector(context, webCamAprilTag);
-
-        this.turret = new Turret(context, new Turret.SafetyCheck() {
-            @Override
-            public boolean isSafeToMove() {
-                return slide.isAtOrAbove(TRAVEL);
-            }
-        });
-
         this.slide = new LinearSlide(context);
-        this.intake = new Intake(context);
 
-        addSubComponents(driveTrain, turret, slide, intake);
+        addSubComponents(driveTrain, slide);
 
         for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));
@@ -88,7 +60,7 @@ public class Robot extends BaseComponent {
     }
 
     private Mat createFrontCameraMask() {
-        Mat mask = Mat.ones(robotDescriptor.webCamFrontDescriptor.resolution, CvType.CV_8UC1);
+        Mat mask = Mat.ones(descriptor.WEBCAM_FRONT_DESCRIPTOR.resolution, CvType.CV_8UC1);
 
         Imgproc.rectangle(mask, new Rect(
                 new Point(0, 143),
@@ -203,43 +175,18 @@ public class Robot extends BaseComponent {
         return slide;
     }
 
-    public Turret getTurret() {
-        return turret;
-    }
-
-    public Intake getIntake() {
-        return intake;
-    }
-
     public WebCam getWebCam(Camera camera) {
         switch (camera) {
             case APRIL:
                 return getWebCamAprilTag();
-            case SIDE:
-                return getWebCamSide();
-            case FRONT:
-                return getWebCamFront();
             default:
                 throw new IllegalArgumentException();
         }
     }
 
-    public WebCam getWebCamSide() {
-        return webCamSide;
-    }
-
-    public WebCam getWebCamFront() {
-        return webCamFront;
-    }
-
     public WebCam getWebCamAprilTag() {
         return webCamAprilTag;
     }
-
-    public AprilTagDetector getAprilTagDetector() {
-        return aprilTagDetector;
-    }
-
     public void savePositionToDisk() {
         savePositionToDisk("robot-position");
     }
@@ -247,9 +194,9 @@ public class Robot extends BaseComponent {
     public void savePositionToDisk(String filename) {
         FileUtil.writeLines(
                 filename,
-                driveTrain.getPosition().getX(),
-                driveTrain.getPosition().getY(),
-                driveTrain.getHeading().getValue()
+                driveTrain.roadrunner.getLocalizer().getPoseEstimate().getX(),
+                driveTrain.roadrunner.getLocalizer().getPoseEstimate().getY(),
+                driveTrain.roadrunner.getLocalizer().getPoseEstimate().getHeading()
         );
     }
 
@@ -271,8 +218,7 @@ public class Robot extends BaseComponent {
                 );
                 Heading heading = new Heading(Double.parseDouble(lines.get(2)));
 
-                driveTrain.setPosition(position);
-                driveTrain.setHeading(heading);
+                driveTrain.roadrunner.getLocalizer().setPoseEstimate(new Pose2d(position.getX(),position.getY(),heading.getValue()));
 
             } catch (Exception e) {
                 telemetry.log().add("Error loading position: " + ErrorUtil.convertToString(e));
