@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.teamcode.RobotDescriptor.EmpiricalStrafeCorrection;
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.EmpiricalStrafeCorrection;
 import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
 import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertVector;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;

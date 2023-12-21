@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.calibration;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.BaseTeleOp;
+import org.firstinspires.ftc.teamcode.opmodes.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.components.Robot.Camera;
 import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.firstinspires.ftc.teamcode.geometry.Position;

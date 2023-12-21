@@ -4,7 +4,6 @@ import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class PositionAggregator extends BaseComponent implements RobotPositionProvider {

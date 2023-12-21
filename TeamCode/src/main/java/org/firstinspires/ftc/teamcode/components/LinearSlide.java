@@ -9,16 +9,16 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class LinearSlide extends BaseComponent {
 
-    private static final int TICKS_PER_STACKED_CONE = 109; // ticks to lower before delivery //435/4
-    protected static final int DELIVER_OFFSET = 185;
+    public static final int TICKS_PER_STACKED_CONE = 109; // ticks to lower before delivery //435/4
+    public static final int DELIVER_OFFSET = 185;
 
-    private static final int TARGET_REACHED_THRESHOLD = 5;
+    public static final int TARGET_REACHED_THRESHOLD = 5;
 
-    private static final int MAX_HEIGHT = SlideHeight.TOP_POLE.ticks + 100;
-    private static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
-    private static final double MIN_POWER = 0.01;
-    private static final int TURRET_SAFETY_LEEWAY = 100;
-    private static final int DELIVER_OFFSET_LEEWAY = 300;
+    public static final int MAX_HEIGHT = SlideHeight.TOP_POLE.ticks + 100;
+    public static final int MIN_HEIGHT = SlideHeight.INTAKE.ticks;
+    public static final double MIN_POWER = 0.01;
+    public static final int TURRET_SAFETY_LEEWAY = 100;
+    public static final int DELIVER_OFFSET_LEEWAY = 300;
 
     public enum SlideHeight {
         TOP_POLE(2870),

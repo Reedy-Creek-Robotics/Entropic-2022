@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.roadrunner.drive;
 
-import static org.firstinspires.ftc.teamcode.RobotDescriptor.*;
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.*;
 
 import androidx.annotation.NonNull;
 

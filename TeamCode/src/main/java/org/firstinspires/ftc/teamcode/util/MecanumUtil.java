@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.util;
 
-import static org.firstinspires.ftc.teamcode.RobotDescriptor.EmpiricalStrafeCorrection;
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.EmpiricalStrafeCorrection;
 
 import android.annotation.SuppressLint;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
@@ -40,9 +40,9 @@ public class MecanumUtil {
      * @return the distance in tiles that the robot moved
      */
     public static double ticksToTiles(RobotDescriptor robotDescriptor, double ticks) {
-        double wheelSizeInTiles = DistanceUtil.toTiles(robotDescriptor.wheelSizeInMm, DistanceUnit.MM);
+        double wheelSizeInTiles = DistanceUtil.toTiles(robotDescriptor.DRIVE_WHEEL_RADIUS, DistanceUnit.MM);
         double wheelCircumference = wheelSizeInTiles * Math.PI;
-        double wheelRevolutions = ticks / robotDescriptor.wheelMotorEncoderTicksPerRevolution;
+        double wheelRevolutions = ticks / robotDescriptor.DRIVE_TICKS_PER_REV;
 
         return wheelRevolutions * wheelCircumference;
     }

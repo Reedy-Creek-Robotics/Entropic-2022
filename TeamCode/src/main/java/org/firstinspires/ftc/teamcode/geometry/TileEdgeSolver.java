@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.geometry;
 
-import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamOrientation.FRONT_FIELD;
-import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamOrientation.RIGHT_SIDE_FIELD;
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.WebCamOrientation.FRONT_FIELD;
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.WebCamOrientation.RIGHT_SIDE_FIELD;
 import static org.firstinspires.ftc.teamcode.util.FormatUtil.format;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
-import org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamDescriptor;
+import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.components.RobotDescriptor.WebCamDescriptor;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.util.DistanceUtil;
 import org.opencv.core.Size;

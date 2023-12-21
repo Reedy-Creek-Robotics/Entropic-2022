@@ -1,9 +1,11 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.Robot.Camera;
+import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.game.Controller;
 
 import java.util.Arrays;
 import java.util.List;

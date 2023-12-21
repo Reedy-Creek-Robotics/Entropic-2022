@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamAnchorPoint.anchor;
-import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamDescriptor;
-import static org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamOrientation;
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.WebCamAnchorPoint.anchor;
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.WebCamDescriptor;
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.WebCamOrientation;
 import static org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver.TileEdgeObservation;
 import static org.firstinspires.ftc.teamcode.util.AssertUtil.E;
 import static org.firstinspires.ftc.teamcode.util.AssertUtil.assertPosition;
@@ -11,7 +11,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Line;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.TileEdgeSolver;

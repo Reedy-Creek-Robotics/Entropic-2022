@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
-
 public class RobotContext {
 
     public OpMode opMode;

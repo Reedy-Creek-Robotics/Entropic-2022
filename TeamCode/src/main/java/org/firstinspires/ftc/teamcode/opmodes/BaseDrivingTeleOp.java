@@ -1,11 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.opmodes;
 
-import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_X;
-import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.LEFT_STICK_Y;
-import static org.firstinspires.ftc.teamcode.Controller.AnalogControl.RIGHT_STICK_X;
-import static org.firstinspires.ftc.teamcode.Controller.Button.LEFT_STICK_BUTTON;
+import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_STICK_X;
+import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_STICK_Y;
+import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.RIGHT_STICK_X;
+import static org.firstinspires.ftc.teamcode.game.Controller.Button.LEFT_STICK_BUTTON;
 
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
+import org.firstinspires.ftc.teamcode.game.Controller;
 
 public abstract class BaseDrivingTeleOp extends BaseTeleOp {
 
