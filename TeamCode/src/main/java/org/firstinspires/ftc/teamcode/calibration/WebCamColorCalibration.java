@@ -39,8 +39,8 @@ public class WebCamColorCalibration extends BaseTeleOp {
 
                 DrawUtil.drawMarker(output, target, Color.GREEN);
 
-                double[] rgbValue = input.get((int) target.getX(), (int) target.getY());
-                double[] hsvValue = hsv.get((int) target.getX(), (int) target.getY());
+                double[] rgbValue = input.get((int) target.getY(), (int) target.getX());
+                double[] hsvValue = hsv.get((int) target.getY(), (int) target.getX());
 
                 DrawUtil.drawText(output, "RGB [" + formatColor(rgbValue) + "]", new Position(10, 30), Color.GREEN);
                 DrawUtil.drawText(output, "HSV [" + formatColor(hsvValue) + "]", new Position(10, 60), Color.GREEN);
@@ -62,8 +62,15 @@ public class WebCamColorCalibration extends BaseTeleOp {
         StringBuilder sb = new StringBuilder();
         for (double value : color) {
             if (sb.length() > 0) sb.append(',');
-            sb.append(Integer.toHexString((int) value));
+
+
+            String digit = Integer.toHexString((int) value);
+            if (digit.length() == 1){
+                digit = "0" + digit;
+            }
+            sb.append(digit);
         }
+        
         return sb.toString();
     }
 }

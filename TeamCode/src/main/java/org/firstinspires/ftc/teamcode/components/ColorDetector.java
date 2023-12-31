@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.components;
 
 import static org.firstinspires.ftc.teamcode.components.WebCam.FrameContext;
 
+import android.util.Pair;
+
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.firstinspires.ftc.teamcode.util.Color;
@@ -33,13 +35,17 @@ public class ColorDetector extends BaseComponent {
     /**
      * The most recent color detections.
      */
-    private List<ColorDetection> detections;
+    private List<ColorDetection> detections = new ArrayList<>();
 
     public ColorDetector(RobotContext context, WebCam webCam) {
+        this(context, webCam, new ColorDetectionParameters());
+    }
+
+    public ColorDetector(RobotContext context, WebCam webCam, ColorDetectionParameters parameters) {
         super(context);
 
         this.webCam = webCam;
-        this.parameters = new ColorDetectionParameters();
+        this.parameters = parameters;
     }
 
     public void activate() {
@@ -62,18 +68,10 @@ public class ColorDetector extends BaseComponent {
 
     public static class ColorDetectionParameters {
 
-        // Base color HSV (22 deg, 220, 180)
-        // todo: calibrate this using the robot webcam
-
         /**
-         * The lower bound for the color detection.
+         * A list of the color ranges that should be detected
          */
-        public Scalar colorLowerBound = new Scalar(180, 100, 100);
-
-        /**
-         * The upper bound for the color detection.
-         */
-        public Scalar colorUpperBound = new Scalar(220, 255, 255);
+        public List<Pair<Scalar, Scalar>> ranges = new ArrayList<>();
 
     }
 
@@ -110,6 +108,7 @@ public class ColorDetector extends BaseComponent {
     private class FrameProcessor implements WebCam.FrameProcessor {
         private Mat hsv = new Mat();
         private Mat threshold = new Mat();
+        private Mat merged = new Mat();
         private Mat morphed = new Mat();
         private Mat kernel = Mat.ones(7, 7, CvType.CV_8U);
         private Mat hierarchy = new Mat();
@@ -123,12 +122,30 @@ public class ColorDetector extends BaseComponent {
             // in lighting in the room.
             Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
-            // Create a mask with only the pixels that are in the given color range.
-            Core.inRange(hsv, parameters.colorLowerBound, parameters.colorUpperBound, threshold);
+            // Loop over each color range, and add the pixels that match it to the output.
+            boolean first = true;
+            for (Pair<Scalar, Scalar> range : parameters.ranges) {
+                Scalar low = range.first;
+                Scalar high = range.second;
+
+                // Create a mask with only the pixels that are in the given color ranges.
+                if (first) {
+                    // First color range, use the "merged" mat as output
+                    Core.inRange(hsv, low, high, merged);
+
+                    first = false;
+
+                } else {
+                    // Second and beyond, use a separate mat, and then combine with "merged".
+                    Core.inRange(hsv, low, high, threshold);
+
+                    Core.bitwise_or(threshold, merged, merged);
+                }
+            }
 
             // Remove noise in the form of small patches of white or black pixels, ideally leaving us with
             // only a single large contour per colored object.
-            Imgproc.morphologyEx(threshold, morphed, Imgproc.MORPH_CLOSE, kernel);
+            Imgproc.morphologyEx(merged, morphed, Imgproc.MORPH_CLOSE, kernel);
             Imgproc.morphologyEx(morphed, morphed, Imgproc.MORPH_OPEN, kernel);
 
             // Detect the contours found on the screen, which are the connected white pixels in the mask.

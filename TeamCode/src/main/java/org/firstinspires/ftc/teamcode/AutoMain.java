@@ -10,7 +10,7 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 
 import java.util.Arrays;
 
-public abstract class AutoMain extends LinearOpMode {
+public class AutoMain extends LinearOpMode {
 
     protected static final double BASE_SPEED = 0.8;
 
@@ -54,7 +54,9 @@ public abstract class AutoMain extends LinearOpMode {
         }
     }
 
-    protected abstract void runAutoPath();
+    protected void runAutoPath() {
+        // todo: implement
+    }
 
     protected void initRobot() {
         robot = new Robot(this, Camera.FRONT, Arrays.asList(Camera.FRONT));
@@ -67,13 +69,8 @@ public abstract class AutoMain extends LinearOpMode {
         robot.getDriveTrain().setPosition(getStartPosition());
     }
 
-    protected abstract Position getStartPosition();
-
-    public enum Pole {
-        HIGH,
-        MEDIUM,
-        LOW,
-        GROUND
+    protected Position getStartPosition() {
+        return new Position(1.5, 1.5);
     }
 
 }

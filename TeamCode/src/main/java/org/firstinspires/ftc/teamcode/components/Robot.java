@@ -39,12 +39,13 @@ public class Robot extends BaseComponent {
         this.webCamFront = new WebCam(context, robotDescriptor.webCamFrontDescriptor,
                 streamingCamera == Camera.FRONT);
 
-        this.driveTrain = new DriveTrain(context);
+        /*this.driveTrain = new DriveTrain(context);
         getRobotContext().robotPositionProvider = driveTrain;
-
+*/
         this.teamPropDetector = new TeamPropDetector(context, webCamFront);
 
-        addSubComponents(driveTrain, teamPropDetector);
+        //addSubComponents(driveTrain, teamPropDetector);
+        addSubComponents(teamPropDetector);
 
         for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));

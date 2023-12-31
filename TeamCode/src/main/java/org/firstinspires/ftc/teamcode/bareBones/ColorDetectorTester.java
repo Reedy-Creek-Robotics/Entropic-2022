@@ -19,13 +19,12 @@ public class ColorDetectorTester extends OpMode {
     @Override
     public void init() {
         RobotContext context = new RobotContext(this, new RobotDescriptor());
-        webCam = new WebCam(context, context.robotDescriptor.webCamAprilTagDescriptor, true);
+        webCam = new WebCam(context, context.robotDescriptor.webCamFrontDescriptor, true);
         colorDetector = new ColorDetector(context, webCam);
         webCam.init();
         colorDetector.init();
         colorDetector.activate();
     }
-
     @Override
     public void loop() {
         List<ColorDetector.ColorDetection> detections = colorDetector.getDetections();

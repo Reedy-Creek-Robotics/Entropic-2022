@@ -64,6 +64,18 @@ public class Rectangle {
                 point.getY() > bottom && point.getY() < top;
     }
 
+    public double getWidth() {
+        return right - left;
+    }
+
+    public double getHeight() {
+        return bottom - top;
+    }
+
+    public double getArea() {
+        return getWidth() * getHeight();
+    }
+
     /**
      * Clips a line to the bounds of this rectangle and returns the clipped version.
      */
