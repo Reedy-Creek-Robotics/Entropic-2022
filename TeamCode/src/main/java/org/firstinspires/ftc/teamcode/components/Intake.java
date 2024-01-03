@@ -1,14 +1,18 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class Intake extends BaseComponent {
 
-    private CRServo intakeServo;
+    private DcMotorEx intakeMotor;
+    private Servo flicker;
+
 
     public Intake(RobotContext context) {
         super(context);
-        intakeServo = hardwareMap.crservo.get("Intake");
+        intakeMotor = (DcMotorEx) hardwareMap.dcMotor.get("Intake");
+        flicker = hardwareMap.servo.get("flicker"); //TODO: figure out what this is supposed to do
     }
 
     @Override
@@ -19,12 +23,12 @@ public class Intake extends BaseComponent {
 
     public void intakeManual() {
         stopAllCommands();
-        intakeServo.setPower(1);
+        intakeMotor.setPower(1);
     }
 
     public void outakeManual() {
         stopAllCommands();
-        intakeServo.setPower(-1);
+        intakeMotor.setPower(-1);
     }
 
     public void intake(double power, double time) {
@@ -47,7 +51,7 @@ public class Intake extends BaseComponent {
      * Stops the intake
      */
     public void stopIntake() {
-        intakeServo.setPower(0);
+        intakeMotor.setPower(0);
     }
 
     private abstract class BaseCommand implements Command {
@@ -61,7 +65,7 @@ public class Intake extends BaseComponent {
 
         @Override
         public void start() {
-            intakeServo.setPower(power);
+            intakeMotor.setPower(power);
         }
 
         @Override

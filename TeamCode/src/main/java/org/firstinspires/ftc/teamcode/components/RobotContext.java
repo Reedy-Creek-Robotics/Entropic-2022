@@ -1,18 +1,25 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import com.acmerobotics.roadrunner.localization.Localizer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-public class RobotContext {
+import org.firstinspires.ftc.teamcode.util.DriveUtil;
+import org.firstinspires.ftc.teamcode.util.MecanumUtil;
+
+public class RobotContext{
 
     public OpMode opMode;
 
     public RobotDescriptor descriptor;
 
-    public RobotPositionProvider robotPositionProvider;
+    public Localizer localizer;
+
+    public DriveUtil driveUtil;
 
     public RobotContext(OpMode opMode, RobotDescriptor descriptor) {
         this.opMode = opMode;
         this.descriptor = descriptor;
+        this.driveUtil = new MecanumUtil();
     }
 
     /**

@@ -12,12 +12,6 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,22 +51,6 @@ public class Robot extends BaseComponent {
         }
 
         TelemetryHolder.telemetry = telemetry;
-    }
-
-    private Mat createFrontCameraMask() {
-        Mat mask = Mat.ones(descriptor.WEBCAM_FRONT_DESCRIPTOR.resolution, CvType.CV_8UC1);
-
-        Imgproc.rectangle(mask, new Rect(
-                new Point(0, 143),
-                new Point(121, 360)
-        ), new Scalar(0), -1);
-
-        Imgproc.rectangle(mask, new Rect(
-                new Point(0, 303),
-                new Point(610, 360)
-        ), new Scalar(0), -1);
-
-        return mask;
     }
 
     public RobotContext getRobotContext() {

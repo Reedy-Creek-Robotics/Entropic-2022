@@ -11,7 +11,9 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.components.BaseComponent;
+import org.firstinspires.ftc.teamcode.components.DriveTrain;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.ModifiedMecanumDrive;
 
 import java.util.Objects;
 
@@ -33,11 +35,14 @@ public class MaxVelocityTuner extends LinearOpMode {
 
     private VoltageSensor batteryVoltageSensor;
 
+    DriveTrain drivetrain;
+
     @Override
     public void runOpMode() throws InterruptedException {
-        SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
+        drivetrain = new DriveTrain(BaseComponent.createRobotContext(this));
+        ModifiedMecanumDrive drive = drivetrain.roadrunner;
 
-        drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        drivetrain.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
@@ -67,7 +72,7 @@ public class MaxVelocityTuner extends LinearOpMode {
 
         drive.setDrivePower(new Pose2d());
 
-        double effectiveKf = DriveConstants.getMotorVelocityF(veloInchesToTicks(maxVelocity));
+        double effectiveKf = drivetrain.driveTuner.getMotorVelocityF(veloInchesToTicks(maxVelocity));
 
         telemetry.addData("Max Velocity", maxVelocity);
         telemetry.addData("Max Recommended Velocity", maxVelocity * 0.8);
@@ -78,6 +83,6 @@ public class MaxVelocityTuner extends LinearOpMode {
     }
 
     private double veloInchesToTicks(double inchesPerSec) {
-        return inchesPerSec / (2 * Math.PI * DriveConstants.DRIVE_WHEEL_RADIUS) / DriveConstants.DRIVE_GEAR_RATIO * DriveConstants.DRIVE_TICKS_PER_REV;
+        return inchesPerSec / (2 * Math.PI * drivetrain.driveTuner.driveWheelRadius) / drivetrain.driveTuner.driveGearRatio * drivetrain.driveTuner.driveTicksPerRev;
     }
 }

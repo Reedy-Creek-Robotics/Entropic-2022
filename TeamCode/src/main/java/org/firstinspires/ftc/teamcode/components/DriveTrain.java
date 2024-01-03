@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.*;
+
 import android.annotation.SuppressLint;
 
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -10,9 +12,11 @@ import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
+import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.ModifiedMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.roadrunner.util.LynxModuleUtil;
+import org.firstinspires.ftc.teamcode.util.DriveUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,9 +33,23 @@ public class DriveTrain extends BaseComponent {
 
     public ModifiedMecanumDrive roadrunner;
 
+    private RobotContext context;
+
+    public static DriveTuner driveTuner;
+    public static OdometryTuner odometryTuner;
+
     public DriveTrain(RobotContext context) {
         super(context);
 
+        driveTuner = descriptor.DRIVE_TUNER;
+        odometryTuner = descriptor.ODOMETRY_TUNER;
+
+        List<Integer> lastTrackingEncPositions = new ArrayList<>();
+        List<Integer> lastTrackingEncVels = new ArrayList<>();
+
+        //this.context.localizer = new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels, odometryTuner);
+
+        //TODO: move LynxModule to robot and set to manual(don't get new info until we tell you)
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
@@ -50,9 +68,9 @@ public class DriveTrain extends BaseComponent {
         leftRear = hardwareMap.get(DcMotorEx.class, "BackLeft");
         rightRear = hardwareMap.get(DcMotorEx.class, "BackRight");
         rightFront = hardwareMap.get(DcMotorEx.class, "FrontRight");
-
-        leftFront.setDirection(DcMotorEx.Direction.REVERSE);
-        leftRear.setDirection(DcMotorEx.Direction.REVERSE);
+//
+//        leftFront.setDirection(DcMotorEx.Direction.REVERSE);
+//        leftRear.setDirection(DcMotorEx.Direction.REVERSE);
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 
@@ -62,20 +80,17 @@ public class DriveTrain extends BaseComponent {
             motor.setMotorType(motorConfigurationType);
         }
 
-        List<Integer> lastTrackingEncPositions = new ArrayList<>();
-        List<Integer> lastTrackingEncVels = new ArrayList<>();
+        //TODO: move localizer to context eventually
+        roadrunner = new ModifiedMecanumDrive(new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels, odometryTuner),motors,imu,batteryVoltageSensor, driveTuner);
 
-        //move localizer to context eventually
-        roadrunner = new ModifiedMecanumDrive(new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels),motors,imu,batteryVoltageSensor, context);
-
-        if (descriptor.RUN_USING_ENCODER) {
+        if (driveTuner.runUsingEncoder) {
             setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         }
 
         setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        if (descriptor.RUN_USING_ENCODER && descriptor.DRIVE_MOTOR_VELO_PID != null) {
-            setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, descriptor.DRIVE_MOTOR_VELO_PID);
+        if (driveTuner.runUsingEncoder && driveTuner.driveMotorVeloPid != null) {
+            setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, driveTuner.driveMotorVeloPid);
         }
     }
 
@@ -102,6 +117,23 @@ public class DriveTrain extends BaseComponent {
         }
     }
 
+    public void drive(double drive, double strafe, double turn, double speedFactor){
+        DriveUtil.MotorPowers motorPowers = context.driveUtil.calculateWheelPowerForDrive(drive,strafe,turn,speedFactor);
+
+        leftFront.setPower(motorPowers.frontLeft);
+        leftRear.setPower(motorPowers.backLeft);
+        rightFront.setPower(motorPowers.frontRight);
+        rightRear.setPower(motorPowers.backRight);
+    }
+
+    public void driverRelative(double drive, double strafe, double turn, double speedFactor){
+        DriveUtil.MotorPowers motorPowers = context.driveUtil.calculateWheelPowerForDriverRelative(drive,strafe,turn,new Heading(context.localizer.getPoseEstimate().getHeading()),speedFactor);
+
+        leftFront.setPower(motorPowers.frontLeft);
+        leftRear.setPower(motorPowers.backLeft);
+        rightFront.setPower(motorPowers.frontRight);
+        rightRear.setPower(motorPowers.backRight);
+    }
 }
 
 

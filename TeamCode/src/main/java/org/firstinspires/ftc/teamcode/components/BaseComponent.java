@@ -13,6 +13,8 @@ import java.util.List;
 
 public abstract class BaseComponent implements Component {
 
+
+
     private OpMode opMode;
 
     protected RobotContext context;
@@ -71,7 +73,7 @@ public abstract class BaseComponent implements Component {
         nextCommands.clear();
     }
 
-    protected static RobotContext createRobotContext(OpMode opMode) {
+    public static RobotContext createRobotContext(OpMode opMode) {
         return new RobotContext(
                 opMode,
                 new RobotDescriptor()

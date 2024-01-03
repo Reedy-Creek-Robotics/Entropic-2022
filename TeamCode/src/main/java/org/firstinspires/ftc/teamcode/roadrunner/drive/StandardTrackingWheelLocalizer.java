@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.roadrunner.drive;
 
-import static org.firstinspires.ftc.teamcode.roadrunner.drive.DriveConstants.*;
-
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -10,6 +8,7 @@ import com.acmerobotics.roadrunner.localization.ThreeTrackingWheelLocalizer;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.roadrunner.util.Encoder;
 
 import java.util.Arrays;
@@ -34,28 +33,34 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
 
     private List<Integer> lastEncPositions, lastEncVels;
 
-    public StandardTrackingWheelLocalizer(HardwareMap hardwareMap, List<Integer> lastTrackingEncPositions, List<Integer> lastTrackingEncVels) {
+    public static RobotDescriptor.OdometryTuner tuner;
+
+    public StandardTrackingWheelLocalizer(HardwareMap hardwareMap, List<Integer> lastTrackingEncPositions, List<Integer> lastTrackingEncVels, RobotDescriptor.OdometryTuner tuner) {
         super(Arrays.asList(
-                new Pose2d(0, ODOMETRY_LATERAL_DISTANCE / 2, 0), // left
-                new Pose2d(0, -ODOMETRY_LATERAL_DISTANCE / 2, 0), // right
-                new Pose2d(ODOMETRY_FORWARD_OFFSET, 0, Math.toRadians(90)) // front
+                new Pose2d(0, tuner.odometryLateralDistance / 2, 0), // left
+                new Pose2d(0, -tuner.odometryLateralDistance / 2, 0), // right
+                new Pose2d(tuner.odometryForwardOffset, 0, Math.toRadians(90)) // front
         ));
+
+        this.tuner = tuner;
 
         lastEncPositions = lastTrackingEncPositions;
         lastEncVels = lastTrackingEncVels;
 
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "LeftEncoder"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "RightEncoder"));
-        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FrontEncoder"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BackLeft"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "BackRight"));
+        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "FrontLeft"));
 
         // TODO: reverse any encoders using
-        /*frontEncoder.setDirection(Encoder.Direction.REVERSE);
-        rightEncoder.setDirection(Encoder.Direction.REVERSE);*/
+        leftEncoder.setDirection(Encoder.Direction.REVERSE);
+        rightEncoder.setDirection(Encoder.Direction.REVERSE);
+
+        frontEncoder.setDirection(Encoder.Direction.REVERSE);
 
     }
 
     public static double encoderTicksToInches(double ticks) {
-        return ODOMETRY_WHEEL_RADIUS * 2 * Math.PI * ODOMETRY_GEAR_RATIO * ticks / ODOMETRY_TICKS_PER_REV;
+        return tuner.odometryWheelRadius * 2 * Math.PI * tuner.odometryGearRatio * ticks / tuner.odometryTicksPerRev;
     }
 
     @NonNull
@@ -71,9 +76,9 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         lastEncPositions.add(frontPos);
 
         return Arrays.asList(
-                encoderTicksToInches(leftPos) * X_MULTIPLIER,
-                encoderTicksToInches(rightPos) * X_MULTIPLIER,
-                encoderTicksToInches(frontPos) * Y_MULTIPLIER
+                encoderTicksToInches(leftPos) * tuner.xMultiplier,
+                encoderTicksToInches(rightPos) * tuner.xMultiplier,
+                encoderTicksToInches(frontPos) * tuner.yMultiplier
         );
     }
 

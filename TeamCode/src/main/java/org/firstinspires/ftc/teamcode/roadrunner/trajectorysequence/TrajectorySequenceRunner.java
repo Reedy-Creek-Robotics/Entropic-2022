@@ -203,7 +203,7 @@ public class TrajectorySequenceRunner {
 
         final double NOMINAL_VOLTAGE = 12.0;
         double voltage = voltageSensor.getVoltage();
-        if (driveSignal != null && !RobotDescriptor.RUN_USING_ENCODER) {
+        if (driveSignal != null && !RobotDescriptor.DRIVE_TUNER.runUsingEncoder) {
             driveSignal = new DriveSignal(
                     driveSignal.getVel().times(NOMINAL_VOLTAGE / voltage),
                     driveSignal.getAccel().times(NOMINAL_VOLTAGE / voltage)

@@ -45,31 +45,31 @@ public final class LogFiles {
         public long nsInit = System.nanoTime();
         public long nsStart, nsStop;
 
-        public double ticksPerRev = RobotDescriptor.DRIVE_TICKS_PER_REV;
-        public double maxRpm = RobotDescriptor.DRIVE_MAX_RPM;
-        public boolean runUsingEncoder = RobotDescriptor.RUN_USING_ENCODER;
-        public double motorP = RobotDescriptor.DRIVE_MOTOR_VELO_PID.p;
-        public double motorI = RobotDescriptor.DRIVE_MOTOR_VELO_PID.i;
-        public double motorD = RobotDescriptor.DRIVE_MOTOR_VELO_PID.d;
-        public double motorF = RobotDescriptor.DRIVE_MOTOR_VELO_PID.f;
-        public double wheelRadius = RobotDescriptor.DRIVE_WHEEL_RADIUS;
-        public double gearRatio = RobotDescriptor.DRIVE_GEAR_RATIO;
-        public double trackWidth = RobotDescriptor.DRIVE_TRACK_WIDTH;
-        public double kV = RobotDescriptor.kV;
-        public double kA = RobotDescriptor.kA;
-        public double kStatic = RobotDescriptor.kStatic;
-        public double maxVel = RobotDescriptor.MAX_VEL;
-        public double maxAccel = RobotDescriptor.MAX_ACCEL;
-        public double maxAngVel = RobotDescriptor.MAX_ANG_VEL;
-        public double maxAngAccel = RobotDescriptor.MAX_ANG_ACCEL;
+        public double ticksPerRev = RobotDescriptor.DRIVE_TUNER.driveTicksPerRev;
+        public double maxRpm = RobotDescriptor.DRIVE_TUNER.driveMaxRpm;
+        public boolean runUsingEncoder = RobotDescriptor.DRIVE_TUNER.runUsingEncoder;
+        public double motorP = RobotDescriptor.DRIVE_TUNER.driveMotorVeloPid.p;
+        public double motorI = RobotDescriptor.DRIVE_TUNER.driveMotorVeloPid.i;
+        public double motorD = RobotDescriptor.DRIVE_TUNER.driveMotorVeloPid.d;
+        public double motorF = RobotDescriptor.DRIVE_TUNER.driveMotorVeloPid.f;
+        public double wheelRadius = RobotDescriptor.DRIVE_TUNER.driveWheelRadius;
+        public double gearRatio = RobotDescriptor.DRIVE_TUNER.driveGearRatio;
+        public double trackWidth = RobotDescriptor.DRIVE_TUNER.driveTrackWidth;
+        public double kV = RobotDescriptor.DRIVE_TUNER.kv;
+        public double kA = RobotDescriptor.DRIVE_TUNER.ka;
+        public double kStatic = RobotDescriptor.DRIVE_TUNER.kStatic;
+        public double maxVel = RobotDescriptor.DRIVE_TUNER.maxVel;
+        public double maxAccel = RobotDescriptor.DRIVE_TUNER.maxAccel;
+        public double maxAngVel = RobotDescriptor.DRIVE_TUNER.maxAngVel;
+        public double maxAngAccel = RobotDescriptor.DRIVE_TUNER.maxAngAccel;
 
-        public double mecTransP = RobotDescriptor.TRANSLATIONAL_PID.kP;
-        public double mecTransI = RobotDescriptor.TRANSLATIONAL_PID.kI;
-        public double mecTransD = RobotDescriptor.TRANSLATIONAL_PID.kD;
-        public double mecHeadingP = RobotDescriptor.HEADING_PID.kP;
-        public double mecHeadingI = RobotDescriptor.HEADING_PID.kI;
-        public double mecHeadingD = RobotDescriptor.HEADING_PID.kD;
-        public double mecLateralMultiplier = RobotDescriptor.LATERAL_MULTIPLIER;
+        public double mecTransP = RobotDescriptor.DRIVE_TUNER.translationalPid.kP;
+        public double mecTransI = RobotDescriptor.DRIVE_TUNER.translationalPid.kI;
+        public double mecTransD = RobotDescriptor.DRIVE_TUNER.translationalPid.kD;
+        public double mecHeadingP = RobotDescriptor.DRIVE_TUNER.headingPid.kP;
+        public double mecHeadingI = RobotDescriptor.DRIVE_TUNER.headingPid.kI;
+        public double mecHeadingD = RobotDescriptor.DRIVE_TUNER.headingPid.kD;
+        public double mecLateralMultiplier = RobotDescriptor.DRIVE_TUNER.lateralMultiplier;
 
 
         //For tank drive
@@ -83,14 +83,14 @@ public final class LogFiles {
         public double tankHeadingI = SampleTankDrive.HEADING_PID.kI;
         public double tankHeadingD = SampleTankDrive.HEADING_PID.kD;*/
 
-        public double trackingTicksPerRev = RobotDescriptor.ODOMETRY_TICKS_PER_REV;
-        public double trackingWheelRadius = RobotDescriptor.ODOMETRY_WHEEL_RADIUS;
-        public double trackingGearRatio = RobotDescriptor.ODOMETRY_GEAR_RATIO;
-        public double trackingLateralDistance = RobotDescriptor.ODOMETRY_LATERAL_DISTANCE;
-        public double trackingForwardOffset = RobotDescriptor.ODOMETRY_FORWARD_OFFSET;
+        public double trackingTicksPerRev = RobotDescriptor.ODOMETRY_TUNER.odometryTicksPerRev;
+        public double trackingWheelRadius = RobotDescriptor.ODOMETRY_TUNER.odometryWheelRadius;
+        public double trackingGearRatio = RobotDescriptor.ODOMETRY_TUNER.odometryGearRatio;
+        public double trackingLateralDistance = RobotDescriptor.ODOMETRY_TUNER.odometryLateralDistance;
+        public double trackingForwardOffset = RobotDescriptor.ODOMETRY_TUNER.odometryForwardOffset;
 
-        public RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR = RobotDescriptor.LOGO_FACING_DIR;
-        public RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR = RobotDescriptor.USB_FACING_DIR;
+        public RevHubOrientationOnRobot.LogoFacingDirection LOGO_FACING_DIR = RobotDescriptor.DRIVE_TUNER.logoFacingDir;
+        public RevHubOrientationOnRobot.UsbFacingDirection USB_FACING_DIR = RobotDescriptor.DRIVE_TUNER.usbFacingDir;
 
         public List<Long> nsTimes = new ArrayList<>();
 

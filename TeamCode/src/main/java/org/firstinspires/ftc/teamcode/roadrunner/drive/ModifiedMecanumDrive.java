@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.roadrunner.drive;
 
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.DriveTuner;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -21,9 +23,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
-import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceRunner;
@@ -46,19 +45,20 @@ public class ModifiedMecanumDrive extends MecanumDrive {
     private List<Integer> lastEncVels = new ArrayList<>();
 
     private TrajectorySequenceRunner trajectorySequenceRunner;
-    private RobotContext context;
-    private RobotDescriptor descriptor;
+    private static DriveTuner tuner;
+    public Localizer localizer;
 
-    public ModifiedMecanumDrive(Localizer localizer, List<DcMotorEx> motors, IMU imu, VoltageSensor batteryVoltageSensor, RobotContext context) {
-        super(descriptor.kV, descriptor.kA, descriptor.kStatic, descriptor.DRIVE_TRACK_WIDTH, descriptor.DRIVE_TRACK_WIDTH, descriptor.LATERAL_MULTIPLIER);
+    public ModifiedMecanumDrive(Localizer localizer, List<DcMotorEx> motors, IMU imu, VoltageSensor batteryVoltageSensor, DriveTuner tunner) {
+        super(tunner.kv, tunner.ka, tunner.kStatic, tunner.driveTrackWidth, tunner.driveTrackWidth, tunner.lateralMultiplier);
 
-        follower = new HolonomicPIDVAFollower(descriptor.TRANSLATIONAL_PID, descriptor.TRANSLATIONAL_PID, descriptor.HEADING_PID,
+        follower = new HolonomicPIDVAFollower(tunner.translationalPid, tunner.translationalPid, tunner.headingPid,
                 new Pose2d(0.5, 0.5, Math.toRadians(5.0)), 0.5);
 
-        motors = this.motors;
-        imu = this.imu;
-        context = this.context;
-        descriptor = this.context.descriptor;
+        this.motors = motors;
+        this.imu = imu;
+        this.tuner = tunner;
+
+        this.localizer = localizer;
 
         // TODO: if desired, use setLocalizer() to change the localization method
 
@@ -68,28 +68,28 @@ public class ModifiedMecanumDrive extends MecanumDrive {
         // setLocalizer(new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels));
         setLocalizer(localizer); //new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels)
         trajectorySequenceRunner = new TrajectorySequenceRunner(
-                follower, descriptor.HEADING_PID, batteryVoltageSensor,
+                follower, tunner.headingPid, batteryVoltageSensor,
                 lastEncPositions, lastEncVels, lastTrackingEncPositions, lastTrackingEncVels
         );
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose) {
-        return new TrajectoryBuilder(startPose, descriptor.VEL_CONSTRAINT, descriptor.ACCEL_CONSTRAINT);
+        return new TrajectoryBuilder(startPose, tuner.velConstraint, tuner.accelConstraint);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, boolean reversed) {
-        return new TrajectoryBuilder(startPose, reversed, descriptor.VEL_CONSTRAINT, descriptor.ACCEL_CONSTRAINT);
+        return new TrajectoryBuilder(startPose, reversed, tuner.velConstraint, tuner.accelConstraint);
     }
 
     public TrajectoryBuilder trajectoryBuilder(Pose2d startPose, double startHeading) {
-        return new TrajectoryBuilder(startPose, startHeading, descriptor.VEL_CONSTRAINT, descriptor.ACCEL_CONSTRAINT);
+        return new TrajectoryBuilder(startPose, startHeading, tuner.velConstraint, tuner.accelConstraint);
     }
 
     public TrajectorySequenceBuilder trajectorySequenceBuilder(Pose2d startPose) {
         return new TrajectorySequenceBuilder(
                 startPose,
-                descriptor.VEL_CONSTRAINT, descriptor.ACCEL_CONSTRAINT,
-                descriptor.MAX_ANG_VEL, descriptor.MAX_ANG_ACCEL
+                tuner.velConstraint, tuner.accelConstraint,
+                tuner.maxAngVel, tuner.maxAngAccel
         );
     }
 
@@ -153,14 +153,14 @@ public class ModifiedMecanumDrive extends MecanumDrive {
         if (Math.abs(drivePower.getX()) + Math.abs(drivePower.getY())
                 + Math.abs(drivePower.getHeading()) > 1) {
             // re-normalize the powers according to the weights
-            double denom = descriptor.VX_WEIGHT * Math.abs(drivePower.getX())
-                    + descriptor.VY_WEIGHT * Math.abs(drivePower.getY())
-                    + descriptor.OMEGA_WEIGHT * Math.abs(drivePower.getHeading());
+            double denom = tuner.vxWeight * Math.abs(drivePower.getX())
+                    + tuner.vyWeight * Math.abs(drivePower.getY())
+                    + tuner.omegaWeight * Math.abs(drivePower.getHeading());
 
             vel = new Pose2d(
-                    descriptor.VX_WEIGHT * drivePower.getX(),
-                    descriptor.VY_WEIGHT * drivePower.getY(),
-                    descriptor.OMEGA_WEIGHT * drivePower.getHeading()
+                    tuner.vxWeight * drivePower.getX(),
+                    tuner.vyWeight * drivePower.getY(),
+                    tuner.omegaWeight * drivePower.getHeading()
             ).div(denom);
         }
 
@@ -176,7 +176,7 @@ public class ModifiedMecanumDrive extends MecanumDrive {
         for (DcMotorEx motor : motors) {
             int position = motor.getCurrentPosition();
             lastEncPositions.add(position);
-            wheelPositions.add(descriptor.encoderTicksToInches(position));
+            wheelPositions.add(tuner.encoderTicksToInches(position));
         }
         return wheelPositions;
     }
@@ -189,7 +189,7 @@ public class ModifiedMecanumDrive extends MecanumDrive {
         for (DcMotorEx motor : motors) {
             int vel = (int) motor.getVelocity();
             lastEncVels.add(vel);
-            wheelVelocities.add(descriptor.encoderTicksToInches(vel));
+            wheelVelocities.add(tuner.encoderTicksToInches(vel));
         }
         return wheelVelocities;
     }
@@ -204,12 +204,12 @@ public class ModifiedMecanumDrive extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return 0;//imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
 
     @Override
     public Double getExternalHeadingVelocity() {
-        return (double) imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
+        return 0.0 ;//(double) imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {
