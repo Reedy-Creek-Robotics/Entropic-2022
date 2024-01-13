@@ -80,7 +80,7 @@ public class TeamPropDetector extends BaseComponent {
         if (targetColor == TargetColor.RED) {
             // Special case - red needs to loop over the zero value for hue, so we need to detect it in two ranges
             ranges.add(new Pair<>(
-                    new Scalar(240, 100, 100),
+                    new Scalar(240, 100, 50),
                     new Scalar(255, 255, 255)
             ));
             ranges.add(new Pair<>(
