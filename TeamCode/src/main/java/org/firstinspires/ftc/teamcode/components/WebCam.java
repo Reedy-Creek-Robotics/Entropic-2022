@@ -146,6 +146,10 @@ public class WebCam extends BaseComponent {
         }
     }
 
+    public FrameProcessor getFrameProcessor() {
+        return frameProcessor;
+    }
+
     public void setFrameProcessor(FrameProcessor frameProcessor) {
         this.frameProcessor = frameProcessor;
     }

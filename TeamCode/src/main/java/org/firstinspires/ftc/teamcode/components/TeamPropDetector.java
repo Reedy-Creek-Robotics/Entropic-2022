@@ -1,10 +1,15 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import org.firstinspires.ftc.teamcode.components.ColorDetector.ColorDetection;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
+import org.firstinspires.ftc.teamcode.geometry.Vector2;
+import org.firstinspires.ftc.teamcode.util.Color;
+import org.firstinspires.ftc.teamcode.util.DrawUtil;
+import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
 
 import java.util.ArrayList;
@@ -20,14 +25,31 @@ public class TeamPropDetector extends BaseComponent {
     private TargetColor targetColor;
 
     public enum TeamPropPosition {
-        LEFT(new Rectangle(new Position(100, 100), 75, 75)),
-        MIDDLE(new Rectangle(new Position(300, 100), 75, 75)),
-        RIGHT(new Rectangle(new Position(500, 100), 75, 75));
+        LEFT(
+                new Rectangle(new Position(100, 100), 75, 75),
+                1000, 10000, 0.75
+        ),
+        MIDDLE(
+                new Rectangle(new Position(300, 100), 75, 75),
+                1000, 10000, 0.9
+        ),
+        RIGHT(
+                new Rectangle(new Position(500, 100), 75, 75),
+                1000, 10000, 0.75
+        );
 
         public Rectangle rectangle;
 
-        TeamPropPosition(Rectangle rectangle) {
+        // For each position, the min and max expected area for the detected team prop contour
+        public int minArea, maxArea;
+        // For each position, how square does the team prop look in that position? This is contour area / bounding rect
+        public double minSquarenessRatio;
+
+        TeamPropPosition(Rectangle rectangle, int minArea, int maxArea, double minSquarenessRatio) {
             this.rectangle = rectangle;
+            this.minArea = minArea;
+            this.maxArea = maxArea;
+            this.minSquarenessRatio = minSquarenessRatio;
         }
     }
 
@@ -57,8 +79,8 @@ public class TeamPropDetector extends BaseComponent {
         List<Pair<Scalar, Scalar>> ranges = new ArrayList<>();
         if (targetColor == TargetColor.RED) {
             // Special case - red needs to loop over the zero value for hue, so we need to detect it in two ranges
-            parameters.ranges.add(new Pair<>(
-                    new Scalar(245, 100, 100),
+            ranges.add(new Pair<>(
+                    new Scalar(240, 100, 100),
                     new Scalar(255, 255, 255)
             ));
             ranges.add(new Pair<>(
@@ -77,6 +99,27 @@ public class TeamPropDetector extends BaseComponent {
 
     public void activate() {
         colorDetector.activate();
+        WebCam.FrameProcessor colorDetectorFrameProcessor = webCam.getFrameProcessor();
+        webCam.setFrameProcessor(new WebCam.FrameProcessor() {
+            @Override
+            @SuppressLint("DefaultLocale")
+            public void processFrame(Mat input, Mat output, WebCam.FrameContext frameContext) {
+                colorDetectorFrameProcessor.processFrame(input, output, frameContext);
+
+                if (webCam.isStreaming()) {
+                    // Print team prop data about each detection
+                    List<ColorDetection> detections = colorDetector.getDetections();
+                    for (ColorDetection detection : detections) {
+                        if (detection.area < 100) continue;
+
+                        double squareness = detection.area / detection.boundingRect.getArea();
+                        DrawUtil.drawText(output, String.format("Sq [%.2f]", squareness), detection.centroid.add(new Vector2(-50, -30)), Color.GREEN, 0.5, 1);
+                        DrawUtil.drawText(output, detection.centroid.toString(0), detection.centroid.add(new Vector2(-50, 0)), Color.GREEN, 0.5, 1);
+                        DrawUtil.drawText(output, String.format("Area [%.0f])", detection.area), detection.centroid.add(new Vector2(-50, 30)), Color.GREEN, 0.5, 1);
+                    }
+                }
+            }
+        });
     }
 
     public boolean isActive() {
@@ -129,40 +172,34 @@ public class TeamPropDetector extends BaseComponent {
         // 2. Mostly square (team prop is a cube)
         // 3. In the correct position
 
-        for (ColorDetection detection : detections) {
-            // See if this detection is approximately a square
-            if (!isSquareDetection(detection)) {
-                continue;
-            }
-
-            // Make sure the detection is approximately the correct size
-            // todo: determine threshold for size
-            double smallestSize = 1000;
-            double largestSize = 10000;
-            if (smallestSize > detection.area || detection.area > largestSize) {
-                continue;
-            }
-
-            // Check which position the detection is at
-            for (TeamPropPosition position : TeamPropPosition.values()) {
+        for (TeamPropPosition position : TeamPropPosition.values()) {
+            for (ColorDetection detection : detections) {
+                // Check if this detection is in the correct location on screen for this team prop position
                 Rectangle rectangle = position.rectangle;
-                if (rectangle.contains(detection.centroid)) {
-                    return position;
+                if (!rectangle.contains(detection.centroid)) {
+                    continue;
                 }
+
+                // See if this detection is approximately a square
+                double squarenessRatio = detection.area / detection.boundingRect.getArea();
+                if (squarenessRatio < position.minSquarenessRatio) {
+                    continue;
+                }
+
+                // Make sure the detection is approximately the correct size
+                double smallestArea = position.minArea;
+                double largestArea = position.maxArea;
+                if (smallestArea > detection.area || detection.area > largestArea) {
+                    continue;
+                }
+
+                // This detection fits all the criteria, so let's use it.
+                return position;
             }
         }
 
         // We didn't detect any color objects with the right parameters, so return null
         return null;
-    }
-
-    private boolean isSquareDetection(ColorDetection detection) {
-        double percentFilled = detection.area / detection.boundingRect.getArea();
-
-        // todo: determine "square" threshold for filled percent
-        double threshold = 0.9;
-
-        return percentFilled > threshold;
     }
 
 }
