@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
 import org.opencv.core.Scalar;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TeamPropDetector extends BaseComponent {
@@ -37,6 +38,10 @@ public class TeamPropDetector extends BaseComponent {
 
     private WebCam webCam;
 
+    public TeamPropDetector(RobotContext context, WebCam webCam) {
+        this(context, webCam, TargetColor.RED);
+    }
+
     public TeamPropDetector(RobotContext context, WebCam webCam, TargetColor targetColor) {
         super(context);
 
@@ -45,6 +50,29 @@ public class TeamPropDetector extends BaseComponent {
 
         this.targetColor = targetColor;
         this.webCam = webCam;
+    }
+
+    public void setTargetColor(TargetColor targetColor) {
+        this.targetColor = targetColor;
+        List<Pair<Scalar, Scalar>> ranges = new ArrayList<>();
+        if (targetColor == TargetColor.RED) {
+            // Special case - red needs to loop over the zero value for hue, so we need to detect it in two ranges
+            parameters.ranges.add(new Pair<>(
+                    new Scalar(245, 100, 100),
+                    new Scalar(255, 255, 255)
+            ));
+            ranges.add(new Pair<>(
+                    new Scalar(0, 100, 50),
+                    new Scalar(10, 255, 255)
+            ));
+        } else if (targetColor == TargetColor.BLUE) {
+            int hue = 0x6e;
+            ranges.add(new Pair<>(
+                    new Scalar(hue - 15, 100, 50),
+                    new Scalar(hue + 15, 255, 255)
+            ));
+        }
+        colorDetector.getParameters().ranges = ranges;
     }
 
     public void activate() {
@@ -60,29 +88,11 @@ public class TeamPropDetector extends BaseComponent {
     }
 
     public void init() {
-        ColorDetector.ColorDetectionParameters parameters = new ColorDetector.ColorDetectionParameters();
-        if (targetColor == TargetColor.RED) {
-            // Special case - red needs to loop over the zero value for hue, so we need to detect it in two ranges
-            parameters.ranges.add(new Pair<>(
-                    new Scalar(245, 100, 100),
-                    new Scalar(255, 255, 255)
-            ));
-            parameters.ranges.add(new Pair<>(
-                    new Scalar(0, 100, 100),
-                    new Scalar(10, 255, 255)
-            ));
-        } else if (targetColor == TargetColor.BLUE) {
-            int hue = 0xb1;
-            parameters.ranges.add(new Pair<>(
-                    new Scalar(hue - 10, 100, 100),
-                    new Scalar(hue + 10, 255, 255)
-            ));
-        }
-        colorDetector = new ColorDetector(context, webCam, parameters);
+        setTargetColor(targetColor);
+    }
 
-        webCam.init();
-        colorDetector.init();
-        colorDetector.activate();
+    public ColorDetector getColorDetector() {
+        return colorDetector;
     }
 
     /**

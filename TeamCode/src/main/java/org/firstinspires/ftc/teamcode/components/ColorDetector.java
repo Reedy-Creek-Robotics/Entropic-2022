@@ -48,6 +48,14 @@ public class ColorDetector extends BaseComponent {
         this.parameters = parameters;
     }
 
+    public ColorDetectionParameters getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(ColorDetectionParameters parameters) {
+        this.parameters = parameters;
+    }
+
     public void activate() {
         frameProcessor = new FrameProcessor();
         webCam.setFrameProcessor(frameProcessor);
@@ -115,6 +123,9 @@ public class ColorDetector extends BaseComponent {
 
         @Override
         public void processFrame(Mat input, Mat output, FrameContext frameContext) {
+            if (parameters.ranges.isEmpty()){
+                return;
+            }
             // Attempt to locate objects of a given color.
             // https://techvidvan.com/tutorials/detect-objects-of-similar-color-using-opencv-in-python/
 
