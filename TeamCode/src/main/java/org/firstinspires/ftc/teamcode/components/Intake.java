@@ -31,21 +31,7 @@ public class Intake extends BaseComponent {
         intakeMotor.setPower(-1);
     }
 
-    public void intake(double power, double time) {
-        executeCommand(new IntakeCone(power, time));
-    }
 
-    public void intake(double time) {
-        intake(1.0, time);
-    }
-
-    public void outtake(double power, double time) {
-        executeCommand(new OuttakeCone(-power, time));
-    }
-
-    public void outtake(double time) {
-        outtake(1.0, time);
-    }
 
     /**
      * Stops the intake
@@ -77,28 +63,4 @@ public class Intake extends BaseComponent {
             return time;
         }
     }
-
-    private class IntakeCone extends BaseCommand {
-
-        public IntakeCone(double power, double time) {
-            super(power, time);
-        }
-
-        @Override
-        public boolean updateStatus() {
-            return commandTime.seconds() > getTime();
-        }
-    }
-
-    private class OuttakeCone extends BaseCommand {
-        public OuttakeCone(double power, double time) {
-            super(power, time);
-        }
-
-        @Override
-        public boolean updateStatus() {
-            return commandTime.seconds() > getTime();
-        }
-    }
-
 }

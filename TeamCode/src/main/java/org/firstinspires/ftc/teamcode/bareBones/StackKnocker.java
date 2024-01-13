@@ -18,6 +18,10 @@ public class StackKnocker extends BaseComponent {
         CRServo pinionMotor = hardwareMap.crservo.get("StackKnocker");
     }
 
+    public void knock() {
+        //todo: implement this
+    }
+
     @Override
     public void updateStatus() {
 

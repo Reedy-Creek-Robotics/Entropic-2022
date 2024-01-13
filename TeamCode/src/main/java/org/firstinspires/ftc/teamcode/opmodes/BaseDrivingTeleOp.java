@@ -46,9 +46,15 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             double strafe = driver.leftStickX();
             double turn = driver.rightStickX();
 
-            //TODO: bring back driver relative
-            //driveTrain.driverRelative(drive, turn, strafe, limiter);
+            driveTrain.driverRelative(drive, turn, strafe, limiter);
         }
+        //TODO: Add a way for the drive train to reset its orientation
+        /*if (driver.isPressed(START)) {
+            Position position = driveTrain.getPosition();
+            driveTrain.setPosition(position.alignToTileMiddle());
+        } else if (driver.isPressed(BACK)) {
+            driveTrain.setHeading(new Heading(90));
+        }*/
 
         // Slow mode
         if (driver.isPressed(LEFT_STICK_BUTTON)) {
@@ -77,5 +83,6 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
         this.movementMode = movementMode;
         limiter = movementMode.power;
     }
+
 
 }

@@ -6,5 +6,13 @@ public class Outtake extends BaseComponent{
         super(context);
     }
 
+    public void dropRight() {
+        //todo: make it work
+    }
+
+    public void dropLeft() {
+        //todo: also make it work
+    }
+
 
 }

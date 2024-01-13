@@ -1,10 +1,11 @@
 package org.firstinspires.ftc.teamcode.bareBones;
 
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.opmodes.BaseDrivingTeleOp;
 
-public class RollerIntake extends OpMode {
+
+public class RollerIntake extends BaseDrivingTeleOp {
 
     private DcMotor intakeMotor;
 
@@ -16,10 +17,12 @@ public class RollerIntake extends OpMode {
     @Override
     public void loop() {
         //If I press y, it goes forward, x goes backward.
-        if (gamepad1.y) {
+        if (gamepad1.right_trigger) {
             intakeMotor.setPower(1);
-        } else if (gamepad1.x) {
+        } else if (gamepad1.left_trigger) {
             intakeMotor.setPower(-1);
+        } else {
+            intakeMotor.setPower(0);
         }
     }
 }

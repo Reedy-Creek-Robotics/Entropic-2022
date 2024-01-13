@@ -26,6 +26,9 @@ public class Robot extends BaseComponent {
     private TeamPropDetector teamPropDetector;
     private WebCam webCamAprilTag;
     private LinearSlide slide;
+    private Intake intake;
+    private Outtake outtake;
+    private RiggingLift riggingLift;
 
     private int updateCount;
     private ElapsedTime initTime;
@@ -48,9 +51,15 @@ public class Robot extends BaseComponent {
 
         this.slide = new LinearSlide(context);
 
+        this.intake = new Intake(context);
+
+        this.outtake = new Outtake(context);
+
+        this.riggingLift = new RiggingLift(context);
+
         this.teamPropDetector = new TeamPropDetector(context, webCamFront);
 
-        addSubComponents(driveTrain, slide, teamPropDetector);
+        addSubComponents(driveTrain, slide, intake, outtake, riggingLift, teamPropDetector);
 
         for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));
@@ -159,8 +168,21 @@ public class Robot extends BaseComponent {
         return teamPropDetector;
     }
 
+
     public LinearSlide getSlide() {
         return slide;
+    }
+
+    public Intake getIntake() {
+        return intake;
+    }
+
+    public Outtake getOuttake() {
+        return outtake;
+    }
+
+    public RiggingLift getRiggingLift() {
+        return riggingLift;
     }
 
     public WebCam getWebCam(Camera camera) {
