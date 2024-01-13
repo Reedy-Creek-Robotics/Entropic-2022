@@ -1,36 +1,30 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import com.acmerobotics.roadrunner.localization.Localizer;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
-import org.firstinspires.ftc.teamcode.geometry.Heading;
-import org.firstinspires.ftc.teamcode.geometry.Position;
-import org.firstinspires.ftc.teamcode.geometry.Vector2;
+import org.firstinspires.ftc.teamcode.util.DriveUtil;
+import org.firstinspires.ftc.teamcode.util.MecanumUtil;
 
-public class RobotContext {
+public class RobotContext{
 
     public OpMode opMode;
 
-    public RobotDescriptor robotDescriptor;
+    public RobotDescriptor descriptor;
 
-    public RobotPositionProvider robotPositionProvider;
+    public Localizer localizer;
 
-    public RobotContext(OpMode opMode, RobotDescriptor robotDescriptor) {
+    public DriveUtil driveUtil;
+
+    public RobotContext(OpMode opMode, RobotDescriptor descriptor) {
         this.opMode = opMode;
-        this.robotDescriptor = robotDescriptor;
+        this.descriptor = descriptor;
+        this.driveUtil = new MecanumUtil();
     }
 
     /**
      * Represents A component that knows how to obtain the robot's current position.
      */
-    public interface RobotPositionProvider {
 
-        Position getPosition();
-
-        Heading getHeading();
-
-        Vector2 getVelocity();
-
-    }
 
 }

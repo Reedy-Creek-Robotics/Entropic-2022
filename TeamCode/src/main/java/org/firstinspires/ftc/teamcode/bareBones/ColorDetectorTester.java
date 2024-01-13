@@ -5,9 +5,9 @@ import android.util.Pair;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.BaseTeleOp;
-import org.firstinspires.ftc.teamcode.Controller;
 import org.firstinspires.ftc.teamcode.components.ColorDetector;
+import org.firstinspires.ftc.teamcode.game.Controller;
+import org.firstinspires.ftc.teamcode.opmodes.BaseTeleOp;
 import org.opencv.core.Scalar;
 
 import java.util.List;

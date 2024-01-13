@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode.components;
 
 import android.annotation.SuppressLint;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
@@ -24,41 +24,39 @@ public class Robot extends BaseComponent {
 
     private WebCam webCamFront;
     private TeamPropDetector teamPropDetector;
+    private WebCam webCamAprilTag;
+    private LinearSlide slide;
 
     private int updateCount;
     private ElapsedTime initTime;
     private ElapsedTime firstUpdateTime;
 
     public enum Camera {
-        FRONT
+        FRONT,
+        APRIL
     }
 
     public Robot(OpMode opMode, Camera streamingCamera, List<Camera> enabledCameras) {
         super(createRobotContext(opMode));
 
-        this.webCamFront = new WebCam(context, robotDescriptor.webCamFrontDescriptor,
+        this.webCamFront = new WebCam(context, descriptor.WEBCAM_FRONT_DESCRIPTOR,
                 streamingCamera == Camera.FRONT);
+        this.webCamAprilTag = new WebCam(context, descriptor.WEBCAM_APRILTAG_DESCRIPTOR,
+                streamingCamera == Camera.APRIL);
 
-        /*this.driveTrain = new DriveTrain(context);
-        getRobotContext().robotPositionProvider = driveTrain;
-*/
+        this.driveTrain = new DriveTrain(context);
+
+        this.slide = new LinearSlide(context);
+
         this.teamPropDetector = new TeamPropDetector(context, webCamFront);
 
-        //addSubComponents(driveTrain, teamPropDetector);
-        addSubComponents(teamPropDetector);
+        addSubComponents(driveTrain, slide, teamPropDetector);
 
         for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));
         }
 
         TelemetryHolder.telemetry = telemetry;
-    }
-
-    private static RobotContext createRobotContext(OpMode opMode) {
-        return new RobotContext(
-                opMode,
-                new RobotDescriptor()
-        );
     }
 
     public RobotContext getRobotContext() {
@@ -161,10 +159,16 @@ public class Robot extends BaseComponent {
         return teamPropDetector;
     }
 
+    public LinearSlide getSlide() {
+        return slide;
+    }
+
     public WebCam getWebCam(Camera camera) {
         switch (camera) {
             case FRONT:
                 return getWebCamFront();
+            case APRIL:
+                return getWebCamAprilTag();
             default:
                 throw new IllegalArgumentException();
         }
@@ -174,6 +178,10 @@ public class Robot extends BaseComponent {
         return webCamFront;
     }
 
+    public WebCam getWebCamAprilTag() {
+        return webCamAprilTag;
+    }
+
     public void savePositionToDisk() {
         savePositionToDisk("robot-position");
     }
@@ -181,9 +189,9 @@ public class Robot extends BaseComponent {
     public void savePositionToDisk(String filename) {
         FileUtil.writeLines(
                 filename,
-                driveTrain.getPosition().getX(),
-                driveTrain.getPosition().getY(),
-                driveTrain.getHeading().getValue()
+                driveTrain.roadrunner.getLocalizer().getPoseEstimate().getX(),
+                driveTrain.roadrunner.getLocalizer().getPoseEstimate().getY(),
+                driveTrain.roadrunner.getLocalizer().getPoseEstimate().getHeading()
         );
     }
 
@@ -205,8 +213,7 @@ public class Robot extends BaseComponent {
                 );
                 Heading heading = new Heading(Double.parseDouble(lines.get(2)));
 
-                driveTrain.setPosition(position);
-                driveTrain.setHeading(heading);
+                driveTrain.roadrunner.getLocalizer().setPoseEstimate(new Pose2d(position.getX(),position.getY(),heading.getValue()));
 
             } catch (Exception e) {
                 telemetry.log().add("Error loading position: " + ErrorUtil.convertToString(e));

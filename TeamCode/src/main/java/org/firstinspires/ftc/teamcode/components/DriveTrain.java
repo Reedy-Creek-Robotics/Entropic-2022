@@ -1,41 +1,186 @@
 package org.firstinspires.ftc.teamcode.components;
 
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.DriveTuner;
+import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.OdometryTuner;
+
 import android.annotation.SuppressLint;
 
-import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
+import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigurationType;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
-import org.firstinspires.ftc.teamcode.components.RobotContext.RobotPositionProvider;
-import org.firstinspires.ftc.teamcode.game.Field;
-import org.firstinspires.ftc.teamcode.game.Field.Direction;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
-import org.firstinspires.ftc.teamcode.geometry.Position;
-import org.firstinspires.ftc.teamcode.geometry.Vector2;
-import org.firstinspires.ftc.teamcode.util.MecanumUtil;
-import org.firstinspires.ftc.teamcode.util.MecanumUtil.MotorPowers;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.ModifiedMecanumDrive;
+import org.firstinspires.ftc.teamcode.roadrunner.drive.StandardTrackingWheelLocalizer;
+import org.firstinspires.ftc.teamcode.roadrunner.util.LynxModuleUtil;
+import org.firstinspires.ftc.teamcode.util.DriveUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @SuppressLint("DefaultLocale")
-public class DriveTrain extends BaseComponent implements RobotPositionProvider {
+public class DriveTrain extends BaseComponent {
 
-    /**
+    private DcMotorEx leftFront, leftRear, rightRear, rightFront;
+    private List<DcMotorEx> motors;
+
+    private IMU imu;
+    private VoltageSensor batteryVoltageSensor;
+
+    public ModifiedMecanumDrive roadrunner;
+
+    private RobotContext context;
+
+    public static DriveTuner driveTuner;
+    public static OdometryTuner odometryTuner;
+
+    public DriveTrain(RobotContext context) {
+        super(context);
+
+        driveTuner = descriptor.DRIVE_TUNER;
+        odometryTuner = descriptor.ODOMETRY_TUNER;
+
+        List<Integer> lastTrackingEncPositions = new ArrayList<>();
+        List<Integer> lastTrackingEncVels = new ArrayList<>();
+
+        //this.context.localizer = new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels, odometryTuner);
+
+        //TODO: move LynxModule to robot and set to manual(don't get new info until we tell you)
+        LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
+
+        batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
+
+        for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+
+        // TODO: adjust the names of the following hardware devices to match your configuration
+        /* imu = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
+                DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
+        imu.initialize(parameters);*/
+
+        leftFront = hardwareMap.get(DcMotorEx.class, "FrontLeft");
+        leftRear = hardwareMap.get(DcMotorEx.class, "BackLeft");
+        rightRear = hardwareMap.get(DcMotorEx.class, "BackRight");
+        rightFront = hardwareMap.get(DcMotorEx.class, "FrontRight");
+//
+//        leftFront.setDirection(DcMotorEx.Direction.REVERSE);
+//        leftRear.setDirection(DcMotorEx.Direction.REVERSE);
+
+        motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
+
+        for (DcMotorEx motor : motors) {
+            MotorConfigurationType motorConfigurationType = motor.getMotorType().clone();
+            motorConfigurationType.setAchieveableMaxRPMFraction(1.0);
+            motor.setMotorType(motorConfigurationType);
+        }
+
+        //TODO: move localizer to context eventually
+        roadrunner = new ModifiedMecanumDrive(new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels, odometryTuner),motors,imu,batteryVoltageSensor, driveTuner);
+
+        if (driveTuner.runUsingEncoder) {
+            setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        }
+
+        setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        if (driveTuner.runUsingEncoder && driveTuner.driveMotorVeloPid != null) {
+            setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, driveTuner.driveMotorVeloPid);
+        }
+    }
+
+    public void setMode(DcMotor.RunMode runMode) {
+        for (DcMotorEx motor : motors) {
+            motor.setMode(runMode);
+        }
+    }
+
+    public void setZeroPowerBehavior(DcMotor.ZeroPowerBehavior zeroPowerBehavior) {
+        for (DcMotorEx motor : motors) {
+            motor.setZeroPowerBehavior(zeroPowerBehavior);
+        }
+    }
+
+    public void setPIDFCoefficients(DcMotor.RunMode runMode, PIDFCoefficients coefficients) {
+        PIDFCoefficients compensatedCoefficients = new PIDFCoefficients(
+                coefficients.p, coefficients.i, coefficients.d,
+                coefficients.f * 12 / batteryVoltageSensor.getVoltage()
+        );
+
+        for (DcMotorEx motor : motors) {
+            motor.setPIDFCoefficients(runMode, compensatedCoefficients);
+        }
+    }
+
+    public void drive(double drive, double strafe, double turn, double speedFactor){
+        DriveUtil.MotorPowers motorPowers = context.driveUtil.calculateWheelPowerForDrive(drive,strafe,turn,speedFactor);
+
+        leftFront.setPower(motorPowers.frontLeft);
+        leftRear.setPower(motorPowers.backLeft);
+        rightFront.setPower(motorPowers.frontRight);
+        rightRear.setPower(motorPowers.backRight);
+    }
+
+    public void driverRelative(double drive, double strafe, double turn, double speedFactor){
+        DriveUtil.MotorPowers motorPowers = context.driveUtil.calculateWheelPowerForDriverRelative(drive,strafe,turn,new Heading(context.localizer.getPoseEstimate().getHeading()),speedFactor);
+
+        leftFront.setPower(motorPowers.frontLeft);
+        leftRear.setPower(motorPowers.backLeft);
+        rightFront.setPower(motorPowers.frontRight);
+        rightRear.setPower(motorPowers.backRight);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+    *//**
      * A representation of the playing field.
-     */
+     *//*
     private Field field = new Field();
 
-    /**
+    *//**
+     * Detects tile edges to provide empirical correction to the robot's position and heading.
+     *//*
+    private TileEdgeDetector tileEdgeDetectorSide;
+
+    *//**
+     * Detects tile edges to provide empirical correction to the robot's position and heading.
+     *//*
+    private TileEdgeDetector tileEdgeDetectorFront;
+
+    *//**
+     * Aggregates tile edge observations.
+     *//*
+    private TileEdgeObservationAggregator tileEdgeAggregator;
+
+    *//**
      * The hardware for the drive train
-     */
+     *//*
     private DcMotorEx frontLeft;
     private DcMotorEx frontRight;
     private DcMotorEx backLeft;
@@ -43,48 +188,53 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
     private List<DcMotorEx> motors;
     private BNO055IMU imu;
 
-    /**
+    *//**
      * The current position for the robot.
-     */
+     *//*
     private Position position;
 
-    /**
+    *//**
      * The current heading for the robot.
-     */
+     *//*
     private Heading heading;
 
-    /**
+    *//**
      * The current velocity vector in tiles / sec.
-     */
+     *//*
     private Vector2 velocity;
 
-    /**
+    *//**
      * The previous iteration's position.
-     */
+     *//*
     private Position previousPosition;
 
-    /**
+    *//**
      * The previous iteration's orientation data obtained from the IMU.
-     */
+     *//*
     private Orientation previousImuOrientation;
 
-    /**
+    *//**
      * The previous iteration's motor powers.
-     */
+     *//*
     private MotorPowers previousMotorPowers;
 
-    /**
+    *//**
      * The previous iteration's tick counts for the motors.
-     */
+     *//*
     private MotorTicks previousMotorTicks;
 
-    /**
+    *//**
      * The time of the previous update iteration.
-     */
+     *//*
     private ElapsedTime previousUpdateTime;
 
+    *//**
+     * Statistics about Hough tile edge correction.
+     *//*
+    private HoughStatistics houghStatistics = new HoughStatistics();
 
-    public DriveTrain(RobotContext context) {
+
+    public DriveTrain(RobotContext context, WebCam webCamSide, WebCam webCamFront) {
         super(context);
 
         frontLeft = (DcMotorEx) hardwareMap.dcMotor.get("FrontLeft");
@@ -94,6 +244,11 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         motors = Arrays.asList(frontLeft, frontRight, backLeft, backRight);
 
         imu = hardwareMap.get(BNO055IMU.class, "imu");
+
+        tileEdgeAggregator = new TileEdgeObservationAggregator();
+        tileEdgeDetectorSide = new TileEdgeDetector(context, webCamSide, tileEdgeAggregator);
+        tileEdgeDetectorFront = new TileEdgeDetector(context, webCamFront, tileEdgeAggregator);
+        addSubComponents(tileEdgeDetectorSide, tileEdgeDetectorFront);
 
         // For now starting position is to be assumed the origin (0, 0)
         position = new Position(0.5, 0.5);
@@ -115,6 +270,10 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         for (DcMotorEx motor : motors) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
+
+        // Activate the side tile edge detector immediately
+        tileEdgeDetectorSide.activate();
+        tileEdgeDetectorFront.activate();
 
         previousUpdateTime = new ElapsedTime();
     }
@@ -144,27 +303,35 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         //imu.startAccelerationIntegration(null, null, 5);
     }
 
+    public TileEdgeDetector getTileEdgeDetectorSide() {
+        return tileEdgeDetectorSide;
+    }
+
+    public TileEdgeDetector getTileEdgeDetectorFront() {
+        return tileEdgeDetectorFront;
+    }
+
     public BNO055IMU getImu() {
         return imu;
     }
 
-    /**
+    *//**
      * Return the current position of the robot.
-     */
+     *//*
     public Position getPosition() {
         return position;
     }
 
-    /**
+    *//**
      * Return the heading of the robot as an angle in degrees from (0 - 360).
-     */
+     *//*
     public Heading getHeading() {
         return heading;
     }
 
-    /**
+    *//**
      * Returns the current velocity of the robot.
-     */
+     *//*
     public Vector2 getVelocity() {
         return velocity;
     }
@@ -185,16 +352,21 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         //telemetry.addData("Current Command", getCurrentCommand());
         //telemetry.addData("Next Commands", getNextCommands());
 
+        telemetry.addData("Hough Stats", houghStatistics);
+
         // Now allow any commands to run with the updated data
         super.updateStatus();
     }
 
-    /**
+    *//**
      * Updates the current position of the bot.
-     */
+     *//*
     private void updateCurrentPosition() {
         // Use the motor encoders to approximate the change in position.
         updateCurrentPositionWithMotorTicks();
+
+        // Override this with a visual observation from hough code, if there is one.
+        updateCurrentPositionWithTileEdgeObservation();
     }
 
     private void updateCurrentPositionWithMotorTicks() {
@@ -230,6 +402,76 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         previousMotorTicks = ticks;
     }
 
+    private void updateCurrentPositionWithTileEdgeObservation() {
+
+        // If the bot is moving, just reset the aggregation.
+        if (velocity == null || velocity.magnitude() > 0.01) {
+            tileEdgeAggregator.reset();
+            return;
+        }
+
+        // Check whether there is an observation, and if we have not yet seen it.
+        TileEdgeSolver.TileEdgeObservation observation = tileEdgeAggregator.getAggregateObservation();
+        if (observation != null) {
+
+            // First, compute the expected robot space coordinates using our theoretical position.
+            RobotSpaceCoordinates robotSpaceCoordinates = convertToRobotSpace(new FieldSpaceCoordinates(heading, position));
+
+            // Then using the observation overwrite the expected with the actual values.
+            if (observation.distanceRight != null) {
+                houghStatistics.rightEdgeCorrections++;
+                houghStatistics.rightEdgeCorrectionDistance += Math.abs(observation.distanceRight - robotSpaceCoordinates.distanceRight);
+                robotSpaceCoordinates.distanceRight = observation.distanceRight;
+            }
+            if (observation.distanceFront != null) {
+                houghStatistics.frontEdgeCorrections++;
+                houghStatistics.frontEdgeCorrectionDistance += Math.abs(observation.distanceFront - robotSpaceCoordinates.distanceFront);
+                robotSpaceCoordinates.distanceFront = observation.distanceFront;
+            }
+            if (observation.headingOffset != null) {
+                robotSpaceCoordinates.headingOffset = observation.headingOffset;
+            }
+
+            // Convert back to field space.
+            FieldSpaceCoordinates updatedFieldSpaceCoordinates = convertToFieldSpace(robotSpaceCoordinates);
+
+            // Apply the current velocity as well, taking into account how old this observation is.
+            double elapsed = observation.observationTime.seconds();
+            Vector2 velocityCorrection = velocity != null ?
+                    velocity.multiply(elapsed) :
+                    new Vector2(0, 0);
+
+            Position updatedPosition = updatedFieldSpaceCoordinates.position.add(velocityCorrection);
+
+            // Sanity check - make sure that the distance we would be correcting is less than a maximum.
+            double maxHoughCorrectionDistance = inchesToTiles(12);
+
+            Vector2 correction = updatedPosition.minus(position);
+            double correctionDistance = correction.magnitude();
+
+            if (correctionDistance < maxHoughCorrectionDistance) {
+                // Finally update the current position to be the actual position.
+                //heading = updatedFieldSpaceCoordinates.heading;
+                position = updatedPosition;
+
+                // Also update the previous position by the same amount, so the velocity doesn't jump.
+                if (previousPosition != null) {
+                    previousPosition = previousPosition.add(correction);
+                }
+
+                houghStatistics.totalCorrections++;
+                houghStatistics.totalCorrectionDistance += correctionDistance;
+                houghStatistics.totalObservationAge += observation.observationTime.seconds();
+
+                if (velocity != null && velocity.magnitude() > 0.01) {
+                    houghStatistics.movingCorrections++;
+                } else {
+                    houghStatistics.stationaryCorrections++;
+                }
+            }
+        }
+    }
+
     public void setPosition(Position position) {
         this.position = position;
 
@@ -250,9 +492,9 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         );
     }
 
-    /**
+    *//**
      * Updates the current heading of the bot.
-     */
+     *//*
     private void updateCurrentHeading() {
 
         // The following code adapted with permission from team SkyStone 2019-2020.
@@ -274,9 +516,9 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         previousImuOrientation = orientation;
     }
 
-    /**
+    *//**
      * Updates the current velocity of the bot.
-     */
+     *//*
     private void updateCurrentVelocity() {
 
         if (previousPosition != null) {
@@ -290,9 +532,65 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         previousPosition = position;
     }
 
-    /**
+    *//**
+     * Indicates if tile edge detection is active.
+     *//*
+    public boolean isTileEdgeDetectionActive() {
+        return tileEdgeDetectorSide.isActive() || tileEdgeDetectorFront.isActive();
+    }
+
+    *//**
+     * Activates the tile edge detectors.
+     *//*
+    public void activateTileEdgeDetection() {
+        tileEdgeDetectorSide.activate();
+        tileEdgeDetectorFront.activate();
+    }
+
+    *//**
+     * Deactivates the tile edge detectors.
+     *//*
+    public void deactivateTileEdgeDetection() {
+        tileEdgeDetectorSide.deactivate();
+        tileEdgeDetectorFront.deactivate();
+        tileEdgeAggregator.reset();
+    }
+
+    *//**
+     * Waits for a tile edge detection up to the given number of seconds.
+     * <p>
+     * Note that this method will block, and should only be called when the robot is not doing
+     * anything else.  Otherwise, the effects are unpredictable.
+     *//*
+    public void waitForTileEdgeDetection(double minTime, double maxTime) {
+        boolean active = isTileEdgeDetectionActive();
+        if (!active) {
+            // Activate the tile edge detector if it's not turned on.
+            activateTileEdgeDetection();
+        }
+
+        // Wait for up to the requested time until we have a valid observation.
+        ElapsedTime waitTime = new ElapsedTime();
+        while (!isStopRequested() && waitTime.seconds() < maxTime) {
+            TileEdgeSolver.TileEdgeObservation observation = tileEdgeAggregator.getAggregateObservation();
+            if (observation != null) {
+                updateCurrentPositionWithTileEdgeObservation();
+                if (waitTime.seconds() > minTime) {
+                    break;
+                }
+            }
+            sleep(5);
+        }
+
+        if (!active) {
+            // If we turned on edge detection just for this method, now disable it.
+            deactivateTileEdgeDetection();
+        }
+    }
+
+    *//**
      * Sets the motor powers equal to the controllers inputs.
-     */
+     *//*
     public void drive(double drive, double turn, double strafe, double speed) {
 
         // Stop any current command from executing.
@@ -326,34 +624,34 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         setMotorPowers(motorPowers);
     }
 
-    /**
+    *//**
      * Moves the given distance in tiles, in the given direction, at the given speed.
      *
      * @param distance      Move that many tiles in the x and y direction. Backwards and Right are negative Directions.
      * @param targetHeading The end heading the robot should be oriented at.
      * @param speed         The speed you want to move at
-     */
+     *//*
     public void moveTargetDistance(Vector2 distance, Heading targetHeading, double speed) {
         executeCommand(new MoveTargetDistance(distance, targetHeading, speed));
     }
 
-    /**
+    *//**
      * Moves the given distance in tiles, in the given direction, at the given speed.
      *
      * @param distance Move that many tiles in the x and y direction. Backwards and Right are negative Directions.
      * @param speed    The speed you want to move at
-     */
+     *//*
     public void moveTargetDistance(Vector2 distance, double speed) {
         executeCommand(new MoveTargetDistance(distance, heading, speed));
     }
 
-    /**
+    *//**
      * Moves to the given target position and heading.
      *
      * @param targetPosition The target position at which the robot should end.
      * @param targetHeading  The end heading the robot should be oriented at.
      * @param speed          The speed you want to move at.
-     */
+     *//*
     public void moveToTargetPosition(Position targetPosition, Heading targetHeading, double speed) {
         executeCommand(new MoveToTargetPosition(targetPosition, targetHeading, speed));
     }
@@ -366,12 +664,12 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         executeCommand(new MoveToTargetPosition(position, targetHeading, speed, rampingDescriptor));
     }
 
-    /**
+    *//**
      * Moves to the given target position and heading
      *
      * @param targetPosition The target position at which the robot should end.
      * @param speed          The speed you want to move at.
-     */
+     *//*
     public void moveToTargetPosition(Position targetPosition, double speed) {
         executeCommand(new MoveToTargetPosition(targetPosition, heading, speed));
     }
@@ -384,73 +682,73 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         executeCommand(new MoveToTargetPosition(targetPosition,heading, speed, rampingDescriptor));
     }
 
-    /**
+    *//**
      * Moves the given distance in tiles, in the given direction, at the given speed.
      * The requested distance should be a multiple of 0.5 (any excess will be ignored).
      *
      * @param distance  Move that many tiles. Backwards and Right are negative Directions.
      * @param direction The direction you want to move in
      * @param speed     The speed you want to move at
-     */
+     *//*
     public void moveAlignedToTileCenter(double distance, Direction direction, double speed) {
         executeCommand(new MoveAlignedToTileCenter(direction, distance, speed));
     }
 
-    /**
+    *//**
      * Rotates the given number of degrees, attempting to end aligned to the nearest tile edge.
      *
      * @param rotation the number of degrees to rotate
      * @param speed    The speed you want to move at
-     */
+     *//*
     public void rotateAlignedToTile(double rotation, double speed) {
         executeCommand(new RotateAlignedToTile(rotation, speed));
     }
 
-    /**
+    *//**
      * Centers the robot within the current tile.
-     */
+     *//*
     public void centerInCurrentTile(double speed) {
         moveToTargetPosition(position.alignToTileMiddle(), heading.alignToRightAngle(), speed);
     }
 
-    /**
+    *//**
      * Moves forward the given distance.
      *
      * @param distance the distance to move in tiles
      * @param speed    a factor 0-1 that indicates how fast to move
-     */
+     *//*
     public void moveForwardSimple(double distance, double speed) {
         executeCommand(new MoveForward(distance, speed));
     }
 
-    /**
+    *//**
      * Moves forward the given distance
      *
      * @param distance the distance to move in tiles. Positive to the left, Negative to the right
      * @param speed    a factor 0-1 that indicates how fast to move
-     */
+     *//*
     public void strafeSimple(double distance, double speed) {
         executeCommand(new Strafe(distance, speed));
     }
 
-    /**
+    *//**
      * Turns the given angle
      *
      * @param angle Positive is left, negative is right, turns the given angle in degrees
      * @param speed 0-1, how fast we move
-     */
+     *//*
     public void rotateSimple(double angle, double speed) {
         executeCommand(new Rotate(angle, speed));
     }
 
-    /**
+    *//**
      * Aligns the robot to the given angle from the edge of the tile.
      *
      * @param targetAngle the desired angle from the tile edge, in degrees.
      * @param speed       the master speed at which we travel
      * @param time        the time the detector will wait in seconds
-     */
-    /*
+     *//*
+    *//*
     public void alignToTileAngle(double targetAngle, double speed, double time) {
         if (tileEdgeDetectorSide.waitForDetection(time)) {
             double initialAngle = tileEdgeDetectorSide.getAngleToTile();
@@ -465,17 +763,17 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     public void alignToTileAngle(double targetAngle, double speed) {
         alignToTileAngle(targetAngle, speed, 1);
-    }*/
+    }*//*
 
-    /**
+    *//**
      * Strafes the robot so that the edge of the right wheel is the requested distance from the edge of the closest
      * tile to the right.
      *
      * @param targetDistance the desired distance from the edge of the tile, in tiles.
      * @param speed          the master speed at which we travel
      * @param time           the time the detector will wait in seconds
-     */
-    /*
+     *//*
+    *//*
     public void moveDistanceFromTileEdge(double targetDistance, double speed, double time) {
         if (tileEdgeDetectorSide.waitForDetection(time)) {
             double initialDistance = tileEdgeDetectorSide.getDistanceToTileHorizontal();
@@ -491,21 +789,21 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     public void moveDistanceFromTileEdge(double targetDistance, double speed) {
         moveDistanceFromTileEdge(targetDistance, speed, 1);
-    }*/
+    }*//*
 
-    /**
+    *//**
      * Turns off all the motors.
-     */
+     *//*
     private void stopMotors() {
         // Shut off the motor power
         setMotorPower(0.0);
     }
 
-    /**
+    *//**
      * Turns on all the motors.
      *
      * @param power how fast the motors turn
-     */
+     *//*
     private void setMotorPower(double power) {
         setMotorPowers(new MotorPowers(
                 power, power, power, power
@@ -521,9 +819,9 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         backRight.setPower(motorPowers.backRight);
     }
 
-    /**
+    *//**
      * Set the run mode for all motors.
-     */
+     *//*
     private void setMotorMode(DcMotor.RunMode mode) {
         for (DcMotorEx motor : motors) {
             motor.setMode(mode);
@@ -536,9 +834,9 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         }
     }
 
-    /**
+    *//**
      * Calculates the average position for each motor.
-     */
+     *//*
     private int averageMotorPosition() {
         int sum = 0;
         for (DcMotorEx motor : motors) {
@@ -547,7 +845,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         return sum / motors.size();
     }
 
-    /**
+    *//**
      * Calculates a smooth power curve between any two positions (in ticks, degrees, inches, etc),
      * based on the current position, the initial position, and the target position.
      *
@@ -555,7 +853,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * @param initial the initial position that was moved from
      * @param target  the target position being moved to
      * @param speed   the master speed, with range 0.0 - 1.0
-     */
+     *//*
     private double getPowerCurveForPosition(double current, double initial, double target, double speed) {
         // Scale the position to between 0 - 1
         double xVal = scaleProgress(current, initial, target);
@@ -582,9 +880,9 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         return power;
     }
 
-    /**
+    *//**
      * Scales current progress from an initial value to a target value, returning as a fraction between 0.0 - 1.0.
-     */
+     *//*
     private double scaleProgress(double current, double initial, double target) {
         if (target == initial) return 1.0;
         return (current - initial) / (target - initial);
@@ -605,34 +903,34 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     private abstract class BaseMoveCommand extends BaseCommand {
 
-        /**
+        *//**
          * The speed at which to move (0 - 1).
-         */
+         *//*
         private double speed;
 
-        /**
+        *//**
          * The position that the robot is trying to achieve.
-         */
+         *//*
         private Position targetPosition;
 
-        /**
+        *//**
          * The heading that the robot is trying to achieve.
-         */
+         *//*
         private Heading targetHeading;
 
-        /**
+        *//**
          * The starting position of the robot.
-         */
+         *//*
         private Position startingPosition;
 
-        /**
+        *//**
          * The starting heading.
-         */
+         *//*
         private Heading startingHeading;
 
-        /**
+        *//**
          * Ramping descriptor for turning
-         */
+         *//*
         private RobotDescriptor.RampingDescriptor rampingTurnDescriptor;
 
         public BaseMoveCommand(double speed, RobotDescriptor.RampingDescriptor rampingTurnDescriptor) {
@@ -645,14 +943,14 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
             this.rampingTurnDescriptor = robotDescriptor.turnRampingDescriptor;
         }
 
-        /**
+        *//**
          * Called on command start, the child class should calculate and return the target position.
-         */
+         *//*
         protected abstract Position calculateTargetPosition();
 
-        /**
+        *//**
          * Called on command start, the child class should calculate and return the target heading.
-         */
+         *//*
         protected abstract Heading calculateTargetHeading();
 
         public double getSpeed() {
@@ -713,9 +1011,9 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         }
     }
 
-    /**
+    *//**
      * Moves the robot by the given offset and to the given heading.
-     */
+     *//*
     private class MoveTargetDistance extends BaseMoveCommand {
 
         private Vector2 offsetToMove;
@@ -740,9 +1038,9 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     }
 
-    /**
+    *//**
      * Moves the robot to the given target position and heading.
-     */
+     *//*
     private class MoveToTargetPosition extends BaseMoveCommand {
 
         private Position targetPosition;
@@ -772,7 +1070,7 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         }
     }
 
-    /**
+    *//**
      * This command will move in a path along the center line of a tile row or column.
      * <p>
      * If the robot is not aligned to the tile's center, this will also attempt to correct that by moving to tile
@@ -780,23 +1078,23 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
      * <p>
      * If the robot's heading is not aligned to a 90 degree tile boundary, this will also attempt to correct that
      * by making the smallest rotation possible.
-     */
+     *//*
     private class MoveAlignedToTileCenter extends BaseMoveCommand implements CombinableCommand {
 
 
-        /**
+        *//**
          * The direction in which the robot should move.
-         */
+         *//*
         private Direction direction;
 
-        /**
+        *//**
          * The distance, in tiles, that the robot should move.
-         */
+         *//*
         private double distance;
 
-        /**
+        *//**
          * The previous target position, if there was one (used for combining commands), or null.
-         */
+         *//*
         private Position previousTargetPosition;
 
         public MoveAlignedToTileCenter(Direction direction, double distance, double speed) {
@@ -885,9 +1183,9 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     private class RotateAlignedToTile extends BaseMoveCommand implements CombinableCommand {
 
-        /**
+        *//**
          * The number of degrees to rotate.
-         */
+         *//*
         double rotation;
 
         public RotateAlignedToTile(double rotation, double speed) {
@@ -932,19 +1230,19 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     private class MoveForward extends BaseCommand {
 
-        /**
+        *//**
          * The distance we want to move.
-         */
+         *//*
         private double distance;
 
-        /**
+        *//**
          * The speed at which to move (0 - 1).
-         */
+         *//*
         private double speed;
 
-        /**
+        *//**
          * The number of ticks we want to move.
-         */
+         *//*
         private int ticks;
 
         ////////////////////////////////////////////////
@@ -993,14 +1291,14 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
 
     private class Strafe extends BaseCommand {
 
-        /**
+        *//**
          * The distance we want to move. Negative direction is to the right, Positive to the left
-         */
+         *//*
         private double distance;
 
-        /**
+        *//**
          * The speed at which to move.
-         */
+         *//*
         private double speed;
 
         private int ticks;
@@ -1111,4 +1409,33 @@ public class DriveTrain extends BaseComponent implements RobotPositionProvider {
         }
     }
 
-}
+    private class HoughStatistics {
+
+        public double totalCorrectionDistance;
+        public int totalCorrections;
+        public double totalObservationAge;
+        public double frontEdgeCorrectionDistance;
+        public int frontEdgeCorrections;
+        public double rightEdgeCorrectionDistance;
+        public int rightEdgeCorrections;
+        public int stationaryCorrections;
+        public int movingCorrections;
+
+        @Override
+        public String toString() {
+            double averageObservationAge = totalCorrections != 0 ?
+                    totalObservationAge / totalCorrections :
+                    0.0;
+
+            return String.format(
+                    "Total [%.1f in, %d], Front [%.1f in, %d], Right [%.1f in, %d], Stationary [%d], Moving [%d], Avg Age [%.3f s]",
+                    tilesToInches(totalCorrectionDistance), totalCorrections,
+                    tilesToInches(frontEdgeCorrectionDistance), frontEdgeCorrections,
+                    tilesToInches(rightEdgeCorrectionDistance), rightEdgeCorrections,
+                    stationaryCorrections, movingCorrections, averageObservationAge
+            );
+        }
+
+    }
+
+}*/

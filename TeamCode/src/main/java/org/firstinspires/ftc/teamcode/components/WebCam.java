@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.controls.ExposureControl;
-import org.firstinspires.ftc.teamcode.RobotDescriptor.WebCamDescriptor;
+import org.firstinspires.ftc.teamcode.components.RobotDescriptor.WebCamDescriptor;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
@@ -20,6 +20,8 @@ import org.openftc.easyopencv.OpenCvWebcam;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
+
+//TODO: redo with new FTC portal thing
 public class WebCam extends BaseComponent {
 
     /**

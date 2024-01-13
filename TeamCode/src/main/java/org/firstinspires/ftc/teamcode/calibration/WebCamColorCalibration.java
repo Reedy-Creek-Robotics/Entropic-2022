@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode.calibration;
 
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.components.WebCam;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Vector2;
+import org.firstinspires.ftc.teamcode.opmodes.BaseTeleOp;
 import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
 import org.opencv.core.Mat;
@@ -63,14 +63,13 @@ public class WebCamColorCalibration extends BaseTeleOp {
         for (double value : color) {
             if (sb.length() > 0) sb.append(',');
 
-
             String digit = Integer.toHexString((int) value);
-            if (digit.length() == 1){
+            if (digit.length() == 1) {
                 digit = "0" + digit;
             }
             sb.append(digit);
         }
-        
+
         return sb.toString();
     }
 }

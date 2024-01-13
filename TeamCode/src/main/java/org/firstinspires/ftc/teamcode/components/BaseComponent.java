@@ -6,7 +6,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.RobotDescriptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,10 +13,12 @@ import java.util.List;
 
 public abstract class BaseComponent implements Component {
 
+
+
     private OpMode opMode;
 
     protected RobotContext context;
-    protected RobotDescriptor robotDescriptor;
+    protected RobotDescriptor descriptor;
 
     protected HardwareMap hardwareMap;
 
@@ -35,7 +36,7 @@ public abstract class BaseComponent implements Component {
         this.opMode = context.opMode;
         this.hardwareMap = opMode.hardwareMap;
         this.telemetry = opMode.telemetry;
-        this.robotDescriptor = context.robotDescriptor;
+        this.descriptor = context.descriptor;
         this.commandTime = new ElapsedTime();
         this.currentCommand = null;
         this.nextCommands = new ArrayList<>();
@@ -70,6 +71,13 @@ public abstract class BaseComponent implements Component {
             currentCommand = null;
         }
         nextCommands.clear();
+    }
+
+    public static RobotContext createRobotContext(OpMode opMode) {
+        return new RobotContext(
+                opMode,
+                new RobotDescriptor()
+        );
     }
 
     protected Command getCurrentCommand() {
