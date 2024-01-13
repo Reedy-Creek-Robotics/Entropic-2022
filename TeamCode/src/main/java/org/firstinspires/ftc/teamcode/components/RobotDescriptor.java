@@ -36,29 +36,30 @@ public class RobotDescriptor {
     public static Size ROBOT_DIMENSIONS_IN_INCHES = new Size(15.5, 15.5);
 
     public static DriveTuner DRIVE_TUNER = new DriveTuner(
-        537.7,
-        312,
-        false,
-        0,0,0,
-        48/25.4,
-        1,
-        15,
-        1.0,
-        0,
-        0,
-        30,
-        30,
-        180,
-        180,
-        RevHubOrientationOnRobot.LogoFacingDirection.UP,
-        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD,
-        new PIDCoefficients(0, 0, 0),
-        new PIDCoefficients(0, 0, 0),
-        1,
-        1,
-        1,
-        1
+            537.7,
+            312,
+            false,
+            0, 0, 0,
+            48 / 25.4,
+            1,
+            15,
+            1.0,
+            0,
+            0,
+            30,
+            30,
+            180,
+            180,
+            RevHubOrientationOnRobot.LogoFacingDirection.UP,
+            RevHubOrientationOnRobot.UsbFacingDirection.FORWARD,
+            new PIDCoefficients(0, 0, 0),
+            new PIDCoefficients(0, 0, 0),
+            1,
+            1,
+            1,
+            1
     );
+
     public static class DriveTuner {
         /*
          * These are motor constants that should be listed online for your motors.
@@ -133,7 +134,7 @@ public class RobotDescriptor {
             this.driveWheelRadius = driveWheelRadius;
             this.driveGearRatio = driveGearRatio;
             this.driveTrackWidth = driveTrackWidth;
-            this.kv = kv/ rpmToVelocity(driveMaxRpm);
+            this.kv = kv / rpmToVelocity(driveMaxRpm);
             this.ka = ka;
             this.kStatic = kStatic;
             this.maxVel = maxVel;
@@ -179,24 +180,25 @@ public class RobotDescriptor {
     }
 
     public static OdometryTuner ODOMETRY_TUNER = new OdometryTuner(
-          2000,
+            2000,
             mm(24),
-          1,
-          1,
-          1,
-          5.4161,
-          5
+            1,
+            1,
+            1,
+            5.4161,
+            5
     );
-    public static class OdometryTuner{
-        public double odometryTicksPerRev ;
-        public double odometryWheelRadius ; // in
-        public double odometryGearRatio ; // output (wheel) speed / input (encoder) speed
 
-        public double xMultiplier ; // Multiplier in the X direction
-        public double yMultiplier ; // Multiplier in the Y direction
+    public static class OdometryTuner {
+        public double odometryTicksPerRev;
+        public double odometryWheelRadius; // in
+        public double odometryGearRatio; // output (wheel) speed / input (encoder) speed
 
-        public double odometryLateralDistance ; // in; distance between the left and right wheels
-        public double odometryForwardOffset ; // in; offset of the lateral wheel
+        public double xMultiplier; // Multiplier in the X direction
+        public double yMultiplier; // Multiplier in the Y direction
+
+        public double odometryLateralDistance; // in; distance between the left and right wheels
+        public double odometryForwardOffset; // in; offset of the lateral wheel
 
         public OdometryTuner(double odometryTicksPerRev, double odometryWheelRadius, double odometryGearRatio, double xMultiplier, double yMultiplier, double odometryLateralDistance, double odometryForwardOffset) {
             this.odometryTicksPerRev = odometryTicksPerRev;
@@ -215,7 +217,7 @@ public class RobotDescriptor {
     public static final WebCamDescriptor WEBCAM_APRILTAG_DESCRIPTOR = new WebCamDescriptor(
             "WebCamAprilTag",
             WebCamOrientation.FRONT_FORWARD,
-            new Size(640,480)
+            new Size(640, 480)
     );
 
     /**
