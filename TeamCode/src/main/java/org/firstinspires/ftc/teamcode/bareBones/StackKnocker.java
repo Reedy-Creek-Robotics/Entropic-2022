@@ -1,35 +1,42 @@
 package org.firstinspires.ftc.teamcode.bareBones;
 
-import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.components.BaseComponent;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
 
-//TODO: All of it
-
 public class StackKnocker extends BaseComponent {
+
+    // todo: tune positions
+    private static final double UP_POSITION = 0.5;
+    private static final double DOWN_POSITION = 0.6;
+
+    private boolean isDown = false;
+
+    private Servo servo;
 
     public StackKnocker(RobotContext context) {
         super(context);
+
+        this.servo = hardwareMap.get(Servo.class, "StackKnocker");
     }
 
-    @Override
-    public void init() {
-        CRServo pinionMotor = hardwareMap.crservo.get("StackKnocker");
+    public void toggle() {
+        if (isDown) {
+            knockUp();
+        } else {
+            knockDown();
+        }
     }
 
-    public void knock() {
-        //todo: implement this
+    public void knockUp() {
+        servo.setPosition(UP_POSITION);
+        isDown = false;
     }
 
-    @Override
-    public void update() {
-
+    public void knockDown() {
+        servo.setPosition(DOWN_POSITION);
+        isDown = true;
     }
 
-    @Override
-    public boolean isBusy() {
-        return false;
-
-    }
 }

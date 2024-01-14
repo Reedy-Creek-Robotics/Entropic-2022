@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.bareBones.StackKnocker;
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.roadrunner.util.LynxModuleUtil;
@@ -32,6 +33,7 @@ public class Robot extends BaseComponent {
     private Intake intake;
     private Outtake outtake;
     private RiggingLift riggingLift;
+    private StackKnocker stackKnocker;
     private DroneLauncher droneLauncher;
 
     private int updateCount;
@@ -63,11 +65,13 @@ public class Robot extends BaseComponent {
 
         this.riggingLift = new RiggingLift(context);
 
+        this.stackKnocker = new StackKnocker(context);
+
         this.droneLauncher = new DroneLauncher(context);
 
         this.teamPropDetector = new TeamPropDetector(context, webCamFront);
 
-        addSubComponents(driveTrain, slide, intake, outtake, riggingLift, droneLauncher, teamPropDetector);
+        addSubComponents(driveTrain, slide, intake, outtake, riggingLift, stackKnocker, droneLauncher, teamPropDetector);
 
         for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));
@@ -215,6 +219,8 @@ public class Robot extends BaseComponent {
     public RiggingLift getRiggingLift() {
         return riggingLift;
     }
+
+    public StackKnocker getStackKnocker() { return stackKnocker; }
 
     public DroneLauncher getDroneLauncher() { return droneLauncher; }
 

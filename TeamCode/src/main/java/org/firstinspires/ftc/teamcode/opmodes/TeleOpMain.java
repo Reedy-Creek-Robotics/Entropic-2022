@@ -84,6 +84,11 @@ public class TeleOpMain extends BaseDrivingTeleOp {
             robot.getDroneLauncher().launch();
         }
 
+        //Stack Knocker
+        if (controller.isPressed(Controller.Button.GUIDE)) {
+            robot.getStackKnocker().toggle();
+        }
+
         //TODO: Make trackpad disable Geofence!!!
 
         robot.update();

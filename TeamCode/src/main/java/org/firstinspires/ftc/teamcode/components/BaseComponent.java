@@ -13,8 +13,6 @@ import java.util.List;
 
 public abstract class BaseComponent implements Component {
 
-
-
     private OpMode opMode;
 
     protected RobotContext context;
