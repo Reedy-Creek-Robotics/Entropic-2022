@@ -25,7 +25,6 @@ public class Robot extends BaseComponent {
     private List<LynxModule> lynxModules;
 
     private DriveTrain driveTrain;
-
     private WebCam webCamFront;
     private TeamPropDetector teamPropDetector;
     private WebCam webCamAprilTag;
@@ -33,6 +32,7 @@ public class Robot extends BaseComponent {
     private Intake intake;
     private Outtake outtake;
     private RiggingLift riggingLift;
+    private DroneLauncher droneLauncher;
 
     private int updateCount;
     private ElapsedTime initTime;
@@ -63,9 +63,11 @@ public class Robot extends BaseComponent {
 
         this.riggingLift = new RiggingLift(context);
 
+        this.droneLauncher = new DroneLauncher(context);
+
         this.teamPropDetector = new TeamPropDetector(context, webCamFront);
 
-        addSubComponents(driveTrain, slide, intake, outtake, riggingLift, teamPropDetector);
+        addSubComponents(driveTrain, slide, intake, outtake, riggingLift, droneLauncher, teamPropDetector);
 
         for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));
@@ -213,6 +215,8 @@ public class Robot extends BaseComponent {
     public RiggingLift getRiggingLift() {
         return riggingLift;
     }
+
+    public DroneLauncher getDroneLauncher() { return droneLauncher; }
 
     public WebCam getWebCam(Camera camera) {
         switch (camera) {
