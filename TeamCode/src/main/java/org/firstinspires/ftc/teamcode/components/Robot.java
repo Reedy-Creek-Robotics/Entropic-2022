@@ -99,7 +99,7 @@ public class Robot extends BaseComponent {
         // Set the caching mode for reading values from Lynx components to manual. This means that when reading values
         // like motor positions, the code will grab all values at once instead of one at a time. It will also keep
         // these values and not update them until a manual call is made to clear the cache. We do this once per loop
-        // in the Robot's updateStatus method.
+        // in the Robot's update method.
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
         for (LynxModule module : lynxModules) {
             module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
@@ -113,7 +113,7 @@ public class Robot extends BaseComponent {
 
     @SuppressLint("DefaultLocale")
     @Override
-    public void updateStatus() {
+    public void update() {
         if (updateCount == 0) {
             firstUpdateTime = new ElapsedTime();
             onStart();
@@ -128,7 +128,7 @@ public class Robot extends BaseComponent {
         }
 
         // Allow all the subcomponents to do their work.
-        super.updateStatus();
+        super.update();
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();
@@ -143,7 +143,7 @@ public class Robot extends BaseComponent {
     }
 
     /**
-     * Runs once, the first time the robot's updateStatus is called in an OpMode.
+     * Runs once, the first time the robot's update method is called in an OpMode.
      */
     public void onStart() {
         // todo: Commenting this out for now since we no longer need to worry about moving the turrent from a diagonal
@@ -166,7 +166,7 @@ public class Robot extends BaseComponent {
         // each of them a chance to update.
         ElapsedTime time = new ElapsedTime();
         while (!isStopRequested() && isBusy() && time.seconds() < maxTime) {
-            updateStatus();
+            update();
         }
     }
 
@@ -176,7 +176,7 @@ public class Robot extends BaseComponent {
     public void idle(double idleTime) {
         ElapsedTime time = new ElapsedTime();
         while (!isStopRequested() && time.seconds() < idleTime) {
-            updateStatus();
+            update();
         }
     }
 
@@ -185,7 +185,7 @@ public class Robot extends BaseComponent {
      */
     public void waitForStop() {
         while (!isStopRequested()) {
-            updateStatus();
+            update();
         }
         stopAllCommands();
     }

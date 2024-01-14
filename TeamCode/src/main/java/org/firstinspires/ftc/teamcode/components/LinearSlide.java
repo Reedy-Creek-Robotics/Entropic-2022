@@ -154,10 +154,10 @@ public class LinearSlide extends BaseComponent {
     }
 
     @Override
-    public void updateStatus() {
+    public void update() {
         telemetry.addData("Current Position", getPosition());
 
-        super.updateStatus();
+        super.update();
     }
 
     /**
@@ -257,7 +257,7 @@ public class LinearSlide extends BaseComponent {
         }
 
         @Override
-        public boolean updateStatus() {
+        public boolean update() {
             return Math.abs(getPosition() - ticks) <= TARGET_REACHED_THRESHOLD;
         }
     }

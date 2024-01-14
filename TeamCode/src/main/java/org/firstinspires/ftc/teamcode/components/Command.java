@@ -20,6 +20,6 @@ public interface Command {
      *
      * @return true if the command is finished, false if it is still in progress
      */
-    boolean updateStatus();
+    boolean update();
 
 }

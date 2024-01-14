@@ -23,7 +23,7 @@ public class StackKnocker extends BaseComponent {
     }
 
     @Override
-    public void updateStatus() {
+    public void update() {
 
     }
 

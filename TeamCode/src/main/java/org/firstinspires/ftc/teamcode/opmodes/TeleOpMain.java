@@ -30,7 +30,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         if (controller.isPressed(LEFT_TRIGGER)) {
             robot.getIntake().intakeManual();
         } else if (controller.isPressed(RIGHT_TRIGGER)) {
-            robot.getIntake().outakeManual();
+            robot.getIntake().outtakeManual();
         } else {
             robot.getIntake().stopIntake();
         }
@@ -81,7 +81,7 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         //TODO: Make trackpad disable Geofence!!!
 
-        robot.updateStatus();
+        robot.update();
     }
 
 

@@ -55,7 +55,7 @@ public class WebCamColorCalibration extends BaseTeleOp {
 
         telemetry.addData("Pixel", target.toString(0));
 
-        robot.updateStatus();
+        robot.update();
     }
 
     private String formatColor(double[] color) {
