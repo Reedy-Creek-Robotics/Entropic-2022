@@ -14,8 +14,6 @@ public class LinearSlide extends BaseComponent {
     public static final int MAX_HEIGHT = SlideHeight.THIRD_LEVEL.ticks + 100;
     public static final int MIN_HEIGHT = SlideHeight.TRANSFER.ticks;
     public static final double MIN_POWER = 0.01;
-    public static final int TURRET_SAFETY_LEEWAY = 100;
-    public static final int DELIVER_OFFSET_LEEWAY = 300;
 
     public enum SlideHeight {
         THIRD_LEVEL(2400),
@@ -140,7 +138,7 @@ public class LinearSlide extends BaseComponent {
      * Returns the current position of the slide
      */
     public double getPosition() {
-        return (leftMotor.getCurrentPosition() + rightMotor.getCurrentPosition())/2;
+        return (Math.abs(leftMotor.getCurrentPosition()) + Math.abs(rightMotor.getCurrentPosition()))/2;
     }
 
     public void stopMotors() {
@@ -164,7 +162,7 @@ public class LinearSlide extends BaseComponent {
      * Indicates whether the slide is currently at or above the given known position.
      */
     public boolean isAtOrAbove(SlideHeight position) {
-        return getPosition() >= (position.ticks - TURRET_SAFETY_LEEWAY - TARGET_REACHED_THRESHOLD);
+        return getPosition() >= (position.ticks - TARGET_REACHED_THRESHOLD);
     }
 
     /**
