@@ -16,8 +16,8 @@ public class Intake extends BaseComponent {
     }
 
     @Override
-    public void updateStatus() {
-        super.updateStatus();
+    public void update() {
+        super.update();
         telemetry.addData("Next Commands", getNextCommands());
     }
 
@@ -26,12 +26,10 @@ public class Intake extends BaseComponent {
         intakeMotor.setPower(1);
     }
 
-    public void outakeManual() {
+    public void outtakeManual() {
         stopAllCommands();
         intakeMotor.setPower(-1);
     }
-
-
 
     /**
      * Stops the intake

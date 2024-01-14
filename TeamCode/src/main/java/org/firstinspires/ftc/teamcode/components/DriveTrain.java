@@ -5,7 +5,6 @@ import static org.firstinspires.ftc.teamcode.components.RobotDescriptor.Odometry
 
 import android.annotation.SuppressLint;
 
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -16,7 +15,6 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.ModifiedMecanumDrive;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.StandardTrackingWheelLocalizer;
-import org.firstinspires.ftc.teamcode.roadrunner.util.LynxModuleUtil;
 import org.firstinspires.ftc.teamcode.util.DriveUtil;
 
 import java.util.ArrayList;
@@ -50,28 +48,23 @@ public class DriveTrain extends BaseComponent {
 
         //this.context.localizer = new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels, odometryTuner);
 
-        //TODO: move LynxModule to robot and set to manual(don't get new info until we tell you)
-        LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
-
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-        for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
-            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
-        }
-
         // TODO: adjust the names of the following hardware devices to match your configuration
-        /* imu = hardwareMap.get(IMU.class, "imu");
+        /*
+        imu = hardwareMap.get(IMU.class, "imu");
         IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
                 DriveConstants.LOGO_FACING_DIR, DriveConstants.USB_FACING_DIR));
-        imu.initialize(parameters);*/
+        imu.initialize(parameters);
+        */
 
         leftFront = hardwareMap.get(DcMotorEx.class, "FrontLeft");
         leftRear = hardwareMap.get(DcMotorEx.class, "BackLeft");
         rightRear = hardwareMap.get(DcMotorEx.class, "BackRight");
         rightFront = hardwareMap.get(DcMotorEx.class, "FrontRight");
 
-        rightFront.setDirection(DcMotorEx.Direction.REVERSE);
-        rightRear.setDirection(DcMotorEx.Direction.REVERSE);
+        //leftFront.setDirection(DcMotorEx.Direction.REVERSE);
+        //leftRear.setDirection(DcMotorEx.Direction.REVERSE);
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 

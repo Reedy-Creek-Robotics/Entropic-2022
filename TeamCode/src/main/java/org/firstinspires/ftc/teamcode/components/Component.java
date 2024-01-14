@@ -12,7 +12,7 @@ public interface Component {
      *
      * Components should use this as a chance to complete whatever commands they've been given.
      */
-    void updateStatus();
+    void update();
 
     /**
      * Indicates if the component is busy trying to execute a command, or it is idle.

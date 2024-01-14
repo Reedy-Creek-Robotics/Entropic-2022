@@ -214,30 +214,18 @@ public class RobotDescriptor {
     /**
      * The webcam used for detecting April tags.
      */
-    public static final WebCamDescriptor WEBCAM_APRILTAG_DESCRIPTOR = new WebCamDescriptor(
+    public final WebCamDescriptor webcamAprilTagDescriptor = new WebCamDescriptor(
             "WebCamAprilTag",
-            WebCamOrientation.FRONT_FORWARD,
+            WebCamOrientation.BACK_BACKWARD,
             new Size(640, 480)
     );
 
     /**
      * The webcam used for detecting tile edges on the right side.
      */
-    public static final WebCamDescriptor WEBCAM_SIDE_DESCRIPTOR = new WebCamDescriptor(
-            "WebCamSide",
-            WebCamOrientation.RIGHT_SIDE_FIELD,
-            anchor(new Position(0, 0), new Position(-0.125, 9.660)),
-            anchor(new Position(640, 0), new Position(16.746, 9.948)),
-            anchor(new Position(0, 360), new Position(1.845, 0.316)),
-            anchor(new Position(640, 360), new Position(15.489, 0.816))
-    );
-
-    /**
-     * The webcam used for detecting tile edges on the right side.
-     */
-    public static final WebCamDescriptor WEBCAM_FRONT_DESCRIPTOR = new WebCamDescriptor(
+    public final WebCamDescriptor webcamFrontDescriptor = new WebCamDescriptor(
             "WebCamFront",
-            WebCamOrientation.FRONT_FIELD,
+            WebCamOrientation.FRONT_FORWARD,
             anchor(new Position(0, 0), new Position(0.361, 8.352)),
             anchor(new Position(640, 0), new Position(14.355, 7.216)),
             anchor(new Position(0, 360), new Position(0.638, 0.051)),
@@ -270,16 +258,10 @@ public class RobotDescriptor {
         /**
          * For field facing webcams, the list of known anchor points obtained through calibration.
          */
-        //public List<WebCamAnchorPoint> anchorPoints = new ArrayList<>();
         public WebCamAnchorPoint topLeft;
         public WebCamAnchorPoint topRight;
         public WebCamAnchorPoint bottomLeft;
         public WebCamAnchorPoint bottomRight;
-
-        public WebCamDescriptor(String name, WebCamOrientation orientation) {
-            this.name = name;
-            this.orientation = orientation;
-        }
 
         public WebCamDescriptor(
                 String name, WebCamOrientation orientation,
@@ -309,14 +291,9 @@ public class RobotDescriptor {
         FRONT_FORWARD,
 
         /**
-         * The webcam is on the front of the robot, facing down at the field.
+         * The webcam is on the back of the robot, facing backward.
          */
-        FRONT_FIELD,
-
-        /**
-         * The webcam is on the right side of the robot, facing down at the field.
-         */
-        RIGHT_SIDE_FIELD
+        BACK_BACKWARD,
 
     }
 

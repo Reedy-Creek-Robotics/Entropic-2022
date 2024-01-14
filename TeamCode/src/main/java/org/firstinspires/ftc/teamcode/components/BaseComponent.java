@@ -97,7 +97,7 @@ public abstract class BaseComponent implements Component {
     private void replaceLastCommandInQueue(Command command) {
         if (nextCommands.isEmpty()) {
             // The command queue is empty so the current command is the one being replaced.  Discard the current
-            // command and add the new one to the front of the queue.  The next time updateStatus is called, the new
+            // command and add the new one to the front of the queue.  The next time update is called, the new
             // command will be started.
             currentCommand = null;
             nextCommands.add(0, command);
@@ -121,7 +121,7 @@ public abstract class BaseComponent implements Component {
     }
 
     @Override
-    public void updateStatus() {
+    public void update() {
 
         //telemetry.addData("Current Command",currentCommand);
 
@@ -134,7 +134,7 @@ public abstract class BaseComponent implements Component {
 
         // If there is a current command we are trying to execute, delegate to it for update status
         if (currentCommand != null) {
-            boolean finished = currentCommand.updateStatus();
+            boolean finished = currentCommand.update();
 
             // If the command is finished, remove it
             if (finished) {
@@ -145,7 +145,7 @@ public abstract class BaseComponent implements Component {
 
         // Also update any sub-components
         for (Component subComponent : subComponents) {
-            subComponent.updateStatus();
+            subComponent.update();
         }
     }
 
