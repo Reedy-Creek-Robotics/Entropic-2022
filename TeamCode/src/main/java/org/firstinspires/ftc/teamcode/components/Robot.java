@@ -3,12 +3,14 @@ package org.firstinspires.ftc.teamcode.components;
 import android.annotation.SuppressLint;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.geometry.Position;
+import org.firstinspires.ftc.teamcode.roadrunner.util.LynxModuleUtil;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
 import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
@@ -19,6 +21,8 @@ import java.util.List;
 public class Robot extends BaseComponent {
 
     private static final double VOLTAGE_WARNING_THRESHOLD = 12.0;
+
+    private List<LynxModule> lynxModules;
 
     private DriveTrain driveTrain;
 
@@ -42,9 +46,11 @@ public class Robot extends BaseComponent {
     public Robot(OpMode opMode, Camera streamingCamera, List<Camera> enabledCameras) {
         super(createRobotContext(opMode));
 
-        this.webCamFront = new WebCam(context, descriptor.WEBCAM_FRONT_DESCRIPTOR,
+        this.lynxModules = hardwareMap.getAll(LynxModule.class);
+
+        this.webCamFront = new WebCam(context, descriptor.webcamFrontDescriptor,
                 streamingCamera == Camera.FRONT);
-        this.webCamAprilTag = new WebCam(context, descriptor.WEBCAM_APRILTAG_DESCRIPTOR,
+        this.webCamAprilTag = new WebCam(context, descriptor.webcamAprilTagDescriptor,
                 streamingCamera == Camera.APRIL);
 
         this.driveTrain = new DriveTrain(context);
@@ -83,10 +89,20 @@ public class Robot extends BaseComponent {
     public void init() {
         super.init();
 
+        // Check the battery level and print a warning if it's low
         double voltage = computeBatteryVoltage();
         if (voltage < VOLTAGE_WARNING_THRESHOLD) {
             telemetry.log().add("LOW BATTERY WARNING");
             telemetry.log().add("My battery is low and it's getting dark -Opportunity");
+        }
+
+        // Set the caching mode for reading values from Lynx components to manual. This means that when reading values
+        // like motor positions, the code will grab all values at once instead of one at a time. It will also keep
+        // these values and not update them until a manual call is made to clear the cache. We do this once per loop
+        // in the Robot's updateStatus method.
+        LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
+        for (LynxModule module : lynxModules) {
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
         telemetry.log().add("Robot is initialized");
@@ -98,18 +114,32 @@ public class Robot extends BaseComponent {
     @SuppressLint("DefaultLocale")
     @Override
     public void updateStatus() {
-        super.updateStatus();
-
         if (updateCount == 0) {
             firstUpdateTime = new ElapsedTime();
             onStart();
         }
-        updateCount++;
-        //double updatesPerSecond = updateCount / firstUpdateTime.seconds();
-        //telemetry.addData("Updates / sec", String.format("%.1f", updatesPerSecond));
+
+        // Compute and print the updates per second
+        computeUpdatesPerSecond();
+
+        // Clear the bulk cache so that new values will be read for each component
+        for (LynxModule lynxModule : lynxModules) {
+            lynxModule.clearBulkCache();
+        }
+
+        // Allow all the subcomponents to do their work.
+        super.updateStatus();
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();
+    }
+
+    @SuppressLint("DefaultLocale")
+    private void computeUpdatesPerSecond() {
+        updateCount++;
+
+        double updatesPerSecond = updateCount / firstUpdateTime.seconds();
+        telemetry.addData("Updates / sec", String.format("%.1f", updatesPerSecond));
     }
 
     /**
@@ -167,7 +197,6 @@ public class Robot extends BaseComponent {
     public TeamPropDetector getTeamPropDetector() {
         return teamPropDetector;
     }
-
 
     public LinearSlide getSlide() {
         return slide;

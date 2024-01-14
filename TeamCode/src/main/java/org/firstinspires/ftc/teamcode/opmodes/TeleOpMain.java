@@ -11,9 +11,7 @@ import org.firstinspires.ftc.teamcode.game.Controller;
 @TeleOp
 public class TeleOpMain extends BaseDrivingTeleOp {
 
-    public static final double MANUAL_SLIDE_POWER = 0.7;
-    public static final double RIGGING_LIFT_POWER = 1.0;
-    private int coneCount = 4;
+    private static final double MANUAL_SLIDE_POWER = 0.7;
 
     @Override
     public void init() {
@@ -21,8 +19,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         // Load the position from disk, so it can pick up the previous position from the auto path.
         robot.loadPositionFromDisk();
-
-
     }
 
     @Override
@@ -38,14 +34,16 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         } else {
             robot.getIntake().stopIntake();
         }
+
         // Lift
         if (controller.isPressed(Controller.Button.DPAD_LEFT)) {
-            robot.getRiggingLift().moveLift(RIGGING_LIFT_POWER);
+            robot.getRiggingLift().moveUp();
         } else if (controller.isPressed(Controller.Button.DPAD_RIGHT)) {
-            robot.getRiggingLift().moveLift(-RIGGING_LIFT_POWER);
+            robot.getRiggingLift().moveDown();
         } else {
             robot.getRiggingLift().stop();
         }
+
         // Slide
         if (controller.isPressed(Controller.Button.TRIANGLE)) {
             robot.getSlide().moveToHeight(LinearSlide.SlideHeight.THIRD_LEVEL);
@@ -68,13 +66,21 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         } else if (!robot.getSlide().isBusy()){
             robot.getSlide().stopMotors();
         }
+
         // Outtake
         if (controller.isPressed(Controller.Button.LEFT_BUMPER)) {
-            robot.getOuttake().dropLeft();
-        } else if (controller.isPressed(Controller.Button.RIGHT_BUMPER)) {
-            robot.getOuttake().dropRight();
+            robot.getOuttake().openLeft();
+        } else {
+            robot.getOuttake().closeLeft();
         }
+        if (controller.isPressed(Controller.Button.RIGHT_BUMPER)) {
+            robot.getOuttake().openRight();
+        } else {
+            robot.getOuttake().closeRight();
+        }
+
         //TODO: Make trackpad disable Geofence!!!
+
         robot.updateStatus();
     }
 
