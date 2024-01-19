@@ -19,8 +19,8 @@ public class Outtake extends BaseComponent {
     public Outtake(RobotContext context) {
         super(context);
 
-        leftServo = hardwareMap.get(Servo.class, "OuttakeLeft");
-        rightServo = hardwareMap.get(Servo.class, "OuttakeRight");
+        leftServo = hardwareMap.get(Servo.class, "LeftDoor");
+        rightServo = hardwareMap.get(Servo.class, "RightDoor");
     }
 
     public void toggleRight() {

@@ -7,7 +7,7 @@ import org.firstinspires.ftc.teamcode.geometry.Position;
 
 @Disabled
 @Autonomous
-public class AutoMainLeft extends AutoMain {
+public class AutoMainStack extends AutoMain {
 
     @Override
     protected Position getStartPosition() {

@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.openftc.apriltag.AprilTagDetection;
 
-public abstract class AutoMain extends LinearOpMode {
+public abstract class  AutoMain extends LinearOpMode {
 
     protected static final double BASE_SPEED = 0.8;
 

@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 @Disabled
 @Autonomous
-public class AutoMainRight extends AutoMain {
+public class AutoMainStage extends AutoMain {
     @Override
     protected Position getStartPosition() {
         return null;
