@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.bareBones;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.game.Controller;
 import java.util.ArrayList;
 import java.util.List;
 
+@TeleOp
 public class HardwareTester extends OpMode {
 
     private Controller controller;
@@ -36,7 +38,7 @@ public class HardwareTester extends OpMode {
         HardwareDevice device = devices.get(selectedDevice);
 
         telemetry.addData("Device Count", selectedDevice + " of " + devices.size());
-        telemetry.addData("Device", device.getDeviceName());
+        telemetry.addData("Device", hardwareMap.getNamesOf(device));
         telemetry.addData("Type", device.getClass().getSimpleName());
 
         if (controller.isPressed(Controller.Button.RIGHT_BUMPER)) {
@@ -52,15 +54,19 @@ public class HardwareTester extends OpMode {
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
             telemetry.addData("Position", motor.getCurrentPosition());
+            telemetry.addData("Power", motor.getPower());
+            telemetry.addData("encoder tolerance", motor.getTargetPositionTolerance());
 
-            if (controller.isPressed(Controller.AnalogControl.LEFT_STICK_Y)) {
-                double power = controller.leftStickY();
-                motor.setPower(power);
-            }
+            double power = controller.leftStickY();
+            motor.setPower(power*0.5);
 
             if (controller.isPressed(Controller.Button.CIRCLE)) {
                 motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             }
+
+            /*if(controller.isPressed(Controller.Button.SQUARE)){
+                motor.setTargetPosition();
+            }*/
 
         } else if (device instanceof Servo) {
             Servo servo = (Servo) device;
@@ -69,8 +75,15 @@ public class HardwareTester extends OpMode {
 
             if (controller.isPressed(Controller.AnalogControl.RIGHT_STICK_Y)) {
                 targetPosition += controller.analogValue(Controller.AnalogControl.RIGHT_STICK_Y) * 0.01;
-                servo.setPosition(targetPosition);
             }
+
+            if (controller.isPressed(Controller.Button.DPAD_UP)){
+                targetPosition += 0.05;
+            } else if (controller.isPressed(Controller.Button.DPAD_DOWN)) {
+                targetPosition -= 0.05;
+            }
+
+            servo.setPosition(targetPosition);
 
             if (controller.isPressed(Controller.Button.CIRCLE)) {
                 targetPosition = 0;
