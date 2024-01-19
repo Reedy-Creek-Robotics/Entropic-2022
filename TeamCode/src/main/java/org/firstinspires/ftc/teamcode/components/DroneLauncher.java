@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class DroneLauncher extends BaseComponent {
 
     //TODO: Tuned positions needed
-    public static final double LAUNCH_POSITION = 30;
+    public static final double LAUNCH_POSITION = 3;
     public static final int START_POSITION = 0;
     private Servo servo;
 

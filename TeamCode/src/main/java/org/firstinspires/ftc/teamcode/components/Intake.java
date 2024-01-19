@@ -12,7 +12,7 @@ public class Intake extends BaseComponent {
     public Intake(RobotContext context) {
         super(context);
         intakeMotor = (DcMotorEx) hardwareMap.dcMotor.get("Intake");
-        flicker = hardwareMap.servo.get("flicker"); //TODO: figure out what this is supposed to do
+        //flicker = hardwareMap.servo.get("flicker"); //TODO: figure out what this is supposed to do and bring back
     }
 
     @Override

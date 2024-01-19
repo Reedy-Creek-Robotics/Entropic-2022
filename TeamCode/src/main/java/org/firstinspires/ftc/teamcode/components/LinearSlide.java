@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.components;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class LinearSlide extends BaseComponent {
 
@@ -13,18 +14,35 @@ public class LinearSlide extends BaseComponent {
 
     public static final int MAX_HEIGHT = SlideHeight.THIRD_LEVEL.ticks + 100;
     public static final int MIN_HEIGHT = SlideHeight.TRANSFER.ticks;
+
+    private static final int ROTATION_POINT = 1000;
+
     public static final double MIN_POWER = 0.01;
 
     public enum SlideHeight {
-        THIRD_LEVEL(2400),
-        SECOND_LEVEL(2000),
-        FIRST_LEVEL(1360),
+        THIRD_LEVEL(2000),
+        SECOND_LEVEL(1291),
+        FIRST_LEVEL(664),
         TRANSFER(0);
 
         private final int ticks;
 
         SlideHeight(int ticks) {
             this.ticks = ticks;
+        }
+    }
+
+    public enum RotationPoints{
+        OUTTAKE(0.36,1),
+        INTAKE(0.15, 0);
+
+        private final double right;
+
+        private final double left;
+
+        RotationPoints( double left,double right) {
+            this.right = right;
+            this.left = left;
         }
     }
 
@@ -39,6 +57,8 @@ public class LinearSlide extends BaseComponent {
     private DcMotorEx leftMotor;
     private DcMotorEx rightMotor;
 
+    private Servo leftRotator, rightRotator;
+
     /**
      * The target position in motor ticks that the slide is trying to achieve.
      */
@@ -48,6 +68,11 @@ public class LinearSlide extends BaseComponent {
         super(context);
         leftMotor = (DcMotorEx) hardwareMap.dcMotor.get("LeftSlide");
         rightMotor = (DcMotorEx) hardwareMap.dcMotor.get("RightSlide");
+
+        leftRotator = hardwareMap.servo.get("LeftRotator");
+        //rightServo = hardwareMap.servo.get("RightRotator");
+
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     @Override
@@ -155,7 +180,23 @@ public class LinearSlide extends BaseComponent {
     public void update() {
         telemetry.addData("Current Position", getPosition());
 
+        intakeRotation(getPosition());
+
         super.update();
+    }
+
+    private void intakeRotation(double position){
+        if(position > ROTATION_POINT ){
+            rotate(RotationPoints.OUTTAKE);
+        } else if (position < ROTATION_POINT) {
+            rotate(RotationPoints.INTAKE);
+        }
+
+    }
+
+    public void rotate(RotationPoints rotationPoint){
+        leftRotator.setPosition(rotationPoint.left);
+        rightRotator.setPosition(rotationPoint.right);
     }
 
     /**

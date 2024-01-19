@@ -5,10 +5,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class Outtake extends BaseComponent {
 
     // todo: tune these;
-    private static final double LEFT_CLOSE_POSITION = 0.5;
-    private static final double LEFT_OPEN_POSITION = 0.6;
-    private static final double RIGHT_CLOSE_POSITION = 0.5;
-    private static final double RIGHT_OPEN_POSITION = 0.6;
+    private static final double LEFT_CLOSE_POSITION = 0.25;
+    private static final double LEFT_OPEN_POSITION = 0.85;
+    private static final double RIGHT_CLOSE_POSITION = 0.8;
+    private static final double RIGHT_OPEN_POSITION = 0.1;
 
     private Servo leftServo;
     private Servo rightServo;

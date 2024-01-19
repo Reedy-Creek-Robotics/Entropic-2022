@@ -42,19 +42,19 @@ public class RobotDescriptor {
             0, 0, 0,
             48 / 25.4,
             1,
-            15,
-            1.0,
-            0,
-            0,
+            15.5,
+            0.014,
+            0.0036,
+            0.0175,
             30,
             30,
             180,
             180,
             RevHubOrientationOnRobot.LogoFacingDirection.UP,
             RevHubOrientationOnRobot.UsbFacingDirection.FORWARD,
-            new PIDCoefficients(0, 0, 0),
-            new PIDCoefficients(0, 0, 0),
-            1,
+            new PIDCoefficients(15, 0, 0),
+            new PIDCoefficients(-15, 0, 0),
+            1.6175,
             1,
             1,
             1
@@ -134,7 +134,7 @@ public class RobotDescriptor {
             this.driveWheelRadius = driveWheelRadius;
             this.driveGearRatio = driveGearRatio;
             this.driveTrackWidth = driveTrackWidth;
-            this.kv = kv / rpmToVelocity(driveMaxRpm);
+            this.kv = kv ;
             this.ka = ka;
             this.kStatic = kStatic;
             this.maxVel = maxVel;
@@ -185,7 +185,7 @@ public class RobotDescriptor {
             1,
             1,
             1,
-            5.4161,
+            5.702,
             5
     );
 

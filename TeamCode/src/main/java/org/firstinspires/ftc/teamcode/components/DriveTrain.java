@@ -32,8 +32,6 @@ public class DriveTrain extends BaseComponent {
 
     public ModifiedMecanumDrive roadrunner;
 
-    private RobotContext context;
-
     public static DriveTuner driveTuner;
     public static OdometryTuner odometryTuner;
 
@@ -63,8 +61,10 @@ public class DriveTrain extends BaseComponent {
         rightRear = hardwareMap.get(DcMotorEx.class, "BackRight");
         rightFront = hardwareMap.get(DcMotorEx.class, "FrontRight");
 
-        //leftFront.setDirection(DcMotorEx.Direction.REVERSE);
-        //leftRear.setDirection(DcMotorEx.Direction.REVERSE);
+        leftFront.setDirection(DcMotorEx.Direction.REVERSE);
+        leftRear.setDirection(DcMotorEx.Direction.REVERSE);
+        rightRear.setDirection(DcMotorEx.Direction.FORWARD);
+        rightFront.setDirection(DcMotorEx.Direction.FORWARD);
 
         motors = Arrays.asList(leftFront, leftRear, rightRear, rightFront);
 

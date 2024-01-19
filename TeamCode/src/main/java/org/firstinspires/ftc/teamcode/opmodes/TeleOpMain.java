@@ -22,6 +22,12 @@ public class TeleOpMain extends BaseDrivingTeleOp {
     }
 
     @Override
+    public void start() {
+        robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRANSFER);
+        robot.getSlide().rotate(LinearSlide.RotationPoints.OUTTAKE);
+    }
+
+    @Override
     public void loop() {
         // Driving
         applyDriving();

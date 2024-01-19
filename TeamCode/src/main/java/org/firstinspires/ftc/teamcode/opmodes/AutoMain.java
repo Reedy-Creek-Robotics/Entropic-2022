@@ -1,11 +1,11 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
-import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.openftc.apriltag.AprilTagDetection;
 
 public abstract class  AutoMain extends LinearOpMode {
@@ -35,7 +35,8 @@ public abstract class  AutoMain extends LinearOpMode {
             waitForStart();
 
             // Allow the child class to run its auto path.
-            runAutoPath();
+            runAuto();
+
 
         } finally {
             // Save the position to disk, so it can be picked up by the TeleOp
@@ -43,13 +44,15 @@ public abstract class  AutoMain extends LinearOpMode {
         }
     }
 
-    protected abstract void runAutoPath();
+
 
     protected void initRobot() {
 
     }
 
-    protected abstract Position getStartPosition();
+    protected abstract void runAuto();
+
+    protected abstract Pose2d getStartPosition();
 
 
 
