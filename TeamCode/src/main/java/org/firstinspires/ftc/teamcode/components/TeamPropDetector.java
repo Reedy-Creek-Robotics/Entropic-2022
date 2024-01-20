@@ -154,6 +154,8 @@ public class TeamPropDetector extends BaseComponent {
             }
         }
 
+        //best guess
+
         // We didn't detect the team prop after the given amount of seconds, so return null.
         return null;
     }

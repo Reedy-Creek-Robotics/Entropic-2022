@@ -243,7 +243,7 @@ public class RobotDescriptor {
         /**
          * The resolution of the side web cam, in pixels.
          */
-        public Size resolution = new Size(640, 360);
+        public Size resolution = new Size(1920, 1080);
 
         /**
          * The exposure duration for the webcam in milliseconds.
