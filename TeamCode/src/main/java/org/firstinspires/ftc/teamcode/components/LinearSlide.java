@@ -4,6 +4,9 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import org.firstinspires.ftc.teamcode.util.DistanceUtil;
+import org.firstinspires.ftc.teamcode.util.ScalingUtil;
+
 public class LinearSlide extends BaseComponent {
 
     public static final int TICKS_PER_STACKED_CONE = 109; // ticks to lower before delivery //435/4
@@ -235,18 +238,84 @@ public class LinearSlide extends BaseComponent {
 
         @Override
         public void start() {
+
+            // Some constants for differential correction between the two sides
+            // The maximum power ratio to apply between the two motor powers due to a differential
+            double maxDifferentialPowerRatio = 1 / 2.0;
+            // The number of ticks difference between the motors before the max power ratio above
+            // would be applied
+            double maxDifferentialPowerTicks = 200;
+            // The minimum power to apply to a motor, to avoid a situation where a motor cannot
+            // overcome the force of friction.
+            double minPower = 0.1;
+
+
             leftMotor.setTargetPosition(ticks);
             leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             rightMotor.setTargetPosition(ticks);
             rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            double power = ticks > getPosition() ?
+            // Determine if ascending or descending
+            boolean ascending = ticks > getPosition();
+
+            double power = ascending ?
                     ascendingPower :
                     descendingPower;
 
-            leftMotor.setPower(power);
-            rightMotor.setPower(power);
+            // Determine if one motor is getting ahead of the other and by how much.
+            // Positive means that the left motor is ahead
+            // Negative means that the right motor is ahead
+            double positionDifferential = leftMotor.getCurrentPosition() - rightMotor.getCurrentPosition();
+
+            // If descending, invert the differential since lower ticks means that side is ahead
+            if (!ascending) {
+                positionDifferential = -positionDifferential;
+            }
+
+            double leftPower, rightPower;
+            if (positionDifferential > 0) {
+                // Left motor is ahead, positionDifferential is positive
+
+                // Use a scale to determine how much less power to give the motor that is ahead
+                double differentialPowerRatio = ScalingUtil.scaleLinear(
+                        positionDifferential,
+                        0, maxDifferentialPowerTicks,
+                        1.0, maxDifferentialPowerRatio
+                );
+                differentialPowerRatio = Math.min(differentialPowerRatio, maxDifferentialPowerRatio);
+
+                // Left motor is ahead, so give the max power to the right motor
+                rightPower = power;
+                leftPower = power * differentialPowerRatio;
+
+                assert Math.abs(leftPower) < Math.abs(rightPower);
+
+            } else {
+                // Right motor is ahead, positionDifferential is negative (so invert it first)
+                positionDifferential = -positionDifferential;
+
+                // Use a scale to determine how much less power to give the motor that is ahead
+                double differentialPowerRatio = ScalingUtil.scaleLinear(
+                        positionDifferential,
+                        0, maxDifferentialPowerTicks,
+                        1.0, maxDifferentialPowerRatio
+                );
+                differentialPowerRatio = Math.min(differentialPowerRatio, maxDifferentialPowerRatio);
+
+                // Right motor is ahead, so give the max power to the left motor
+                leftPower = power;
+                rightPower = power * differentialPowerRatio;
+
+                assert Math.abs(rightPower) < Math.abs(leftPower);
+            }
+
+            // Don't go below the min power for either side (preserve positive or negative sign)
+            if (Math.abs(leftPower) < minPower) leftPower = minPower * Math.signum(leftPower);
+            if (Math.abs(rightPower) < minPower) rightPower = minPower * Math.signum(rightPower);
+
+            leftMotor.setPower(leftPower);
+            rightMotor.setPower(rightPower);
         }
 
         @Override
