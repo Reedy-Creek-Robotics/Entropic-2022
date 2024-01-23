@@ -1,19 +1,19 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.geometry.Position;
 @Disabled
 @Autonomous
 public class AutoMainStage extends AutoMain {
     @Override
-    protected Position getStartPosition() {
+    protected Pose2d getStartPosition() {
         return null;
     }
 
     @Override
-    public void runAutoPath() {
+    public void runAuto() {
 
     }
 }

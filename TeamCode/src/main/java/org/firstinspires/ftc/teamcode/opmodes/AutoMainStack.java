@@ -39,7 +39,7 @@ public abstract class AutoMainStack extends AutoMain {
         }
 
         TrajectorySequence autoStack = robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(getStartPosition())
-                .splineTo(new Vector2d(36, 36), propDispenseRotation)
+                .splineTo(new Vector2d(-36, -36), propDispenseRotation)
                 .forward(2)
                 .addDisplacementMarker(() -> {
                     robot.getIntake().outtakeManual();

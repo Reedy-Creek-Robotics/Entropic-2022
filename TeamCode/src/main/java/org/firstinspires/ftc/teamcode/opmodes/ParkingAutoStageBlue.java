@@ -7,15 +7,15 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
 @Autonomous
-public abstract class ParkingAutoStageBlue extends AutoMain {
+public class ParkingAutoStageBlue extends AutoMain {
     protected Pose2d getStartPosition() {
         return null;
     }
     public void runAuto() {
 
-
+        //Updated
         TrajectorySequence autoPark = robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(getStartPosition())
-                .lineTo(new Vector2d(-60,136))
+                .lineTo(new Vector2d(60,60))
                 .build();
 
         waitForStart();
