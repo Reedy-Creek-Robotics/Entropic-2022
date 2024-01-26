@@ -6,6 +6,7 @@ import android.util.Pair;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.ColorDetector;
+import org.firstinspires.ftc.teamcode.components.TeamPropDetector;
 import org.firstinspires.ftc.teamcode.game.Controller;
 import org.firstinspires.ftc.teamcode.opmodes.BaseTeleOp;
 import org.opencv.core.Scalar;
@@ -87,13 +88,8 @@ public class ColorDetectorTester extends BaseTeleOp {
         } else if (controller.isPressed(Controller.Button.Y)) {
             increaseColorDetectionWindow();
         }
-        List<ColorDetector.ColorDetection> detections = colorDetector.getDetections();
-        telemetry.addData("Detections", detections.size());
-        telemetry.addData("ColorDetectionWindow", colorDetectionWindow * 2);
+
         robot.getTeamPropDetector().getDetectedPosition();
-        //telemetry.addData("TeamPropPosition", robot.getTeamPropDetector().getDetectedPosition());
-        //telemetry.addData("lowerColorBound", lowerBound.val[0]);
-        //telemetry.addData("upperColorBound", upperBound.val[0]);
-        //telemetry.update();
+
     }
 }

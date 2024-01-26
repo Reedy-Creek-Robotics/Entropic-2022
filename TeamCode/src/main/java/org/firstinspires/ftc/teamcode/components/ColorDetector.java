@@ -11,6 +11,7 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
@@ -172,8 +173,11 @@ public class ColorDetector extends BaseComponent {
 
             if (webCam.isStreaming()) {
                 // If streaming, draw the contours to the output image
+                //Imgproc.rectangle(output,new Point(100,100),new Point(75,75),new Scalar(255, 0, 255),5);
+                //Imgproc.rectangle(output,new Point(300,100),new Point(75,75),new Scalar(255, 0, 255),5);
+                //Imgproc.rectangle(output,new Point(750,75),new Point(1300,500),new Scalar(255, 0, 255),5);
                 for (int i = 0; i < contours.size(); i++) {
-                    Imgproc.drawContours(output, contours, i, Color.BLUE.toRGBA(), 2, Imgproc.LINE_8);
+                    Imgproc.drawContours(output, contours, i, Color.RED.toRGBA(), 2, Imgproc.LINE_8);
                 }
             }
         }

@@ -83,6 +83,9 @@ public abstract class  AutoMain extends LinearOpMode {
             case RIGHT:
                 propDispenseRotation = 90;
                 break;
+            case NOTFOUND:
+                propDispenseRotation = 0;
+                break;
         }
 
         if (color == TeamPropDetector.TargetColor.BLUE) {
