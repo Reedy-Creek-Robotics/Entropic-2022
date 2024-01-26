@@ -7,23 +7,20 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 public class LinearSlide extends BaseComponent {
 
-    public static final int TICKS_PER_STACKED_CONE = 109; // ticks to lower before delivery //435/4
-    public static final int DELIVER_OFFSET = 185;
-
     public static final int TARGET_REACHED_THRESHOLD = 5;
 
-    public static final int MAX_HEIGHT = SlideHeight.THIRD_LEVEL.ticks + 100;
+    public static final int MAX_HEIGHT = SlideHeight.THIRD_LEVEL.ticks;
     public static final int MIN_HEIGHT = SlideHeight.TRANSFER.ticks;
 
-    private static final int ROTATION_POINT = 1000;
+    public static final int ROTATION_POINT = 1000;
 
     public static final double MIN_POWER = 0.01;
 
     public enum SlideHeight {
-        THIRD_LEVEL(2000),
-        SECOND_LEVEL(1291),
-        FIRST_LEVEL(664),
-        TRANSFER(100);
+        THIRD_LEVEL(2300),
+        SECOND_LEVEL(2000),
+        FIRST_LEVEL(1361),
+        TRANSFER(40);
 
         private final int ticks;
 
@@ -33,8 +30,8 @@ public class LinearSlide extends BaseComponent {
     }
 
     public enum RotationPoints{
-        OUTTAKE(0.36,1),
-        INTAKE(0.15, 0);
+        OUTTAKE(0,0.3),
+        INTAKE(0, 0.6);
 
         private final double right;
 
@@ -69,8 +66,8 @@ public class LinearSlide extends BaseComponent {
         leftMotor = (DcMotorEx) hardwareMap.dcMotor.get("LeftSlide");
         rightMotor = (DcMotorEx) hardwareMap.dcMotor.get("RightSlide");
 
-        leftRotator = hardwareMap.servo.get("LeftRotator");
-        //rightServo = hardwareMap.servo.get("RightRotator");
+        //leftRotator = hardwareMap.servo.get("LeftRotator");
+        rightRotator = hardwareMap.servo.get("RightRotator");
 
     }
 
@@ -81,7 +78,7 @@ public class LinearSlide extends BaseComponent {
         leftMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         leftMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
 
         rightMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -181,7 +178,7 @@ public class LinearSlide extends BaseComponent {
     public void update() {
         telemetry.addData("Current Position", getPosition());
 
-        //intakeRotation(getPosition());
+        intakeRotation(getPosition());
 
         super.update();
     }
@@ -189,15 +186,15 @@ public class LinearSlide extends BaseComponent {
     private void intakeRotation(double position){
         if(position > ROTATION_POINT ){
             rotate(RotationPoints.OUTTAKE);
-        } else if (position < ROTATION_POINT) {
+        } else if (position < ROTATION_POINT && SlideHeight.TRANSFER.ticks < position) {
             rotate(RotationPoints.INTAKE);
         }
 
     }
 
     public void rotate(RotationPoints rotationPoint){
-        leftRotator.setPosition(rotationPoint.left);
-        //rightRotator.setPosition(rotationPoint.right);
+        //leftRotator.setPosition(rotationPoint.left);
+        rightRotator.setPosition(rotationPoint.right);
     }
 
     /**
@@ -287,7 +284,7 @@ public class LinearSlide extends BaseComponent {
                     ascendingPower :
                     descendingPower;
 
-            leftMotor.setPower(power/5);
+            leftMotor.setPower(power);
             rightMotor.setPower(power);
         }
 

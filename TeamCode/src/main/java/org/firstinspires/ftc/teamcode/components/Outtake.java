@@ -1,20 +1,29 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Outtake extends BaseComponent {
+// todo: tune these;
 
-    // todo: tune these;
-    private static final double LEFT_CLOSE_POSITION = 0.25;
-    private static final double LEFT_OPEN_POSITION = 0.85;
-    private static final double RIGHT_CLOSE_POSITION = 0.8;
-    private static final double RIGHT_OPEN_POSITION = 0.1;
+    boolean leftOpen = false;
+    boolean rightOpen = false;
 
-    private Servo leftServo;
-    private Servo rightServo;
+    public enum OuttakePositions{
+        LEFT(0.5,0),
+        RIGHT(0.35,1);
 
-    private boolean leftOpen = false;
-    private boolean rightOpen = false;
+        double open;
+        double close;
+
+        OuttakePositions(double open, double close) {
+            this.open = open;
+            this.close = close;
+        }
+    }
+
+    public Servo leftServo;
+    public Servo rightServo;
 
     public Outtake(RobotContext context) {
         super(context);
@@ -23,45 +32,104 @@ public class Outtake extends BaseComponent {
         rightServo = hardwareMap.get(Servo.class, "RightDoor");
     }
 
-    public void toggleRight() {
-        if (rightOpen) {
-            closeRight();
-        } else {
-            openRight();
+    @Override
+    public void init() {
+        super.init();
+
+        leftServo.setPosition(OuttakePositions.LEFT.close);
+        rightServo.setPosition(OuttakePositions.RIGHT.close);
+    }
+
+    @Override
+    public void update() {
+        super.update();
+    }
+
+
+    public void closeAll(){
+        rightServo.setPosition(OuttakePositions.RIGHT.close);
+        leftServo.setPosition(OuttakePositions.LEFT.close);
+
+    }
+
+
+    public void toggleRight(){
+        if(rightOpen){
+            rightServo.setPosition(OuttakePositions.RIGHT.close);
+        }else{
+            rightServo.setPosition(OuttakePositions.RIGHT.open);
+        }
+
+        rightOpen = !rightOpen;
+    }
+
+    public void toggleLeft(){
+        if(leftOpen){
+            leftServo.setPosition(OuttakePositions.LEFT.close);
+        }else{
+            leftServo.setPosition(OuttakePositions.RIGHT.open);
+        }
+
+        leftOpen = !leftOpen;
+    }
+
+    public void outtakeLeft(){
+        executeCommand(new OuttakeLeft(2500));
+    }
+
+    public void outtakeRight(){
+        executeCommand(new OuttakeRight(2500));
+    }
+
+    public class OuttakeRight implements Command {
+
+        private ElapsedTime timer = new ElapsedTime();
+
+        private int timeLimit;
+        public OuttakeRight(int timeLimit) {
+            this.timeLimit = timeLimit;
+        }
+
+        @Override
+        public void start() {
+            rightServo.setPosition(OuttakePositions.RIGHT.open);
+            timer.reset();
+        }
+
+        @Override
+        public void stop() {
+            rightServo.setPosition(OuttakePositions.RIGHT.close);
+        }
+
+        @Override
+        public boolean update() {
+            return timer.milliseconds() >= timeLimit;
         }
     }
+    public class OuttakeLeft implements Command {
 
-    public void openRight() {
-        rightServo.setPosition(RIGHT_OPEN_POSITION);
-        rightOpen = true;
-    }
+        private ElapsedTime timer = new ElapsedTime();
 
-    public void closeRight() {
-        rightServo.setPosition(RIGHT_CLOSE_POSITION);
-        rightOpen = false;
-    }
-
-    public void toggleLeft() {
-        if (leftOpen) {
-            closeLeft();
-        } else {
-            openLeft();
+        private int timeLimit;
+        public OuttakeLeft(int timeLimit) {
+            this.timeLimit = timeLimit;
         }
-    }
 
-    public void openLeft() {
-        leftServo.setPosition(LEFT_OPEN_POSITION);
-        leftOpen = true;
-    }
+        @Override
+        public void start() {
+            leftServo.setPosition(OuttakePositions.LEFT.open);
+            timer.reset();
+        }
 
-    public void closeLeft() {
-        leftServo.setPosition(LEFT_CLOSE_POSITION);
-        leftOpen = false;
-    }
+        @Override
+        public void stop() {
+            leftServo.setPosition(OuttakePositions.LEFT.close);
+        }
 
-    public void close() {
-        closeLeft();
-        closeRight();
+        @Override
+        public boolean update() {
+            return timer.milliseconds() >= timeLimit;
+        }
     }
 
 }

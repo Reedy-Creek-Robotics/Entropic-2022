@@ -14,15 +14,19 @@ import com.qualcomm.robotcore.hardware.configuration.typecontainers.MotorConfigu
 
 import org.firstinspires.ftc.teamcode.geometry.Heading;
 import org.firstinspires.ftc.teamcode.roadrunner.drive.ModifiedMecanumDrive;
-import org.firstinspires.ftc.teamcode.roadrunner.drive.StandardTrackingWheelLocalizer;
 import org.firstinspires.ftc.teamcode.util.DriveUtil;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 @SuppressLint("DefaultLocale")
 public class DriveTrain extends BaseComponent {
+    @Override
+    public void update() {
+        context.localizer.update();
+
+        super.update();
+    }
 
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private List<DcMotorEx> motors;
@@ -41,8 +45,7 @@ public class DriveTrain extends BaseComponent {
         driveTuner = descriptor.DRIVE_TUNER;
         odometryTuner = descriptor.ODOMETRY_TUNER;
 
-        List<Integer> lastTrackingEncPositions = new ArrayList<>();
-        List<Integer> lastTrackingEncVels = new ArrayList<>();
+
 
         //this.context.localizer = new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels, odometryTuner);
 
@@ -74,15 +77,8 @@ public class DriveTrain extends BaseComponent {
             motor.setMotorType(motorConfigurationType);
         }
 
-        //TODO: move localizer to context eventually
-        StandardTrackingWheelLocalizer localizer = new StandardTrackingWheelLocalizer(hardwareMap,
-                lastTrackingEncPositions,
-                lastTrackingEncVels,
-                odometryTuner
-        );
-
         roadrunner = new ModifiedMecanumDrive(
-                localizer,
+                context.localizer,
                 motors,
                 imu,
                 batteryVoltageSensor,
@@ -133,7 +129,7 @@ public class DriveTrain extends BaseComponent {
     }
 
     public void driverRelative(double drive, double strafe, double turn, double speedFactor) {
-        DriveUtil.MotorPowers motorPowers = context.driveUtil.calculateWheelPowerForDriverRelative(drive, strafe, turn, new Heading(context.localizer.getPoseEstimate().getHeading()), speedFactor);
+        DriveUtil.MotorPowers motorPowers = context.driveUtil.calculateWheelPowerForDriverRelative(drive, strafe, turn, new Heading(Math.toDegrees(context.localizer.getPoseEstimate().getHeading())), speedFactor);
 
         leftFront.setPower(motorPowers.frontLeft);
         leftRear.setPower(motorPowers.backLeft);

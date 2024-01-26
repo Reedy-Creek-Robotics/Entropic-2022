@@ -54,7 +54,6 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         // TODO: reverse any encoders using
         //leftEncoder.setDirection(Encoder.Direction.REVERSE);
         //rightEncoder.setDirection(Encoder.Direction.REVERSE);
-
         //frontEncoder.setDirection(Encoder.Direction.REVERSE);
 
     }

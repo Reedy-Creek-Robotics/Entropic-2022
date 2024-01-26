@@ -56,7 +56,7 @@ public abstract class  AutoMain extends LinearOpMode {
 
 
     protected void initRobot() {
-
+        robot = new Robot(this);
     }
 
     protected abstract void runAuto();

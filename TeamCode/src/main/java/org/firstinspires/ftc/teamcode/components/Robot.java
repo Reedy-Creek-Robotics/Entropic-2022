@@ -63,7 +63,7 @@ public class Robot extends BaseComponent {
 
         this.outtake = new Outtake(context);
 
-        this.riggingLift = new RiggingLift(context);
+        //this.riggingLift = new RiggingLift(context);
 
         this.stackKnocker = new StackKnocker(context);
 
@@ -71,7 +71,7 @@ public class Robot extends BaseComponent {
 
         this.teamPropDetector = new TeamPropDetector(context, webCamFront);
 
-        addSubComponents(driveTrain, slide, intake, outtake, riggingLift, stackKnocker, droneLauncher, teamPropDetector);
+        addSubComponents(driveTrain, intake, outtake, stackKnocker, droneLauncher, teamPropDetector, slide);
 
         for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));
@@ -138,6 +138,10 @@ public class Robot extends BaseComponent {
 
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();
+
+        if (slide.getPosition() <= slide.ROTATION_POINT){
+            outtake.closeAll();
+        }
     }
 
     @SuppressLint("DefaultLocale")

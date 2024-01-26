@@ -47,7 +47,7 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             double strafe = driver.leftStickX();
             double turn = driver.rightStickX();
 
-            driveTrain.driverRelative(drive, turn, strafe, limiter);
+            driveTrain.drive(drive, strafe, -turn, -limiter);
         }
         //TODO: Add a way for the drive train to reset its orientation
         /*if (driver.isPressed(START)) {

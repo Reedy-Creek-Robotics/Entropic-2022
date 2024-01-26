@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 @Autonomous
 public class ParkingAutoStageRed extends AutoMain{
     protected Pose2d getStartPosition() {
-        return null;
+        return new Pose2d();
     }
     public void runAuto() {
 

@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySe
 @Autonomous
 public class ParkingAutoStackBlue extends AutoMain{
     protected Pose2d getStartPosition() {
-        return null;
+        return new Pose2d(-60,36,90);
     }
     public void runAuto() {
 
@@ -22,7 +22,9 @@ public class ParkingAutoStackBlue extends AutoMain{
 
         waitForStart();
 
-        if (!isStopRequested())
+        if (!isStopRequested()){
             robot.getDriveTrain().roadrunner.followTrajectorySequence(autoPark);
+        }
+
     }
 }
