@@ -5,7 +5,6 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.components.TeamPropDetector;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
 @Disabled
@@ -20,29 +19,12 @@ public abstract class AutoMainStack extends AutoMain {
     @Override
     public void runAuto() {
 
-        //detect prop position
-        TeamPropDetector.TeamPropPosition pos = robot.getTeamPropDetector().waitForDetection(1);
-
-        double propDispenseRotation = 270;
-
-        //coordinated move to dispense prop
-        switch (pos) {
-            case LEFT:
-                propDispenseRotation = 180;
-                break;
-            case MIDDLE:
-                propDispenseRotation = 270;
-                break;
-            case RIGHT:
-                propDispenseRotation = 0;
-                break;
-        }
 
         TrajectorySequence autoStack = robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(getStartPosition())
-                .splineTo(new Vector2d(-36, -36), propDispenseRotation)
+                .splineTo(new Vector2d(-36, -36), Math.toRadians(getPropRotation()))
                 .forward(2)
                 .addDisplacementMarker(() -> {
-                    robot.getIntake().outtakeManual();
+                    robot.getIntake().autoOuttakeManual();
                     try {
                         wait(1);
                         robot.getOuttake().stopAllCommands();
@@ -51,7 +33,7 @@ public abstract class AutoMainStack extends AutoMain {
                     }
                 })
                 .back(2)
-                .splineTo(new Vector2d(48, 12), 180)
+                .splineTo(new Vector2d(48, 12), Math.toRadians(180))
                 .lineTo(new Vector2d(36, 10))
                 .addDisplacementMarker(() -> {
                     robot.getIntake().intakeManual();

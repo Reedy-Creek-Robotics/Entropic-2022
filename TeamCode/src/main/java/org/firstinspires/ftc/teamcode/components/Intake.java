@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Intake extends BaseComponent {
 
@@ -29,6 +30,36 @@ public class Intake extends BaseComponent {
     public void outtakeManual() {
         stopAllCommands();
         intakeMotor.setPower(-1);
+    }
+
+    public void autoOuttakeManual() {
+        stopAllCommands();
+        intakeMotor.setPower(-0.1);
+    }
+
+    private class intakeTime implements Command {
+
+        private ElapsedTime timer = new ElapsedTime();
+
+        private double time;
+        public intakeTime(double time) {
+            this.time = time;
+        }
+
+        @Override
+        public void start() {
+            intakeManual();
+            timer.reset();
+        }
+
+        public void stop() {
+            stopIntake();
+        }
+
+        @Override
+        public boolean update() {
+            return timer.milliseconds() < time;
+        }
     }
 
     /**

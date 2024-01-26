@@ -21,6 +21,9 @@ import org.opencv.imgproc.Imgproc;
 import java.util.Arrays;
 import java.util.List;
 
+
+//NOT THE RIGHT ONE
+
 @TeleOp(group = "Calibration")
 public class WebCamColorCalibration extends OpMode {
 
@@ -58,6 +61,7 @@ public class WebCamColorCalibration extends OpMode {
                 enabledCameras.get(0) :
                 null;
     }
+
     protected List<Robot.Camera> getEnabledCameras() {
         return Arrays.asList(
                 Robot.Camera.FRONT
@@ -71,15 +75,14 @@ public class WebCamColorCalibration extends OpMode {
 
         //super.init();
         webCam = new WebCam(context, context.descriptor.webcamFrontDescriptor,
-               true);
-                // getStreamingCamera());
-                //streamingCamera == Robot.Camera.FRONT);
+                true);
+        // getStreamingCamera());
+        //streamingCamera == Robot.Camera.FRONT);
 
-        propDetector = new TeamPropDetector(context,webCam);
-   //     webCam = new robot.getWebCamFront();
+        propDetector = new TeamPropDetector(context, webCam);
+        //     webCam = new robot.getWebCamFront();
 
         controller = new Controller(gamepad1);
-
 
         Size resolution = webCam.getResolution();
 

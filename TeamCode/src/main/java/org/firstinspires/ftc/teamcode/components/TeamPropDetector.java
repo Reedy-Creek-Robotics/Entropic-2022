@@ -133,6 +133,10 @@ public class TeamPropDetector extends BaseComponent {
     public void init() {
         setTargetColor(targetColor);
     }
+    public Enum<TargetColor> getColor() {
+        return(targetColor);
+
+    }
 
     public ColorDetector getColorDetector() {
         return colorDetector;
@@ -196,6 +200,8 @@ public class TeamPropDetector extends BaseComponent {
                 }
 
                 // This detection fits all the criteria, so let's use it.
+                /*telemetry.addData("Position", position);
+                telemetry.update();*/
                 return position;
             }
         }

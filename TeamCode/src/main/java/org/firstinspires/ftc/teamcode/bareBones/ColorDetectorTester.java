@@ -17,7 +17,7 @@ public class ColorDetectorTester extends BaseTeleOp {
 
     ColorDetector colorDetector;
 
-    final int MAX_DETECTION_WINDOW = 20;
+    final int INITIAL_DETECTION_WINDOW = 20;
     final int MIN_DETECTION_WINDOW = 1;
     int colorDetectionWindow;
 
@@ -35,7 +35,7 @@ public class ColorDetectorTester extends BaseTeleOp {
         colorDetector = robot.getTeamPropDetector().getColorDetector();
         lowerBound = getLowerBound();
         upperBound = getUpperBound();
-        colorDetectionWindow = MAX_DETECTION_WINDOW;
+        colorDetectionWindow = INITIAL_DETECTION_WINDOW;
     }
 
     private Scalar getLowerBound() {
@@ -83,7 +83,6 @@ public class ColorDetectorTester extends BaseTeleOp {
         if (controller.isPressed(Controller.Button.B)) {
             //if b is pressed, decrease color detection window
             decreaseColorDetectionWindow();
-
 
         } else if (controller.isPressed(Controller.Button.Y)) {
             increaseColorDetectionWindow();

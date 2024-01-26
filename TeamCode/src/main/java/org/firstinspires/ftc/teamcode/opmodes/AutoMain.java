@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
+import org.firstinspires.ftc.teamcode.components.TeamPropDetector;
 import org.openftc.apriltag.AprilTagDetection;
 
 public abstract class  AutoMain extends LinearOpMode {
@@ -17,6 +18,7 @@ public abstract class  AutoMain extends LinearOpMode {
     protected Robot robot;
     protected RobotDescriptor robotDescriptor;
     protected AprilTagDetection aprilTagDetection;
+
 
     protected boolean usingHough = true;
     protected boolean samProposal = true;
@@ -33,6 +35,13 @@ public abstract class  AutoMain extends LinearOpMode {
             telemetry.log().add("Wait for start", "");
 
             waitForStart();
+
+            //detect prop
+            //robot.getTeamPropDetector().getDetectedPosition();
+
+            while (1) {
+                robot.getTeamPropDetector().getDetectedPosition();
+            }
 
             // Allow the child class to run its auto path.
             runAuto();
@@ -53,6 +62,34 @@ public abstract class  AutoMain extends LinearOpMode {
     protected abstract void runAuto();
 
     protected abstract Pose2d getStartPosition();
+
+    //This method finds how much the bot needs to turn based on the detection, no matter if it is on the red or blue side
+    public double getPropRotation() {
+        //detect prop position
+        TeamPropDetector.TeamPropPosition pos = robot.getTeamPropDetector().waitForDetection(1);
+
+        double propDispenseRotation = 270;
+
+        Enum<TeamPropDetector.TargetColor> color = robot.getTeamPropDetector().getColor();
+
+        //coordinated move to dispense prop
+        switch (pos) {
+            case LEFT:
+                propDispenseRotation = -90;
+                break;
+            case MIDDLE:
+                propDispenseRotation = 0;
+                break;
+            case RIGHT:
+                propDispenseRotation = 90;
+                break;
+        }
+
+        if (color == TeamPropDetector.TargetColor.BLUE) {
+            propDispenseRotation += 180;
+        }
+        return propDispenseRotation;
+    }
 
 
 
