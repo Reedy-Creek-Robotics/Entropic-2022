@@ -11,6 +11,7 @@ import org.firstinspires.ftc.teamcode.util.Color;
 import org.firstinspires.ftc.teamcode.util.DrawUtil;
 import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,15 +28,15 @@ public class TeamPropDetector extends BaseComponent {
     public enum TeamPropPosition {
         LEFT(
                 new Rectangle(new Position(100, 100), 75, 75),
-                1000, 10000, 0.75
+                3000, 15000, 0.75
         ),
         MIDDLE(
                 new Rectangle(new Position(300, 100), 75, 75),
-                1000, 10000, 0.9
+                3000, 15000, 0.9
         ),
         RIGHT(
                 new Rectangle(new Position(500, 100), 75, 75),
-                1000, 10000, 0.75
+                3000, 15000, 0.75
         );
 
         public Rectangle rectangle;
@@ -116,6 +117,7 @@ public class TeamPropDetector extends BaseComponent {
                         DrawUtil.drawText(output, String.format("Sq [%.2f]", squareness), detection.centroid.add(new Vector2(-50, -30)), Color.GREEN, 0.5, 1);
                         DrawUtil.drawText(output, detection.centroid.toString(0), detection.centroid.add(new Vector2(-50, 0)), Color.GREEN, 0.5, 1);
                         DrawUtil.drawText(output, String.format("Area [%.0f])", detection.area), detection.centroid.add(new Vector2(-50, 30)), Color.GREEN, 0.5, 1);
+                        Imgproc.boundingRect(detection.boundingRect);
                     }
                 }
             }
@@ -177,8 +179,29 @@ public class TeamPropDetector extends BaseComponent {
         // 1. Approximately the expected size
         // 2. Mostly square (team prop is a cube)
         // 3. In the correct position
+        telemetry.addLine("results of detection");
+        for (ColorDetection detection : detections) {
+            if(detection.area > 5000) {
+                telemetry.addData("area", detection.area);
+            }
+            // Check if this detection is in the correct location on screen for this team prop position
+            Rectangle rectangleL = TeamPropPosition.LEFT.rectangle;
+            if (TeamPropPosition.LEFT.rectangle.contains(detection.centroid)) {
+                telemetry.addData("Left ",detection.area);
+            }
+            if (TeamPropPosition.MIDDLE.rectangle.contains(detection.centroid)) {
+                telemetry.addData("Middle ",detection.area);
+            }
+
+            if (TeamPropPosition.RIGHT.rectangle.contains(detection.centroid)) {
+                telemetry.addData("Right ",detection.area);
+            }
+
+        }
+        telemetry.update();
 
         for (TeamPropPosition position : TeamPropPosition.values()) {
+
             for (ColorDetection detection : detections) {
                 // Check if this detection is in the correct location on screen for this team prop position
                 Rectangle rectangle = position.rectangle;
@@ -188,7 +211,7 @@ public class TeamPropDetector extends BaseComponent {
 
                 // See if this detection is approximately a square
                 double squarenessRatio = detection.area / detection.boundingRect.getArea();
-                if (squarenessRatio < position.minSquarenessRatio) {
+                if (squarenessRatio > position.minSquarenessRatio) {
                     continue;
                 }
 

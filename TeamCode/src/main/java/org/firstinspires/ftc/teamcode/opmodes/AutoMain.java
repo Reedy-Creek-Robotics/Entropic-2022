@@ -39,9 +39,9 @@ public abstract class  AutoMain extends LinearOpMode {
             //detect prop
             //robot.getTeamPropDetector().getDetectedPosition();
 
-            while (1) {
+            /*while (1) {
                 robot.getTeamPropDetector().getDetectedPosition();
-            }
+            }*/
 
             // Allow the child class to run its auto path.
             runAuto();

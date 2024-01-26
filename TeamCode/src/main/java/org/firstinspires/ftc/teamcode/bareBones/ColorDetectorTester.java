@@ -90,9 +90,10 @@ public class ColorDetectorTester extends BaseTeleOp {
         List<ColorDetector.ColorDetection> detections = colorDetector.getDetections();
         telemetry.addData("Detections", detections.size());
         telemetry.addData("ColorDetectionWindow", colorDetectionWindow * 2);
-        telemetry.addData("TeamPropPosition", robot.getTeamPropDetector().getDetectedPosition());
-        telemetry.addData("lowerColorBound", lowerBound.val[0]);
-        telemetry.addData("upperColorBound", upperBound.val[0]);
-        telemetry.update();
+        robot.getTeamPropDetector().getDetectedPosition();
+        //telemetry.addData("TeamPropPosition", robot.getTeamPropDetector().getDetectedPosition());
+        //telemetry.addData("lowerColorBound", lowerBound.val[0]);
+        //telemetry.addData("upperColorBound", upperBound.val[0]);
+        //telemetry.update();
     }
 }

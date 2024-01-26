@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.geometry;
 
-public class Rectangle {
+import org.opencv.core.Mat;
+
+public class Rectangle extends Mat {
 
     private double top, right, bottom, left;
 
