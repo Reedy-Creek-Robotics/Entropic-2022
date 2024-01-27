@@ -1,18 +1,11 @@
 package org.firstinspires.ftc.teamcode.components;
 
-import android.annotation.SuppressLint;
 import android.util.Pair;
 
 import org.firstinspires.ftc.teamcode.components.ColorDetector.ColorDetection;
 import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.geometry.Rectangle;
-import org.firstinspires.ftc.teamcode.geometry.Vector2;
-import org.firstinspires.ftc.teamcode.util.Color;
-import org.firstinspires.ftc.teamcode.util.DrawUtil;
-import org.opencv.core.Mat;
 import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-import org.opencv.core.Point;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,19 +18,20 @@ public class TeamPropDetector extends BaseComponent {
     }
 
     private TargetColor targetColor;
+    private static final int globalMinArea = 5000;
 
     public enum TeamPropPosition {
         LEFT(
-                new Rectangle(new Position(100, 100), 75, 75),
-                3000, 15000, 0.75
+                new Rectangle(new Position(50, 350), 400, 500),
+                globalMinArea, 15000, 0.75
         ),
         MIDDLE(
-                new Rectangle(new Position(750, 75), 550, 425),
-                3000, 15000, 0.9
+                new Rectangle(new Position(725, 75), 550, 425),
+                globalMinArea, 15000, 0.9
         ),
         RIGHT(
-                new Rectangle(new Position(500, 100), 75, 75),
-                3000, 15000, 0.75
+                new Rectangle(new Position(1400, 350), 400, 500),
+                globalMinArea, 15000, 0.75
         ),
         NOTFOUND(
                 new Rectangle(new Position(0, 0), 0, 0),
@@ -68,7 +62,7 @@ public class TeamPropDetector extends BaseComponent {
     private WebCam webCam;
 
     public TeamPropDetector(RobotContext context, WebCam webCam) {
-        this(context, webCam, TargetColor.BLUE);
+        this(context, webCam, TargetColor.RED);
     }
 
     public TeamPropDetector(RobotContext context, WebCam webCam, TargetColor targetColor) {
@@ -87,12 +81,12 @@ public class TeamPropDetector extends BaseComponent {
         if (targetColor == TargetColor.RED) {
             // Special case - red needs to loop over the zero value for hue, so we need to detect it in two ranges
             ranges.add(new Pair<>(
-                    new Scalar(240, 100, 50),
-                    new Scalar(255, 255, 255)
+                    new Scalar(160, 150, 20),
+                    new Scalar(180, 255, 255)
             ));
             ranges.add(new Pair<>(
-                    new Scalar(0, 100, 50),
-                    new Scalar(10, 255, 255)
+                    new Scalar(0, 150, 20),
+                    new Scalar(20, 255, 255)
             ));
         } else if (targetColor == TargetColor.BLUE) {
             int hue = 0x6e;
@@ -104,25 +98,14 @@ public class TeamPropDetector extends BaseComponent {
         colorDetector.getParameters().ranges = ranges;
     }
 
-    public Mat drawDetectionRegions(Mat output) {
-        Point bottom_left = new Point(TeamPropPosition.LEFT.rectangle.getLeft(),TeamPropPosition.LEFT.rectangle.getBottom());
-        Point top_right = new Point(TeamPropPosition.LEFT.rectangle.getRight(),TeamPropPosition.LEFT.rectangle.getTop());
-        Imgproc.rectangle(output,bottom_left,top_right,new Scalar(255, 0, 255),5);
-        bottom_left = new Point(TeamPropPosition.MIDDLE.rectangle.getLeft(),TeamPropPosition.MIDDLE.rectangle.getBottom());
-        top_right = new Point(TeamPropPosition.MIDDLE.rectangle.getRight(),TeamPropPosition.MIDDLE.rectangle.getTop());
-        Imgproc.rectangle(output,bottom_left,top_right,new Scalar(255, 0, 255),5);
-        bottom_left = new Point(TeamPropPosition.RIGHT.rectangle.getLeft(),TeamPropPosition.RIGHT.rectangle.getBottom());
-        top_right = new Point(TeamPropPosition.RIGHT.rectangle.getRight(),TeamPropPosition.RIGHT.rectangle.getTop());
-        Imgproc.rectangle(output,bottom_left,top_right,new Scalar(255, 0, 255),5);
-        return output;
-    }
+
 
     TeamPropPosition isInRegion(ColorDetection detection) {
         double x = detection.centroid.getX();
         double y = detection.centroid.getY();
 
         if(x > TeamPropPosition.LEFT.rectangle.getLeft() && x < TeamPropPosition.LEFT.rectangle.getRight() &&
-            y > TeamPropPosition.LEFT.rectangle.getBottom() && y < TeamPropPosition.LEFT.rectangle.getTop()) {
+            y < TeamPropPosition.LEFT.rectangle.getBottom() && y > TeamPropPosition.LEFT.rectangle.getTop()) {
             return TeamPropPosition.LEFT;
         }
         if(x > TeamPropPosition.MIDDLE.rectangle.getLeft() && x < TeamPropPosition.MIDDLE.rectangle.getRight() &&
@@ -130,7 +113,7 @@ public class TeamPropDetector extends BaseComponent {
             return TeamPropPosition.MIDDLE;
         }
         if(x > TeamPropPosition.RIGHT.rectangle.getLeft() && x < TeamPropPosition.RIGHT.rectangle.getRight() &&
-                y > TeamPropPosition.RIGHT.rectangle.getBottom() && y < TeamPropPosition.RIGHT.rectangle.getTop()) {
+                y < TeamPropPosition.RIGHT.rectangle.getBottom() && y > TeamPropPosition.RIGHT.rectangle.getTop()) {
             return TeamPropPosition.RIGHT;
         }
 
@@ -140,7 +123,9 @@ public class TeamPropDetector extends BaseComponent {
     public void activate() {
         colorDetector.activate();
         WebCam.FrameProcessor colorDetectorFrameProcessor = webCam.getFrameProcessor();
-        webCam.setFrameProcessor(new WebCam.FrameProcessor() {
+        webCam.setFrameProcessor(colorDetectorFrameProcessor);
+
+    /*(new WebCam.FrameProcessor() {
             @Override
             @SuppressLint("DefaultLocale")
             public void processFrame(Mat input, Mat output, WebCam.FrameContext frameContext) {
@@ -150,15 +135,15 @@ public class TeamPropDetector extends BaseComponent {
                     // Print team prop data about each detection
                     output = drawDetectionRegions(output);
 
-                    List<ColorDetection> detections = colorDetector.getDetections();
+                    *//*List<ColorDetection> detections = colorDetector.getDetections();
                     telemetry.addLine("THIS DETECTOR TEST");
+                    telemetry.update();
                     for(ColorDetection detection : detections) {
 
                         if(detection.area > 10000) {
-                            telemetry.addData("test",detection.area);
-                            telemetry.addData("x1",TeamPropPosition.MIDDLE.rectangle.getLeft());
-                            telemetry.addData("x2",TeamPropPosition.MIDDLE.rectangle.getRight());
-                            sleep(1000);
+                            telemetry.addData("Area", detection.area);
+                            telemetry.addData("X", detection.centroid.getX());
+                            telemetry.addData("Y", detection.centroid.getY());
                             switch (isInRegion(detection)) {
                                 case LEFT:
                                     telemetry.addLine("Found LEFT");
@@ -176,14 +161,14 @@ public class TeamPropDetector extends BaseComponent {
                             }
                             telemetry.update();
                         }
-                    }
+                    }*//*
 
 
                     //telemetry.addLine("****HERE****");telemetry.update();
 
 
 
-                    /*for (ColorDetection detection : detections) {
+                    *//*for (ColorDetection detection : detections) {
                         if (detection.area < 100) continue;
 
                         double squareness = detection.area / detection.boundingRect.getArea();
@@ -191,10 +176,10 @@ public class TeamPropDetector extends BaseComponent {
                         DrawUtil.drawText(output, detection.centroid.toString(0), detection.centroid.add(new Vector2(-50, 0)), Color.GREEN, 0.5, 1);
                         DrawUtil.drawText(output, String.format("Area [%.0f])", detection.area), detection.centroid.add(new Vector2(-50, 30)), Color.GREEN, 0.5, 1);
                         Imgproc.boundingRect(detection.boundingRect);
-                    }*/
+                    }*//*
                 }
             }
-        });
+        });*/
     }
 
     public boolean isActive() {
@@ -252,28 +237,27 @@ public class TeamPropDetector extends BaseComponent {
         // 1. Approximately the expected size
         // 2. Mostly square (team prop is a cube)
         // 3. In the correct position
-        telemetry.addLine("results of detection");
+        telemetry.addData("results of detection",detections.size());
+
+        ColorDetection filtered = null;
+        TeamPropPosition position = TeamPropPosition.NOTFOUND;
+
         for (ColorDetection detection : detections) {
-            if(detection.area > 5000) {
-                telemetry.addData("area", detection.area);
+            if (detection.area > globalMinArea) {
+                if (isInRegion(detection) != TeamPropPosition.NOTFOUND){
+                    if(detection.area > filtered.area){
+                        filtered = detection;
+                        position = isInRegion(detection);
+                    }
+                }
             }
-            // Check if this detection is in the correct location on screen for this team prop position
-            Rectangle rectangleL = TeamPropPosition.LEFT.rectangle;
-            if (TeamPropPosition.LEFT.rectangle.contains(detection.centroid)) {
-                telemetry.addData("Left ",detection.area);
-            }
-            if (TeamPropPosition.MIDDLE.rectangle.contains(detection.centroid)) {
-                telemetry.addData("Middle ",detection.area);
-            }
-
-            if (TeamPropPosition.RIGHT.rectangle.contains(detection.centroid)) {
-                telemetry.addData("Right ",detection.area);
-            }
-
         }
-        telemetry.update();
+        return position;
 
-        for (TeamPropPosition position : TeamPropPosition.values()) {
+
+
+
+        /*for (TeamPropPosition position : TeamPropPosition.values()) {
 
             for (ColorDetection detection : detections) {
                 // Check if this detection is in the correct location on screen for this team prop position
@@ -296,14 +280,11 @@ public class TeamPropDetector extends BaseComponent {
                 }
 
                 // This detection fits all the criteria, so let's use it.
-                /*telemetry.addData("Position", position);
-                telemetry.update();*/
+                *//*telemetry.addData("Position", position);
+                telemetry.update();*//*
                 return position;
             }
+        }*/
         }
 
-        // We didn't detect any color objects with the right parameters, so return null
-        return null;
     }
-
-}

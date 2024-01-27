@@ -84,6 +84,19 @@ public class ColorDetector extends BaseComponent {
 
     }
 
+    public Mat drawDetectionRegions(Mat output) {
+        Point bottom_left = new Point(TeamPropDetector.TeamPropPosition.LEFT.rectangle.getLeft(), TeamPropDetector.TeamPropPosition.LEFT.rectangle.getBottom());
+        Point top_right = new Point(TeamPropDetector.TeamPropPosition.LEFT.rectangle.getRight(), TeamPropDetector.TeamPropPosition.LEFT.rectangle.getTop());
+        Imgproc.rectangle(output,bottom_left,top_right,new Scalar(255, 0, 255),5);
+        bottom_left = new Point(TeamPropDetector.TeamPropPosition.MIDDLE.rectangle.getLeft(), TeamPropDetector.TeamPropPosition.MIDDLE.rectangle.getBottom());
+        top_right = new Point(TeamPropDetector.TeamPropPosition.MIDDLE.rectangle.getRight(), TeamPropDetector.TeamPropPosition.MIDDLE.rectangle.getTop());
+        Imgproc.rectangle(output,bottom_left,top_right,new Scalar(255, 0, 255),5);
+        bottom_left = new Point(TeamPropDetector.TeamPropPosition.RIGHT.rectangle.getLeft(), TeamPropDetector.TeamPropPosition.RIGHT.rectangle.getBottom());
+        top_right = new Point(TeamPropDetector.TeamPropPosition.RIGHT.rectangle.getRight(), TeamPropDetector.TeamPropPosition.RIGHT.rectangle.getTop());
+        Imgproc.rectangle(output,bottom_left,top_right,new Scalar(255, 0, 255),5);
+        return output;
+    }
+
     public static class ColorDetection {
 
         /**
@@ -127,6 +140,7 @@ public class ColorDetector extends BaseComponent {
             if (parameters.ranges.isEmpty()){
                 return;
             }
+            output = drawDetectionRegions(output);
             // Attempt to locate objects of a given color.
             // https://techvidvan.com/tutorials/detect-objects-of-similar-color-using-opencv-in-python/
 
