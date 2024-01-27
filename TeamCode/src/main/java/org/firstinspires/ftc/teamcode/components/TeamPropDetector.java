@@ -245,7 +245,6 @@ public class TeamPropDetector extends BaseComponent {
         for (ColorDetection detection : detections) {
             if (detection.area > globalMinArea) {
                 if (isInRegion(detection) != TeamPropPosition.NOTFOUND){
-                    assert false;
                     if(filtered == null || detection.area > filtered.area){
                         filtered = detection;
                         position = isInRegion(detection);

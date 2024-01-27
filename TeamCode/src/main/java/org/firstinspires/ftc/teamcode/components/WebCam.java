@@ -183,32 +183,34 @@ public class WebCam extends BaseComponent {
 
         @Override
         public Mat processFrame(Mat input) {
+            try {
 
-            synchronized (WebCam.this) {
+                synchronized (WebCam.this) {
 
-                FrameContext context = new FrameContext(
-                        new ElapsedTime(),
-                        frameCount++
-                );
+                    FrameContext context = new FrameContext(
+                            new ElapsedTime(),
+                            frameCount++
+                    );
 
-                input.copyTo(output);
+                    input.copyTo(output);
 
-                // Make sure it is RGBA, and the size that we expect.
-                Size resolution = webCamDescriptor.resolution;
-                assert input.width() == (int) resolution.width && input.height() == (int) resolution.height;
-                assert input.channels() == 4 : "Expected RGBA image from webcam";
+                    // Make sure it is RGBA, and the size that we expect.
+                    Size resolution = webCamDescriptor.resolution;
+                    assert input.width() == (int) resolution.width && input.height() == (int) resolution.height;
+                    assert input.channels() == 4 : "Expected RGBA image from webcam";
 
-                // Allow any frame processors to analyze the image and annotate the output.
-                if (frameProcessor != null) {
-                    try {
+                    // Allow any frame processors to analyze the image and annotate the output.
+                    if (frameProcessor != null) {
                         frameProcessor.processFrame(input, output, context);
-                    } catch (Exception e) {
-                        telemetry.addData("Frame Error", ErrorUtil.convertToString(e));
-                    }
-                }
 
-                return output;
+                    }
+
+                    return output;
+                }
+            } catch (Exception e) {
+                telemetry.addData("Frame Error", ErrorUtil.convertToString(e));
             }
+            return input;
         }
 
     }
