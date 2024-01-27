@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.TeamPropDetector;
+import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
 import org.openftc.apriltag.AprilTagDetection;
 
 public abstract class  AutoMain extends LinearOpMode {
@@ -18,7 +19,6 @@ public abstract class  AutoMain extends LinearOpMode {
     protected Robot robot;
     protected RobotDescriptor robotDescriptor;
     protected AprilTagDetection aprilTagDetection;
-
 
     protected boolean usingHough = true;
     protected boolean samProposal = true;
@@ -36,16 +36,9 @@ public abstract class  AutoMain extends LinearOpMode {
 
             waitForStart();
 
-            //detect prop
-            //robot.getTeamPropDetector().getDetectedPosition();
-
-            /*while (1) {
-                robot.getTeamPropDetector().getDetectedPosition();
-            }*/
-
-            // Allow the child class to run its auto path.
-            runAuto();
-
+            if (!isStopRequested()){
+                runPath();
+            }
 
         } finally {
             // Save the position to disk, so it can be picked up by the TeleOp
@@ -57,41 +50,60 @@ public abstract class  AutoMain extends LinearOpMode {
 
     protected void initRobot() {
         robot = new Robot(this);
+        robot.init();
+
+        robot.getDriveTrain().roadrunner.setPoseEstimate(getStartPosition());
     }
 
-    protected abstract void runAuto();
-
-    protected abstract Pose2d getStartPosition();
+    public TrajectorySequenceBuilder spikeTrajectory(double spikeRotation){
+        return robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(getStartPosition())
+                .forward(24)
+                .turn(Math.toRadians(spikeRotation))
+                .forward(3)
+                .addDisplacementMarker(()->{
+                    robot.getIntake().rollOut(0.1);
+                });
+    }
 
     //This method finds how much the bot needs to turn based on the detection, no matter if it is on the red or blue side
     public double getPropRotation() {
         //detect prop position
         TeamPropDetector.TeamPropPosition pos = robot.getTeamPropDetector().waitForDetection(1);
 
-        double propDispenseRotation = 270;
-
         Enum<TeamPropDetector.TargetColor> color = robot.getTeamPropDetector().getColor();
 
         //coordinated move to dispense prop
         switch (pos) {
             case LEFT:
-                propDispenseRotation = -90;
-                break;
+                return  75;
             case MIDDLE:
-                propDispenseRotation = 0;
-                break;
+                return 0;
             case RIGHT:
-                propDispenseRotation = 90;
-                break;
+                return -75;
             case NOTFOUND:
-                propDispenseRotation = 0;
-                break;
+                return 0;
         }
 
-        if (color == TeamPropDetector.TargetColor.BLUE) {
-            propDispenseRotation += 180;
+        return 0;
+    }
+
+    protected abstract Pose2d getStartPosition();
+    protected abstract void runPath();
+    protected abstract Alliance getAlliance();
+
+    public enum Alliance{
+        BLUE(1),
+        RED(-1);
+
+        int value;
+
+        Alliance(int value) {
+            this.value = value;
         }
-        return propDispenseRotation;
+
+        public int getValue() {
+            return value;
+        }
     }
 
 

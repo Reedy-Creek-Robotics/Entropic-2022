@@ -11,7 +11,7 @@ public class DroneLauncher extends BaseComponent {
 
     public DroneLauncher(RobotContext context) {
         super(context);
-        servo = hardwareMap.get(Servo.class, "DroneLaunchServo");
+        servo = hardwareMap.get(Servo.class, "DroneLauncher");
 
     }
 

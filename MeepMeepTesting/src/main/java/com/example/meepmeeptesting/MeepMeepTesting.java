@@ -22,18 +22,15 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(12, 60, Math.toRadians(-90)))
-                                .lineTo(new Vector2d(12, 36))
-                                .addDisplacementMarker(()-> {
-                                    //score purple
+                                .forward(24)
+                                .turn(Math.toRadians(-75))
+                                .forward(3)
+                                .addDisplacementMarker(()->{
+
                                 })
-                                .lineToSplineHeading(new Pose2d(48, 36, Math.toRadians(180)))
-                                .addDisplacementMarker(()-> {
-                                    //score yellow
-                                })
-                                .lineTo(new Vector2d(48,56))
-                                //.splineToConstantHeading(new Vector2d(0, 60), Math.toRadians(180))
-                                //.lineTo(new Vector2d(-24, 60))
-                                //.lineToSplineHeading(new Pose2d(-52, 48, Math.toRadians(225)))
+                                .lineToLinearHeading(new Pose2d(24,48,Math.toRadians(0)))
+                                .splineToSplineHeading(new Pose2d(48,36,Math.toRadians(180)),Math.toRadians(0))
+                                .lineTo(new Vector2d(48,60))
                                 .build()
                 );
 
@@ -44,18 +41,15 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(-36, 60, Math.toRadians(270)))
-                                .lineToLinearHeading(new Pose2d(-36,36,Math.toRadians(270)))
-                                .addDisplacementMarker(()-> {
-                                    //score purple
-                                })
-                                .lineTo(new Vector2d(-54,36))
-                                .lineToLinearHeading(new Pose2d(-54,12,Math.toRadians(180)))
-                                .lineTo(new Vector2d(12,12))
-                                .splineTo(new Vector2d(48,36),Math.toRadians(0))
+                                .forward(24)
+                                .turn(Math.toRadians(75))
+                                .forward(3)
                                 .addDisplacementMarker(()->{
-                                    //score yellow
+
                                 })
-                                .lineTo(new Vector2d(48,12))
+                                .splineToLinearHeading(new Pose2d(-58,48,Math.toRadians(0)),Math.toRadians(180))
+                                .lineTo(new Vector2d(-58,12))
+                                .lineTo(new Vector2d(24,12))
                                 .build()
                 );
 
@@ -76,7 +70,7 @@ public class MeepMeepTesting {
                 .setColorScheme(new ColorSchemeRedDark())
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(12, -60, Math.toRadians(-90)))
+                        drive.trajectorySequenceBuilder(new Pose2d(12, -60, Math.toRadians(90)))
                                 .lineTo(new Vector2d(12, -36))
                                 .addDisplacementMarker(()-> {
                                     //score purple
@@ -98,18 +92,21 @@ public class MeepMeepTesting {
                 .setColorScheme(new ColorSchemeRedDark())
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-36, 60, Math.toRadians(270)))
-                                .splineTo(new Vector2d(-54,12),Math.toRadians(270))
-                                .splineToConstantHeading(new Vector2d(-36,60),Math.toRadians(90))
-                                //.splineToLinearHeading(new Pose2d(0,0),Math.toRadians(0))
+                        drive.trajectorySequenceBuilder(new Pose2d(12, -60, Math.toRadians(90)))
+                                .forward(24)
+                                .turn(Math.toRadians(-75))
+                                .forward(3)
+                                .addDisplacementMarker(()->{
+
+                                })
                                 .build()
                 );
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_CENTERSTAGE_JUICE_DARK)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
-                //.addEntity(blueStage)
-                //.addEntity(blueStack)
+                .addEntity(blueStage)
+                .addEntity(blueStack)
                 //.addEntity(redStack)
                 //.addEntity(redStage)
                 .addEntity(test)

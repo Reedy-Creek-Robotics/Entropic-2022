@@ -37,31 +37,6 @@ public class Intake extends BaseComponent {
         intakeMotor.setPower(-0.1);
     }
 
-    private class intakeTime implements Command {
-
-        private ElapsedTime timer = new ElapsedTime();
-
-        private double time;
-        public intakeTime(double time) {
-            this.time = time;
-        }
-
-        @Override
-        public void start() {
-            intakeManual();
-            timer.reset();
-        }
-
-        public void stop() {
-            stopIntake();
-        }
-
-        @Override
-        public boolean update() {
-            return timer.milliseconds() < time;
-        }
-    }
-
     /**
      * Stops the intake
      */
@@ -69,18 +44,36 @@ public class Intake extends BaseComponent {
         intakeMotor.setPower(0);
     }
 
-    private abstract class BaseCommand implements Command {
+    public void rollOut(double power){
+        executeCommand(new Roll(-power,1));
+    }
+
+    public void intake(double power){
+        executeCommand(new Roll(power,3));
+    }
+
+
+
+    private class Roll implements Command {
+        private ElapsedTime timer = new ElapsedTime();
+
         private double power;
         private double time;
 
-        public BaseCommand(double power, double time) {
+        public Roll(double power, double time) {
             this.power = power;
             this.time = time;
         }
 
         @Override
         public void start() {
+            timer.reset();
             intakeMotor.setPower(power);
+        }
+
+        @Override
+        public boolean update() {
+            return timer.milliseconds() > time;
         }
 
         @Override

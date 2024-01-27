@@ -8,7 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 public abstract class AutoMainStage extends AutoMain {
 
     @Override
-    protected void runAuto() {
+    protected void runPath() {
         /*TrajectorySequence trajectory1 = robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(getStartPosition())
                 .lineTo(new Vector2d(36,78))//deliver yellow
                 .addDisplacementMarker(()->{
