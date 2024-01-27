@@ -26,7 +26,7 @@ public class TeamPropDetector extends BaseComponent {
                 globalMinArea, 15000, 0.75
         ),
         MIDDLE(
-                new Rectangle(new Position(725, 75), 550, 425),
+                new Rectangle(new Position(625, 300), 550, 300),
                 globalMinArea, 15000, 0.9
         ),
         RIGHT(
@@ -245,6 +245,7 @@ public class TeamPropDetector extends BaseComponent {
         for (ColorDetection detection : detections) {
             if (detection.area > globalMinArea) {
                 if (isInRegion(detection) != TeamPropPosition.NOTFOUND){
+                    assert false;
                     if(detection.area > filtered.area){
                         filtered = detection;
                         position = isInRegion(detection);
