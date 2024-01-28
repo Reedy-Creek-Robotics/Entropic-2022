@@ -10,8 +10,8 @@ public class Outtake extends BaseComponent {
     boolean rightOpen = false;
 
     public enum OuttakePositions{
-        LEFT(0.5,0),
-        RIGHT(0.35,1);
+        LEFT(0.98,0),
+        RIGHT(0.35,0.9);
 
         double open;
         double close;

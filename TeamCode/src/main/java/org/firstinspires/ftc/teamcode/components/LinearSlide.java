@@ -20,6 +20,7 @@ public class LinearSlide extends BaseComponent {
         THIRD_LEVEL(2300),
         SECOND_LEVEL(2000),
         FIRST_LEVEL(1361),
+        STAGE(1000),
         TRANSFER(40);
 
         private final int ticks;
@@ -30,8 +31,8 @@ public class LinearSlide extends BaseComponent {
     }
 
     public enum RotationPoints{
-        OUTTAKE(0,0.3),
-        INTAKE(0, 0.6);
+        OUTTAKE(0,0.21),
+        INTAKE(0, 0.52);
 
         private final double right;
 

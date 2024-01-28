@@ -23,7 +23,7 @@ public abstract class  AutoMain extends LinearOpMode {
     protected boolean usingHough = true;
     protected boolean samProposal = true;
 
-    TeamPropDetector.TeamPropPosition propPosition = TeamPropDetector.TeamPropPosition.NOTFOUND;
+    TeamPropDetector.TeamPropPosition propPosition;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -36,9 +36,11 @@ public abstract class  AutoMain extends LinearOpMode {
 
             telemetry.log().add("Wait for start", "");
 
-            waitForStart();
+            propPosition =  TeamPropDetector.TeamPropPosition.LEFT; //robot.getTeamPropDetector().waitForDetection(2);
+            telemetry.addData("prop pos", propPosition);
+            telemetry.update();
 
-            propPosition = robot.getTeamPropDetector().waitForDetection(2);
+            waitForStart();
 
             if (!isStopRequested()){
                 runPath();
@@ -61,10 +63,10 @@ public abstract class  AutoMain extends LinearOpMode {
 
     protected abstract TrajectorySequence toTileCenter();
 
-    public TrajectorySequence toSpikeTrajectory(){
+    public TrajectorySequence toSpikeTrajectory(TeamPropDetector.TeamPropPosition detection){
         return robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(toTileCenter().end())
                 .forward(24)
-                .turn(Math.toRadians(0))
+                .turn(Math.toRadians(getPropRotation(detection)))
                 .forward(3)
                 .build();
     }
@@ -74,14 +76,10 @@ public abstract class  AutoMain extends LinearOpMode {
     public  abstract TrajectorySequence toParkTrajectory();
 
     //This method finds how much the bot needs to turn based on the detection, no matter if it is on the red or blue side
-    public double getPropRotation() {
-        //detect prop position
-        TeamPropDetector.TeamPropPosition pos = robot.getTeamPropDetector().waitForDetection(1);
-
-        Enum<TeamPropDetector.TargetColor> color = robot.getTeamPropDetector().getColor();
+    public double getPropRotation(TeamPropDetector.TeamPropPosition detection) {
 
         //coordinated move to dispense prop
-        switch (pos) {
+        switch (detection) {
             case LEFT:
                 return  75;
             case MIDDLE:

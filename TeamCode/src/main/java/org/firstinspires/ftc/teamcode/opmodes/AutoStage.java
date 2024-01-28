@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -21,10 +20,15 @@ public abstract class AutoStage extends AutoMain {
 
     @Override
     public TrajectorySequence toStageTrajectory() {
-        return robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(toSpikeTrajectory().end())
-                .lineTo(new Vector2d(24,54))
-                .lineToSplineHeading(new Pose2d(48,54,Math.toRadians(180)))
+        return robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(toSpikeTrajectory(propPosition).end())
+                .lineTo(new Vector2d(24, 58))
+                .turn(Math.toRadians(-95))
+                .lineTo(new Vector2d(60, 47))
                 .build();
+
+                //14 in to y
+                //12 in to x
+                //5-10 deg turn
     }
 
     @Override
@@ -37,7 +41,7 @@ public abstract class AutoStage extends AutoMain {
     @Override
     protected void runPath() {
         robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toTileCenter());
-        robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toSpikeTrajectory());
+        robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toSpikeTrajectory(propPosition));
 
         //push out to spike
         robot.getIntake().rollOut(0.3);
@@ -46,6 +50,9 @@ public abstract class AutoStage extends AutoMain {
         robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toStageTrajectory());
 
         robot.getSlide().moveToHeight(LinearSlide.SlideHeight.FIRST_LEVEL);
+        robot.waitForCommandsToFinish();
+
+        robot.getOuttake().outtakeRight();
         robot.waitForCommandsToFinish();
 
         robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRANSFER);
