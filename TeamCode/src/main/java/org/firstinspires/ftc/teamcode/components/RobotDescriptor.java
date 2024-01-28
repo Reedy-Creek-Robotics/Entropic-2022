@@ -33,7 +33,7 @@ public class RobotDescriptor {
      * The size of the robot in inches, with the x axis being left to right and the y axis being
      * back to front.
      */
-    public static Size ROBOT_DIMENSIONS_IN_INCHES = new Size(15.5, 15.5);
+    public static Size ROBOT_DIMENSIONS_IN_INCHES = new Size(18, 18);
 
     public static DriveTuner DRIVE_TUNER = new DriveTuner(
             537.7,
@@ -52,8 +52,8 @@ public class RobotDescriptor {
             180,
             RevHubOrientationOnRobot.LogoFacingDirection.UP,
             RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD,
-            new PIDCoefficients(10, 0, 0),
-            new PIDCoefficients(8, 0, 0),
+            new PIDCoefficients(5, 0, 0),
+            new PIDCoefficients(5, 0, 0),
             1.69,
             1,
             1,
@@ -184,8 +184,8 @@ public class RobotDescriptor {
             mm(24),
             1,
             1,
-            0.993,
-            5.702,
+            1,
+            5.71285,
             5
     );
 

@@ -108,7 +108,8 @@ public class Robot extends BaseComponent {
         // in the Robot's update method.
         LynxModuleUtil.ensureMinimumFirmwareVersion(hardwareMap);
         for (LynxModule module : lynxModules) {
-            module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+            //module.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+            module.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
         }
 
         telemetry.log().add("Robot is initialized");

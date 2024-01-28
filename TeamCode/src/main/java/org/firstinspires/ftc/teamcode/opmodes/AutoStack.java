@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 @Disabled
 @Autonomous
-public abstract class AutoMainStack extends AutoMain {
+public abstract class AutoStack extends AutoMain {
 
     @Override
     public void runPath() {

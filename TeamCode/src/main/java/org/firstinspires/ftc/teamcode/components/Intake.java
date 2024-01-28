@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -13,6 +14,7 @@ public class Intake extends BaseComponent {
     public Intake(RobotContext context) {
         super(context);
         intakeMotor = (DcMotorEx) hardwareMap.dcMotor.get("Intake");
+        intakeMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         //flicker = hardwareMap.servo.get("flicker"); //TODO: figure out what this is supposed to do and bring back
     }
 
@@ -45,11 +47,12 @@ public class Intake extends BaseComponent {
     }
 
     public void rollOut(double power){
-        executeCommand(new Roll(-power,1));
+        stopAllCommands();
+        executeCommand(new Roll(-power,1000));
     }
 
     public void intake(double power){
-        executeCommand(new Roll(power,3));
+        executeCommand(new Roll(power,3000));
     }
 
 
@@ -73,7 +76,7 @@ public class Intake extends BaseComponent {
 
         @Override
         public boolean update() {
-            return timer.milliseconds() > time;
+            return timer.milliseconds() >= time;
         }
 
         @Override

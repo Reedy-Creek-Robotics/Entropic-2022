@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.opmodes;
+package org.firstinspires.ftc.teamcode.calibration;
 
 import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_STICK_X;
 import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_STICK_Y;
@@ -29,6 +29,7 @@ public class IntakeTest extends OpMode {
         outtake = new Outtake(BaseComponent.createRobotContext(this));
         controller = new Controller(gamepad1);
         driveTrain = new DriveTrain(BaseComponent.createRobotContext(this));
+
     }
 
     @Override
@@ -46,8 +47,12 @@ public class IntakeTest extends OpMode {
             intake.intakeManual();
         } else if (controller.isPressed(RIGHT_TRIGGER)) {
             intake.outtakeManual();
+        } else if (controller.isPressed(Controller.Button.SQUARE)) {
+            intake.rollOut(1);
         } else {
             intake.stopIntake();
         }
+
+        telemetry.update();
     }
 }

@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.components.Robot;
 import org.firstinspires.ftc.teamcode.components.RobotDescriptor;
 import org.firstinspires.ftc.teamcode.components.TeamPropDetector;
-import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequenceBuilder;
+import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 import org.openftc.apriltag.AprilTagDetection;
 
 public abstract class  AutoMain extends LinearOpMode {
@@ -23,6 +23,8 @@ public abstract class  AutoMain extends LinearOpMode {
     protected boolean usingHough = true;
     protected boolean samProposal = true;
 
+    TeamPropDetector.TeamPropPosition propPosition = TeamPropDetector.TeamPropPosition.NOTFOUND;
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -35,6 +37,8 @@ public abstract class  AutoMain extends LinearOpMode {
             telemetry.log().add("Wait for start", "");
 
             waitForStart();
+
+            propPosition = robot.getTeamPropDetector().waitForDetection(2);
 
             if (!isStopRequested()){
                 runPath();
@@ -55,15 +59,19 @@ public abstract class  AutoMain extends LinearOpMode {
         robot.getDriveTrain().roadrunner.setPoseEstimate(getStartPosition());
     }
 
-    public TrajectorySequenceBuilder spikeTrajectory(double spikeRotation){
-        return robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(getStartPosition())
+    protected abstract TrajectorySequence toTileCenter();
+
+    public TrajectorySequence toSpikeTrajectory(){
+        return robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(toTileCenter().end())
                 .forward(24)
-                .turn(Math.toRadians(spikeRotation))
+                .turn(Math.toRadians(0))
                 .forward(3)
-                .addDisplacementMarker(()->{
-                    robot.getIntake().rollOut(0.1);
-                });
+                .build();
     }
+
+    public abstract TrajectorySequence toStageTrajectory();
+
+    public  abstract TrajectorySequence toParkTrajectory();
 
     //This method finds how much the bot needs to turn based on the detection, no matter if it is on the red or blue side
     public double getPropRotation() {

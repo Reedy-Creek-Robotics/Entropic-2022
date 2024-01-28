@@ -39,6 +39,10 @@ public class DriveTrain extends BaseComponent {
     public static DriveTuner driveTuner;
     public static OdometryTuner odometryTuner;
 
+    public ModifiedMecanumDrive getRoadrunner() {
+        return roadrunner;
+    }
+
     public DriveTrain(RobotContext context) {
         super(context);
 
