@@ -51,9 +51,9 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
         // Intake
         if (controller.isPressed(LEFT_TRIGGER)) {
-            robot.getIntake().intakeManual();
-        } else if (controller.isPressed(RIGHT_TRIGGER)) {
             robot.getIntake().outtakeManual();
+        } else if (controller.isPressed(RIGHT_TRIGGER)) {
+            robot.getIntake().intakeManual();
         } else {
             robot.getIntake().stopIntake();
         }

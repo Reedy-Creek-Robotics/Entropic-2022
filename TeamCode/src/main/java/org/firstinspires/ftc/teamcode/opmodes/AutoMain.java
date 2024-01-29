@@ -73,6 +73,18 @@ public abstract class  AutoMain extends LinearOpMode {
 
     public abstract TrajectorySequence toStageTrajectory();
 
+    public TrajectorySequence stageLineUp(){
+        return robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(toStageTrajectory().end())
+                .back(5)
+                .build();
+    };
+
+    public TrajectorySequence stageBack(){
+        return robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(stageLineUp().end())
+                .forward(5)
+                .build();
+    };
+
     public  abstract TrajectorySequence toParkTrajectory();
 
     //This method finds how much the bot needs to turn based on the detection, no matter if it is on the red or blue side

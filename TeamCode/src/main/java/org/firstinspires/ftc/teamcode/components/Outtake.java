@@ -10,8 +10,8 @@ public class Outtake extends BaseComponent {
     boolean rightOpen = false;
 
     public enum OuttakePositions{
-        LEFT(0.98,0),
-        RIGHT(0.35,0.9);
+        LEFT(0.0,0.7 ),
+        RIGHT(0.8,0);
 
         double open;
         double close;
@@ -67,7 +67,7 @@ public class Outtake extends BaseComponent {
         if(leftOpen){
             leftServo.setPosition(OuttakePositions.LEFT.close);
         }else{
-            leftServo.setPosition(OuttakePositions.RIGHT.open);
+            leftServo.setPosition(OuttakePositions.LEFT.open);
         }
 
         leftOpen = !leftOpen;
@@ -79,6 +79,35 @@ public class Outtake extends BaseComponent {
 
     public void outtakeRight(){
         executeCommand(new OuttakeRight(2500));
+    }
+
+    public void outtakeBoth(){ executeCommand(new OuttakeBoth(2500));}
+
+    public class OuttakeBoth implements Command{
+        private ElapsedTime timer = new ElapsedTime();
+
+        private int timeLimit;
+        public OuttakeBoth(int timeLimit) {
+            this.timeLimit = timeLimit;
+        }
+
+        @Override
+        public void start() {
+            rightServo.setPosition(OuttakePositions.RIGHT.open);
+            leftServo.setPosition(OuttakePositions.LEFT.open);
+            timer.reset();
+        }
+
+        @Override
+        public void stop() {
+            rightServo.setPosition(OuttakePositions.RIGHT.close);
+            leftServo.setPosition(OuttakePositions.LEFT.close);
+        }
+
+        @Override
+        public boolean update() {
+            return timer.milliseconds() >= timeLimit;
+        }
     }
 
     public class OuttakeRight implements Command {
