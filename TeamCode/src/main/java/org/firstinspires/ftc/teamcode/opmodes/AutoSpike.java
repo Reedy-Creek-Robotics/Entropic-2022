@@ -1,23 +1,35 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
-import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+
+import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.components.RobotContext;
+import org.firstinspires.ftc.teamcode.components.TeamPropDetector;
 
 @Autonomous
-public abstract class AutoSpike extends AutoMain{
-    @Override
-    protected Pose2d getStartPosition() {
-        return new Pose2d(12, -60, Math.toRadians(90));
-    }
+public class AutoSpike extends LinearOpMode {
+
+    Robot robot;
 
     @Override
-    protected void runPath() {
+    public void runOpMode() throws InterruptedException {
+        robot = new Robot(this);
+        robot.init();
+
+        while(opModeInInit()){
+            TeamPropDetector.TeamPropPosition detection = robot.getTeamPropDetector().getDetectedPosition();
+
+            robot.getTeamPropDetector().setTargetColor(RobotContext.Alliance.BLUE);
+
+            telemetry.addData("Prop Detection",detection);
+            telemetry.update();
+        }
+
+        waitForStart();
+
+
+
 
     }
-
-    @Override
-    protected Alliance getAlliance() {
-        return null;
-    }
-
 }

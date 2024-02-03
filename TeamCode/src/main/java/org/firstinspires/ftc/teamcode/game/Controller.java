@@ -38,7 +38,10 @@ public class Controller {
         START,
         BACK,
         LEFT_BUMPER,
-        RIGHT_BUMPER;
+        RIGHT_BUMPER,
+        PS,
+        SHARE,
+        TOUCH_PAD;
 
         private static final Map<Button, Button> ALIASES = new HashMap<>();
 
@@ -320,6 +323,12 @@ public class Controller {
                 return gamepad.left_bumper;
             case RIGHT_BUMPER:
                 return gamepad.right_bumper;
+            case PS:
+                return gamepad.ps;
+            case SHARE:
+                return gamepad.share;
+            case TOUCH_PAD:
+                return gamepad.touchpad;
             default:
                 throw new IllegalArgumentException("Unknown button: " + button);
         }

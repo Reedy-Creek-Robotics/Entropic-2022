@@ -3,40 +3,33 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_TRIGGER;
 import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.RIGHT_TRIGGER;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.components.LinearSlide;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
+
+/*
+* TODO:
+*  Check why bot running slow
+*  Increase slow mode power - bot won't strafe
+* */
+
 @TeleOp
 public class TeleOpMain extends BaseDrivingTeleOp {
-
-    private double slidePower = 0;
-
-    DcMotor leftMotor, rightMotor;
-    Servo leftRotator;
-
 
     @Override
     public void init() {
         super.init();
 
-        leftMotor = hardwareMap.dcMotor.get("LeftSlide");
-        rightMotor = hardwareMap.dcMotor.get("RightSlide");
-        leftRotator = hardwareMap.servo.get("LeftRotator");
-
         // Load the position from disk, so it can pick up the previous position from the auto path.
         robot.loadPositionFromDisk();
-
-        leftMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightMotor.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     @Override
     public void start() {
+        robot.loadPositionFromDisk();
         robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRANSFER);
         robot.waitForCommandsToFinish();
         robot.getSlide().rotate(LinearSlide.RotationPoints.INTAKE);
@@ -69,14 +62,21 @@ public class TeleOpMain extends BaseDrivingTeleOp {
             robot.getSlide().moveToHeight(LinearSlide.SlideHeight.FIRST_LEVEL);
         }
 
-        if (controller.isButtonDown(Controller.Button.DPAD_UP)) {
+        if (controller.isButtonDown(Controller.Button.DPAD_RIGHT)) {
             robot.getSlide().manualSlideMove(1);
-        } else if (controller.isButtonDown(Controller.Button.DPAD_DOWN)) {
+        } else if (controller.isButtonDown(Controller.Button.DPAD_LEFT)) {
             robot.getSlide().manualSlideMove(-1);
         } else if (!robot.getSlide().isBusy()){
             robot.getSlide().stopMotors();
         }
 
+        if (controller.isButtonDown(Controller.Button.DPAD_UP)){
+            robot.getRiggingLift().moveUp();
+        }else if (controller.isButtonDown(Controller.Button.DPAD_DOWN)){
+            robot.getRiggingLift().moveDown();
+        }else {
+            robot.getRiggingLift().stop();
+        }
 
         // Outtake
         if (controller.isPressed(Controller.Button.LEFT_BUMPER)) {
@@ -92,14 +92,20 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         }
 
         //Stack Knocker
-        if (controller.isPressed(Controller.Button.GUIDE)) {
-            robot.getStackKnocker().toggle();
+        if (controller.isPressed(Controller.Button.PS)) {
+            robot.getDriveTrain().getRoadrunner().setPoseEstimate(new Pose2d(0,0,Math.toRadians(robot.getRobotContext().getAlliance().getRotation())));
         }
+
+
 
         //TODO: Make trackpad disable Geofence!!!
 
         robot.update();
     }
 
-
+    @Override
+    public void stop() {
+        //robot.clearFileFromDisk();
+        super.stop();
+    }
 }

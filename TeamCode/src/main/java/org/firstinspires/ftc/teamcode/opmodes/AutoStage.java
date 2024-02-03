@@ -5,90 +5,40 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
-import org.firstinspires.ftc.teamcode.components.LinearSlide;
 import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
 @Disabled
 @Autonomous
 public abstract class AutoStage extends AutoMain {
 
-
-    @Override
-    protected Pose2d getStartPosition() {
-        return new Pose2d(24-(robot.getRobotContext().descriptor.ROBOT_DIMENSIONS_IN_INCHES.width/2), (54 + (robot.getRobotContext().descriptor.ROBOT_DIMENSIONS_IN_INCHES.height/2))* getAlliance().value, Math.toRadians(180));
-    }
-
     @Override
     protected TrajectorySequence toTileCenter() {
-        return robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(getStartPosition())
-                .lineTo(new Vector2d(12, 60 * getAlliance().value))
+        TrajectorySequence trajectorySequence =  robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(getStartPosition())
+                .lineTo(new Vector2d(12, 60 * robot.getRobotContext().getAlliance().getValue()))
                 .build();
+
+        return trajectorySequence;
     }
 
     @Override
     public TrajectorySequence toStageTrajectory() {
-        return robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(toTileCenter().end())
-                .lineTo(new Vector2d(50,48* getAlliance().value))
-                .lineTo(new Vector2d(50,36* getAlliance().value))
+        TrajectorySequence trajectorySequence =  robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(toSpikeTrajectory().end())
+                .back(5)
+                //.lineToLinearHeading(new Pose2d(24,54,Math.toRadians(180)))
+                .lineToLinearHeading(new Pose2d(24,54 * robot.getRobotContext().getAlliance().getValue(),Math.toRadians(getAutoAlliance().getRotation())))
+                //.turn(Math.toRadians(90))
+                .lineToLinearHeading(new Pose2d(48,36 * robot.getRobotContext().getAlliance().getValue(), Math.toRadians(180)))
                 .build();
 
-                //14 in to y
-                //12 in to x
-                //5-10 deg turn
+        return trajectorySequence;
     }
 
     @Override
     public TrajectorySequence toParkTrajectory() {
-        return robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(stageBack().end())
-                .lineTo(new Vector2d(48,64* getAlliance().value))
+        TrajectorySequence trajectorySequence = robot.getDriveTrain().getRoadrunner().trajectorySequenceBuilder(stageBack().end())
+                .lineTo(new Vector2d(48,64 * robot.getRobotContext().getAlliance().getValue()))
                 .build();
+
+        return trajectorySequence;
     }
-
-    @Override
-    protected void runPath() {
-        robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRANSFER);
-        robot.waitForCommandsToFinish();
-        robot.getSlide().rotate(LinearSlide.RotationPoints.INTAKE);
-
-        robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toTileCenter());
-        robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toStageTrajectory());
-
-        robot.getSlide().moveToHeight(LinearSlide.SlideHeight.FIRST_LEVEL);
-        robot.waitForCommandsToFinish();
-
-        robot.getDriveTrain().getRoadrunner().followTrajectorySequence(stageLineUp());
-
-        robot.getOuttake().outtakeBoth();
-        robot.waitForCommandsToFinish();
-
-        robot.getDriveTrain().getRoadrunner().followTrajectorySequence(stageBack());
-
-        robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRANSFER);
-        robot.waitForCommandsToFinish();
-
-        robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toParkTrajectory());
-
-        /*robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toSpikeTrajectory(propPosition));
-
-        //push out to spike
-        robot.getIntake().rollOut(0.3);
-        robot.waitForCommandsToFinish();
-
-        robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toStageTrajectory());
-
-        robot.getSlide().moveToHeight(LinearSlide.SlideHeight.FIRST_LEVEL);
-        robot.waitForCommandsToFinish();
-
-        robot.getOuttake().outtakeRight();
-        robot.waitForCommandsToFinish();
-
-        robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRANSFER);
-        robot.waitForCommandsToFinish();
-        //outtake
-
-        robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toParkTrajectory());*/
-
-
-    }
-
 }

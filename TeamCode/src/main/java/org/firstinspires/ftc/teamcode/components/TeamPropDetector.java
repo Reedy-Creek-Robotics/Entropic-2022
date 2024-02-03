@@ -12,30 +12,26 @@ import java.util.List;
 
 public class TeamPropDetector extends BaseComponent {
 
-    public enum TargetColor {
-        RED,
-        BLUE
-    }
 
-    private TargetColor targetColor;
+    private RobotContext.Alliance targetColor;
     private static final int globalMinArea = 5000;
 
     public enum TeamPropPosition {
         LEFT(
-                new Rectangle(new Position(50, 350), 400, 500),
-                globalMinArea, 15000, 0.75
+                new Rectangle(new Position(100, 350), 500, 500),
+                globalMinArea, 15000, 0.75,60,8
         ),
         MIDDLE(
                 new Rectangle(new Position(625, 300), 550, 300),
-                globalMinArea, 15000, 0.9
+                globalMinArea, 15000, 0.9,0,0
         ),
         RIGHT(
-                new Rectangle(new Position(1400, 350), 400, 500),
-                globalMinArea, 15000, 0.75
+                new Rectangle(new Position(1225, 350), 500, 500),
+                globalMinArea, 15000, 0.75,-60,-8
         ),
         NOTFOUND(
                 new Rectangle(new Position(0, 0), 0, 0),
-                0, 0, 0
+                0, 0, 0,0, 0
         );
 
         public Rectangle rectangle;
@@ -45,12 +41,26 @@ public class TeamPropDetector extends BaseComponent {
         // For each position, how square does the team prop look in that position? This is contour area / bounding rect
         public double minSquarenessRatio;
 
+        public int rotation;
 
-        TeamPropPosition(Rectangle rectangle, int minArea, int maxArea, double minSquarenessRatio) {
+        public double strafedistance;
+
+
+        TeamPropPosition(Rectangle rectangle, int minArea, int maxArea, double minSquarenessRatio, int rotation, double strafedistance) {
             this.rectangle = rectangle;
             this.minArea = minArea;
             this.maxArea = maxArea;
             this.minSquarenessRatio = minSquarenessRatio;
+            this.rotation = rotation;
+            this.strafedistance = strafedistance;
+        }
+
+        public int getRotation() {
+            return rotation;
+        }
+
+        public double getStrafeDistance() {
+            return strafedistance;
         }
     }
 
@@ -62,10 +72,10 @@ public class TeamPropDetector extends BaseComponent {
     private WebCam webCam;
 
     public TeamPropDetector(RobotContext context, WebCam webCam) {
-        this(context, webCam, TargetColor.RED);
+        this(context, webCam, RobotContext.Alliance.RED);
     }
 
-    public TeamPropDetector(RobotContext context, WebCam webCam, TargetColor targetColor) {
+    public TeamPropDetector(RobotContext context, WebCam webCam, RobotContext.Alliance targetColor) {
         super(context);
 
         this.colorDetector = new ColorDetector(context, webCam);
@@ -75,10 +85,10 @@ public class TeamPropDetector extends BaseComponent {
         this.webCam = webCam;
     }
 
-    public void setTargetColor(TargetColor targetColor) {
+    public void  setTargetColor(RobotContext.Alliance targetColor) {
         this.targetColor = targetColor;
         List<Pair<Scalar, Scalar>> ranges = new ArrayList<>();
-        if (targetColor == TargetColor.RED) {
+        if (targetColor == RobotContext.Alliance.RED) {
             // Special case - red needs to loop over the zero value for hue, so we need to detect it in two ranges
             ranges.add(new Pair<>(
                     new Scalar(160, 150, 20),
@@ -88,7 +98,7 @@ public class TeamPropDetector extends BaseComponent {
                     new Scalar(0, 150, 20),
                     new Scalar(20, 255, 255)
             ));
-        } else if (targetColor == TargetColor.BLUE) {
+        } else if (targetColor == RobotContext.Alliance.BLUE) {
             int hue = 0x6e;
             ranges.add(new Pair<>(
                     new Scalar(hue - 15, 100, 50),
@@ -193,7 +203,13 @@ public class TeamPropDetector extends BaseComponent {
     public void init() {
         setTargetColor(targetColor);
     }
-    public Enum<TargetColor> getColor() {
+
+    @Override
+    public void update() {
+        super.update();
+    }
+
+    public Enum<RobotContext.Alliance> getColor() {
         return(targetColor);
 
     }
@@ -212,7 +228,7 @@ public class TeamPropDetector extends BaseComponent {
         long start = System.nanoTime();
         while ((System.nanoTime() - start) / 1e9 < timeOutInSeconds) {
             TeamPropPosition detectedPosition = getDetectedPosition();
-            if (detectedPosition != null) {
+            if (detectedPosition != null && detectedPosition != TeamPropPosition.NOTFOUND) {
                 // The team prop was detected, so return its position.
                 return detectedPosition;
             }

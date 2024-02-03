@@ -19,19 +19,28 @@ public class MeepMeepTesting {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setDimensions(18,18)
                 .setColorScheme(new ColorSchemeBlueDark())
-                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(30, 30, Math.toRadians(180), Math.toRadians(180), 15)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(12, 60, Math.toRadians(180)))
-                                /*.forward(24)
-                                .turn(Math.toRadians(0))
-                                .forward(3)
+                        drive.trajectorySequenceBuilder(new Pose2d(12, 60, Math.toRadians(-90)))
+                                //to tile center
+                                //to spike
+                                .forward(24)
+                                .turn(Math.toRadians(60))
+                                .forward(5)
                                 .addDisplacementMarker(()->{
 
                                 })
-                                .lineTo(new Vector2d(24,57))
-                                .lineToSplineHeading(new Pose2d(48,54,Math.toRadians(180)))*/
-                                .lineTo(new Vector2d(48,48))
+                                //to stage
+                                .back(5)
+                                .lineToLinearHeading(new Pose2d(24,54,Math.toRadians(180)))
+
                                 .lineTo(new Vector2d(48,36))
+                                //line up to deliver
+                                //come back
+                                //park
+                                .addDisplacementMarker(()->{
+
+                                })
                                 .lineTo(new Vector2d(48,60))
                                 .build()
                 );
@@ -40,22 +49,22 @@ public class MeepMeepTesting {
                 // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
                 .setDimensions(18,18)
                 .setColorScheme(new ColorSchemeBlueDark())
-                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .setConstraints(40, 40, Math.toRadians(180), Math.toRadians(180), 15)
                 .followTrajectorySequence(drive ->
-                        drive.trajectorySequenceBuilder(new Pose2d(-36, 60, Math.toRadians(180)))
-                                .lineTo(new Vector2d(-36,12))
-                                .lineTo(new Vector2d(48,12))
-                                .lineTo(new Vector2d(48,36))
-                                .lineTo(new Vector2d(48,12))
-                                /*.forward(24)
-                                .turn(Math.toRadians(75))
+                        drive.trajectorySequenceBuilder(new Pose2d(-36, 60, Math.toRadians(-90)))
+                                .forward(24)
+                                .turn(Math.toRadians(-60))
                                 .forward(3)
                                 .addDisplacementMarker(()->{
 
                                 })
-                                .splineToLinearHeading(new Pose2d(-58,48,Math.toRadians(0)),Math.toRadians(180))
-                                .lineTo(new Vector2d(-58,12))
-                                .lineTo(new Vector2d(24,12))*/
+                                .back(3)
+                                .lineToLinearHeading(new Pose2d(-36,42,Math.toRadians(-90)))
+//                                .lineToLinearHeading(new Pose2d(-56,48,Math.toRadians(180)))
+                                .lineTo(new Vector2d(-36,12))
+                                .lineTo(new Vector2d(24,12))
+                                .lineToLinearHeading(new Pose2d(48,36,Math.toRadians(180)))
+                                //.lineTo(new Vector2d(48,12))
                                 .build()
                 );
 
@@ -78,17 +87,6 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(12, -60, Math.toRadians(90)))
                                 .lineTo(new Vector2d(12, -36))
-                                .addDisplacementMarker(()-> {
-                                    //score purple
-                                })
-                                .lineToSplineHeading(new Pose2d(48, -36, Math.toRadians(180)))
-                                .addDisplacementMarker(()-> {
-                                    //score yellow
-                                })
-                                .lineTo(new Vector2d(48,-56))
-                                //.splineToConstantHeading(new Vector2d(0, -60), Math.toRadians(180))
-                                //.lineTo(new Vector2d(-24, -60))
-                                //.lineToSplineHeading(new Pose2d(-52, -48, Math.toRadians(225)))
                                 .build()
                 );
 
@@ -100,11 +98,6 @@ public class MeepMeepTesting {
                 .followTrajectorySequence(drive ->
                         drive.trajectorySequenceBuilder(new Pose2d(12, -60, Math.toRadians(90)))
                                 .forward(24)
-                                .turn(Math.toRadians(-75))
-                                .forward(3)
-                                .addDisplacementMarker(()->{
-
-                                })
                                 .build()
                 );
 
@@ -115,7 +108,7 @@ public class MeepMeepTesting {
                 .addEntity(blueStack)
                 //.addEntity(redStack)
                 //.addEntity(redStage)
-                .addEntity(test)
+                //.addEntity(test)
                 .start();
     }
 }

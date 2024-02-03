@@ -3,12 +3,13 @@ package org.firstinspires.ftc.teamcode.bareBones;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
-import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.components.Robot;
+import org.firstinspires.ftc.teamcode.roadrunner.trajectorysequence.TrajectorySequence;
 
 @Autonomous
 public class BareAuto extends LinearOpMode {
@@ -23,17 +24,17 @@ public class BareAuto extends LinearOpMode {
         robot.init();
 
 //        Pose2d startPose = new Pose2d(12, -60, Math.toRadians(90));
-        //Pose2d startPose = new Pose2d(12, -60, Math.toRadians(90));
+        Pose2d startPose = new Pose2d(12, 60, Math.toRadians(-90));
+        robot.getDriveTrain().roadrunner.setPoseEstimate(startPose);
 
-        //robot.getDriveTrain().roadrunner.setPoseEstimate(startPose);
-
-        Trajectory trajectory = robot.getDriveTrain().roadrunner.trajectoryBuilder(new Pose2d())
+        TrajectorySequence trajectory = robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(startPose)
                 .forward(24)
-                /*.turn(Math.toRadians(75))
-                .forward(3)
-                .addDisplacementMarker(()->{
-                    //robot.getIntake().rollOut(0.1);
-                })*/
+                .turn(Math.toRadians(60))
+                .forward(5)
+                .back(5)
+                .splineToLinearHeading(new Pose2d(24,54,Math.toRadians(180)),Math.toRadians(180))
+                .lineTo(new Vector2d(48,36))
+                .lineTo(new Vector2d(48,60))
                 .build();
 
         waitForStart();
@@ -42,7 +43,7 @@ public class BareAuto extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        robot.getDriveTrain().roadrunner.followTrajectory(trajectory);
+        robot.getDriveTrain().roadrunner.followTrajectorySequence(trajectory);
         telemetry.addLine("here");
 
         Pose2d poseEstimate = robot.getDriveTrain().roadrunner.getPoseEstimate();

@@ -205,12 +205,12 @@ public class ModifiedMecanumDrive extends MecanumDrive {
 
     @Override
     public double getRawExternalHeading() {
-        return 0;//imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        return localizer.getPoseEstimate().getHeading();
     }
 
     @Override
     public Double getExternalHeadingVelocity() {
-        return 0.0; //(double) imu.getRobotAngularVelocity(AngleUnit.RADIANS).zRotationRate;
+        return (double) localizer.getPoseVelocity().getHeading();
     }
 
     public static TrajectoryVelocityConstraint getVelocityConstraint(double maxVel, double maxAngularVel, double trackWidth) {

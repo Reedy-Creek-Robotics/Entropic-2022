@@ -2,10 +2,14 @@ package org.firstinspires.ftc.teamcode.components;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class RiggingLift extends BaseComponent {
 
     private static final double RIGGING_LIFT_POWER = 1.0;
+
+    public static final int MAX_HEIGHT = 10000;
+    public static final int MIN_HEIGHT = 0;
 
     private DcMotorEx motor;
 
@@ -14,7 +18,8 @@ public class RiggingLift extends BaseComponent {
 
         motor = hardwareMap.get(DcMotorEx.class, "RiggingLift");
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void moveUp() {
@@ -25,8 +30,13 @@ public class RiggingLift extends BaseComponent {
         setMotorPower(-RIGGING_LIFT_POWER);
     }
 
+    private int getMotorPosition(){
+        return motor.getCurrentPosition();
+    }
     private void setMotorPower(double power) {
-        motor.setPower(power);
+        if(getMotorPosition() > MIN_HEIGHT && getMotorPosition() < MAX_HEIGHT){
+            motor.setPower(power);
+        }
     }
 
     public void stop() {

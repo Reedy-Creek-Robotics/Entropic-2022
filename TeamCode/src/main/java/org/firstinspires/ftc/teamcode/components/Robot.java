@@ -9,8 +9,6 @@ import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.bareBones.StackKnocker;
-import org.firstinspires.ftc.teamcode.geometry.Heading;
-import org.firstinspires.ftc.teamcode.geometry.Position;
 import org.firstinspires.ftc.teamcode.roadrunner.util.LynxModuleUtil;
 import org.firstinspires.ftc.teamcode.util.ErrorUtil;
 import org.firstinspires.ftc.teamcode.util.FileUtil;
@@ -18,6 +16,7 @@ import org.firstinspires.ftc.teamcode.util.TelemetryHolder;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Robot extends BaseComponent {
 
@@ -63,7 +62,7 @@ public class Robot extends BaseComponent {
 
         this.outtake = new Outtake(context);
 
-        //this.riggingLift = new RiggingLift(context);
+        this.riggingLift = new RiggingLift(context);
 
         this.stackKnocker = new StackKnocker(context);
 
@@ -71,7 +70,7 @@ public class Robot extends BaseComponent {
 
         this.teamPropDetector = new TeamPropDetector(context, webCamFront);
 
-        addSubComponents(driveTrain, intake, outtake, stackKnocker, droneLauncher, teamPropDetector, slide);
+        addSubComponents(driveTrain, intake, outtake, stackKnocker, droneLauncher, teamPropDetector, slide, riggingLift);
 
         for (Camera camera : enabledCameras) {
             addSubComponents(getWebCam(camera));
@@ -257,7 +256,8 @@ public class Robot extends BaseComponent {
                 filename,
                 driveTrain.roadrunner.getLocalizer().getPoseEstimate().getX(),
                 driveTrain.roadrunner.getLocalizer().getPoseEstimate().getY(),
-                driveTrain.roadrunner.getLocalizer().getPoseEstimate().getHeading()
+                driveTrain.roadrunner.getLocalizer().getPoseEstimate().getHeading(),
+                this.context.getAlliance().toString()
         );
     }
 
@@ -269,17 +269,25 @@ public class Robot extends BaseComponent {
         List<String> lines = FileUtil.readLines(filename);
         if (!lines.isEmpty()) {
             try {
-                if (lines.size() != 3) {
-                    throw new IllegalArgumentException("Expected 3 lines but found [" + lines.size() + "]");
+                if (lines.size() != 4) {
+                    throw new IllegalArgumentException("Expected 4 lines but found [" + lines.size() + "]");
                 }
 
-                Position position = new Position(
+                /*Position position = new Position(
                         Double.parseDouble(lines.get(0)),
                         Double.parseDouble(lines.get(1))
                 );
-                Heading heading = new Heading(Double.parseDouble(lines.get(2)));
+                Heading heading = new Heading(Double.parseDouble(lines.get(2)));*/
 
-                driveTrain.roadrunner.getLocalizer().setPoseEstimate(new Pose2d(position.getX(),position.getY(),heading.getValue()));
+                Pose2d pose2d = new Pose2d(
+                        Double.parseDouble(lines.get(0)),
+                        Double.parseDouble(lines.get(1)),
+                        Double.parseDouble(lines.get(2))
+                );
+
+                driveTrain.roadrunner.getLocalizer().setPoseEstimate(pose2d);
+
+                this.setAlliance(Objects.equals(lines.get(4), "BLUE") ? RobotContext.Alliance.BLUE : RobotContext.Alliance.RED);
 
             } catch (Exception e) {
                 telemetry.log().add("Error loading position: " + ErrorUtil.convertToString(e));
@@ -290,6 +298,13 @@ public class Robot extends BaseComponent {
         }
     }
 
+    public void clearFileFromDisk(){
+        clearFileFromDisk("robot-position");
+    }
+    public void clearFileFromDisk(String filename){
+        FileUtil.removeFile(filename);
+
+    }
     private double computeBatteryVoltage() {
         double result = Double.POSITIVE_INFINITY;
         for (VoltageSensor sensor : hardwareMap.voltageSensor) {
@@ -300,5 +315,11 @@ public class Robot extends BaseComponent {
         }
         return result;
     }
+
+    public void setAlliance(RobotContext.Alliance alliance) {
+        this.context.alliance = alliance;
+        teamPropDetector.setTargetColor(alliance);
+    }
+
 
 }

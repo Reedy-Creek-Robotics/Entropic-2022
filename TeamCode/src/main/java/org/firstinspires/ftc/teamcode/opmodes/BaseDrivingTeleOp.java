@@ -4,8 +4,10 @@ import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_
 import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.LEFT_STICK_Y;
 import static org.firstinspires.ftc.teamcode.game.Controller.AnalogControl.RIGHT_STICK_X;
 import static org.firstinspires.ftc.teamcode.game.Controller.Button.LEFT_STICK_BUTTON;
+import static org.firstinspires.ftc.teamcode.game.Controller.Button.RIGHT_STICK_BUTTON;
 
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
+import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.game.Controller;
 
 public abstract class BaseDrivingTeleOp extends BaseTeleOp {
@@ -47,7 +49,7 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             double strafe = driver.leftStickX();
             double turn = driver.rightStickX();
 
-            driveTrain.drive(drive, strafe, -turn, -limiter);
+            driveTrain.driverRelative(drive, strafe, turn, limiter);
         }
         //TODO: Add a way for the drive train to reset its orientation
         /*if (driver.isPressed(START)) {
@@ -60,6 +62,11 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
         // Slow mode
         if (driver.isPressed(LEFT_STICK_BUTTON)) {
             toggleDriveMode();
+        }
+
+        if( driver.isPressed(RIGHT_STICK_BUTTON)){
+            robot.setAlliance(robot.getRobotContext().getAlliance() == RobotContext.Alliance.BLUE? RobotContext.Alliance.RED : RobotContext.Alliance.BLUE);
+
         }
     }
 

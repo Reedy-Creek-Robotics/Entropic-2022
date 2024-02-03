@@ -12,7 +12,7 @@ public class LinearSlide extends BaseComponent {
     public static final int MAX_HEIGHT = SlideHeight.THIRD_LEVEL.ticks;
     public static final int MIN_HEIGHT = SlideHeight.TRANSFER.ticks;
 
-    public static final int ROTATION_POINT = 1000;
+    public static final int ROTATION_POINT = SlideHeight.AUTO.ticks - 50;
 
     public static final double MIN_POWER = 0.01;
 
@@ -20,7 +20,7 @@ public class LinearSlide extends BaseComponent {
         THIRD_LEVEL(2300),
         SECOND_LEVEL(2000),
         FIRST_LEVEL(1361),
-        STAGE(1000),
+        AUTO(900),
         TRANSFER(40);
 
         private final int ticks;

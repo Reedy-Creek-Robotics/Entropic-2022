@@ -49,8 +49,6 @@ public class DriveTrain extends BaseComponent {
         driveTuner = descriptor.DRIVE_TUNER;
         odometryTuner = descriptor.ODOMETRY_TUNER;
 
-
-
         //this.context.localizer = new StandardTrackingWheelLocalizer(hardwareMap, lastTrackingEncPositions, lastTrackingEncVels, odometryTuner);
 
         batteryVoltageSensor = hardwareMap.voltageSensor.iterator().next();

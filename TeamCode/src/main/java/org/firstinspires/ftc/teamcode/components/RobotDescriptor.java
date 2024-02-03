@@ -42,19 +42,19 @@ public class RobotDescriptor {
             0, 0, 0,
             48 / 25.4,
             1,
-            15.9,
+            16.5,
             0.014,
             0.0039,
             0.0001,
-            30,
-            30,
-            Math.toDegrees(4.364927661988055),
+            40,
+            40,
+            180,//138.74,
             180,
             RevHubOrientationOnRobot.LogoFacingDirection.UP,
             RevHubOrientationOnRobot.UsbFacingDirection.BACKWARD,
-            new PIDCoefficients(5, 0, 0),
-            new PIDCoefficients(5, 0, 0),
-            1.69,
+            new PIDCoefficients(8, 0, 0),
+            new PIDCoefficients(6, 0, 0),
+            1.73,
             1,
             1,
             1
@@ -186,10 +186,15 @@ public class RobotDescriptor {
             1,
             1,
             5.71285,
-            5
+            5,
+            mm(-119.147),
+            mm(80.314),
+            mm(-127.5),
+            mm(-22.538)
     );
 
     public static class OdometryTuner {
+
         public double odometryTicksPerRev;
         public double odometryWheelRadius; // in
         public double odometryGearRatio; // output (wheel) speed / input (encoder) speed
@@ -200,7 +205,13 @@ public class RobotDescriptor {
         public double odometryLateralDistance; // in; distance between the left and right wheels
         public double odometryForwardOffset; // in; offset of the lateral wheel
 
-        public OdometryTuner(double odometryTicksPerRev, double odometryWheelRadius, double odometryGearRatio, double xMultiplier, double yMultiplier, double odometryLateralDistance, double odometryForwardOffset) {
+        public double parrallel_x;
+        public double parrallel_y;
+
+        public double perpendicular_x;
+        public double perpendicular_y;
+
+        public OdometryTuner(double odometryTicksPerRev, double odometryWheelRadius, double odometryGearRatio, double xMultiplier, double yMultiplier, double odometryLateralDistance, double odometryForwardOffset, double parrallel_x, double parrallel_y, double perpendicular_x, double perpendicular_y) {
             this.odometryTicksPerRev = odometryTicksPerRev;
             this.odometryWheelRadius = odometryWheelRadius;
             this.odometryGearRatio = odometryGearRatio;
@@ -208,7 +219,12 @@ public class RobotDescriptor {
             this.yMultiplier = yMultiplier;
             this.odometryLateralDistance = odometryLateralDistance;
             this.odometryForwardOffset = odometryForwardOffset;
+            this.parrallel_x = parrallel_x;
+            this.parrallel_y = parrallel_y;
+            this.perpendicular_x = perpendicular_x;
+            this.perpendicular_y = perpendicular_y;
         }
+
     }
 
     /**

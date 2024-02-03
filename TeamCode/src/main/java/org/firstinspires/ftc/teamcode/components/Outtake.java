@@ -74,14 +74,14 @@ public class Outtake extends BaseComponent {
     }
 
     public void outtakeLeft(){
-        executeCommand(new OuttakeLeft(2500));
+        executeCommand(new OuttakeLeft(1000));
     }
 
     public void outtakeRight(){
-        executeCommand(new OuttakeRight(2500));
+        executeCommand(new OuttakeRight(1000));
     }
 
-    public void outtakeBoth(){ executeCommand(new OuttakeBoth(2500));}
+    public void outtakeBoth(){ executeCommand(new OuttakeBoth(1000));}
 
     public class OuttakeBoth implements Command{
         private ElapsedTime timer = new ElapsedTime();

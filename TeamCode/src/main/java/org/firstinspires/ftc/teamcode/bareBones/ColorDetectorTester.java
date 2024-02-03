@@ -6,7 +6,7 @@ import android.util.Pair;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.components.ColorDetector;
-import org.firstinspires.ftc.teamcode.components.TeamPropDetector;
+import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.game.Controller;
 import org.firstinspires.ftc.teamcode.opmodes.BaseTeleOp;
 import org.opencv.core.Scalar;
@@ -30,8 +30,8 @@ public class ColorDetectorTester extends BaseTeleOp {
     @Override
     public void init() {
         super.init();
+        robot.getTeamPropDetector().setTargetColor(RobotContext.Alliance.BLUE);
         robot.getTeamPropDetector().activate();
-        robot.getTeamPropDetector().setTargetColor(TeamPropDetector.TargetColor.BLUE);
         colorDetector = robot.getTeamPropDetector().getColorDetector();
         lowerBound = getLowerBound();
         upperBound = getUpperBound();
