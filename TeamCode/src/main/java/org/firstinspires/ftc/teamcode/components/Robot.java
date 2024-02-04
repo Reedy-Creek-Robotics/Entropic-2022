@@ -139,7 +139,7 @@ public class Robot extends BaseComponent {
         // Update telemetry once per iteration after all components have been called.
         telemetry.update();
 
-        if (slide.getPosition() <= slide.ROTATION_POINT){
+        if (slide.getPosition() <= LinearSlide.ROTATION_POINT) {
             outtake.closeAll();
         }
     }
@@ -224,9 +224,13 @@ public class Robot extends BaseComponent {
         return riggingLift;
     }
 
-    public StackKnocker getStackKnocker() { return stackKnocker; }
+    public StackKnocker getStackKnocker() {
+        return stackKnocker;
+    }
 
-    public DroneLauncher getDroneLauncher() { return droneLauncher; }
+    public DroneLauncher getDroneLauncher() {
+        return droneLauncher;
+    }
 
     public WebCam getWebCam(Camera camera) {
         switch (camera) {
@@ -257,7 +261,8 @@ public class Robot extends BaseComponent {
                 driveTrain.roadrunner.getLocalizer().getPoseEstimate().getX(),
                 driveTrain.roadrunner.getLocalizer().getPoseEstimate().getY(),
                 driveTrain.roadrunner.getLocalizer().getPoseEstimate().getHeading(),
-                this.context.getAlliance().toString()
+                this.context.getAlliance().toString(),
+                slide.getPosition()
         );
     }
 
@@ -269,15 +274,9 @@ public class Robot extends BaseComponent {
         List<String> lines = FileUtil.readLines(filename);
         if (!lines.isEmpty()) {
             try {
-                if (lines.size() != 4) {
+                if (lines.size() != 5) {
                     throw new IllegalArgumentException("Expected 4 lines but found [" + lines.size() + "]");
                 }
-
-                /*Position position = new Position(
-                        Double.parseDouble(lines.get(0)),
-                        Double.parseDouble(lines.get(1))
-                );
-                Heading heading = new Heading(Double.parseDouble(lines.get(2)));*/
 
                 Pose2d pose2d = new Pose2d(
                         Double.parseDouble(lines.get(0)),
@@ -287,7 +286,9 @@ public class Robot extends BaseComponent {
 
                 driveTrain.roadrunner.getLocalizer().setPoseEstimate(pose2d);
 
-                this.setAlliance(Objects.equals(lines.get(4), "BLUE") ? RobotContext.Alliance.BLUE : RobotContext.Alliance.RED);
+                this.setAlliance(Objects.equals(lines.get(3), "BLUE") ? RobotContext.Alliance.BLUE : RobotContext.Alliance.RED);
+
+                slide.setStartPosition(Integer.parseInt(lines.get(4)));
 
             } catch (Exception e) {
                 telemetry.log().add("Error loading position: " + ErrorUtil.convertToString(e));
@@ -298,13 +299,15 @@ public class Robot extends BaseComponent {
         }
     }
 
-    public void clearFileFromDisk(){
+    public void clearFileFromDisk() {
         clearFileFromDisk("robot-position");
     }
-    public void clearFileFromDisk(String filename){
+
+    public void clearFileFromDisk(String filename) {
         FileUtil.removeFile(filename);
 
     }
+
     private double computeBatteryVoltage() {
         double result = Double.POSITIVE_INFINITY;
         for (VoltageSensor sensor : hardwareMap.voltageSensor) {

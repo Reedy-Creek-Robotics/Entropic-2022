@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.game.Controller.Button.RIGHT_STICK_
 import org.firstinspires.ftc.teamcode.components.DriveTrain;
 import org.firstinspires.ftc.teamcode.components.RobotContext;
 import org.firstinspires.ftc.teamcode.game.Controller;
+import org.firstinspires.ftc.teamcode.geometry.Heading;
 
 public abstract class BaseDrivingTeleOp extends BaseTeleOp {
 
@@ -49,6 +50,8 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
             double strafe = driver.leftStickX();
             double turn = driver.rightStickX();
 
+            telemetry.addData("calc", robot.getRobotContext().driveUtil.calculateWheelPowerForDriverRelative(drive, strafe, turn, new Heading(Math.toDegrees(robot.getRobotContext().localizer.getPoseEstimate().getHeading())), 1));
+
             driveTrain.driverRelative(drive, strafe, turn, limiter);
         }
         //TODO: Add a way for the drive train to reset its orientation
@@ -78,7 +81,7 @@ public abstract class BaseDrivingTeleOp extends BaseTeleOp {
 
     public enum MovementMode {
         FAST(1),
-        SLOW(.3);
+        SLOW(.5);
 
         private final double power;
 

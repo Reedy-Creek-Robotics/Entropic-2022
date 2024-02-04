@@ -8,8 +8,8 @@ public class RiggingLift extends BaseComponent {
 
     private static final double RIGGING_LIFT_POWER = 1.0;
 
-    public static final int MAX_HEIGHT = 10000;
-    public static final int MIN_HEIGHT = 0;
+    public static final int MAX_HEIGHT = 4100 ;
+    public static final int MIN_HEIGHT = 0 + 5;
 
     private DcMotorEx motor;
 
@@ -19,6 +19,7 @@ public class RiggingLift extends BaseComponent {
         motor = hardwareMap.get(DcMotorEx.class, "RiggingLift");
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setDirection(DcMotorSimple.Direction.REVERSE);
+        motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
@@ -35,6 +36,10 @@ public class RiggingLift extends BaseComponent {
     }
     private void setMotorPower(double power) {
         if(getMotorPosition() > MIN_HEIGHT && getMotorPosition() < MAX_HEIGHT){
+            motor.setPower(power);
+        } else if (getMotorPosition() < MIN_HEIGHT && power > 0) {
+            motor.setPower(power);
+        } else if (getMotorPosition() > MAX_HEIGHT && power < 0){
             motor.setPower(power);
         }
     }

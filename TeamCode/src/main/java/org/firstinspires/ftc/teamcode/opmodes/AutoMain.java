@@ -85,7 +85,7 @@ public abstract class  AutoMain extends LinearOpMode {
             trajectorySequence = robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(toTileCenter().end())
                     .forward(22)
                     .turn(Math.toRadians(propPosition.getRotation()))
-                    .forward(3)
+                    .forward(2)
                     .build();
         }else {
             trajectorySequence = robot.getDriveTrain().roadrunner.trajectorySequenceBuilder(toTileCenter().end())
@@ -143,7 +143,7 @@ public abstract class  AutoMain extends LinearOpMode {
         robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toTileCenter());
         robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toSpikeTrajectory());
 
-        robot.getIntake().rollOut(0.35);
+        robot.getIntake().rollOut(0.3);
         robot.waitForCommandsToFinish();
 
         robot.getDriveTrain().getRoadrunner().followTrajectorySequence(toStageTrajectory());

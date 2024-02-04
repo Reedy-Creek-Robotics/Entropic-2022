@@ -16,12 +16,14 @@ public class LinearSlide extends BaseComponent {
 
     public static final double MIN_POWER = 0.01;
 
+    public int startPosition = 0;
+
     public enum SlideHeight {
         THIRD_LEVEL(2300),
         SECOND_LEVEL(2000),
         FIRST_LEVEL(1361),
         AUTO(900),
-        TRANSFER(40);
+        TRANSFER(100);
 
         private final int ticks;
 
@@ -30,15 +32,15 @@ public class LinearSlide extends BaseComponent {
         }
     }
 
-    public enum RotationPoints{
-        OUTTAKE(0,0.21),
-        INTAKE(0, 0.52);
+    public enum RotationPoints {
+        OUTTAKE(0, 0.26),
+        INTAKE(0, 0.51);
 
         private final double right;
 
         private final double left;
 
-        RotationPoints( double left,double right) {
+        RotationPoints(double left, double right) {
             this.right = right;
             this.left = left;
         }
@@ -88,7 +90,6 @@ public class LinearSlide extends BaseComponent {
     }
 
 
-
     /**
      * Resets the slide ticks to 0
      */
@@ -135,7 +136,7 @@ public class LinearSlide extends BaseComponent {
             power = manualPowerOveride * Math.signum(power);
         }
 
-        if(Math.abs(power) < MIN_POWER) {
+        if (Math.abs(power) < MIN_POWER) {
             if (manualControl) {
                 manualControl = false;
                 stopMotors();
@@ -161,8 +162,16 @@ public class LinearSlide extends BaseComponent {
     /**
      * Returns the current position of the slide
      */
-    public double getPosition() {
-        return (Math.abs(leftMotor.getCurrentPosition()) + Math.abs(rightMotor.getCurrentPosition()))/2;
+    public int getPosition() {
+        return ((Math.abs(leftMotor.getCurrentPosition()) + Math.abs(rightMotor.getCurrentPosition())) / 2) + getStartPosition();
+    }
+
+    public int getStartPosition() {
+        return startPosition;
+    }
+
+    public void setStartPosition(int startPosition) {
+        this.startPosition = startPosition;
     }
 
     public void stopMotors() {
@@ -181,11 +190,14 @@ public class LinearSlide extends BaseComponent {
 
         intakeRotation(getPosition());
 
+        //telemetry.addData("left power draw", leftMotor.getCurrent(CurrentUnit.MILLIAMPS));
+        //telemetry.addData("right power draw", rightMotor.getCurrent(CurrentUnit.MILLIAMPS));
+
         super.update();
     }
 
-    private void intakeRotation(double position){
-        if(position > ROTATION_POINT ){
+    private void intakeRotation(double position) {
+        if (position > ROTATION_POINT) {
             rotate(RotationPoints.OUTTAKE);
         } else if (position < ROTATION_POINT && SlideHeight.TRANSFER.ticks < position) {
             rotate(RotationPoints.INTAKE);
@@ -193,7 +205,7 @@ public class LinearSlide extends BaseComponent {
 
     }
 
-    public void rotate(RotationPoints rotationPoint){
+    public void rotate(RotationPoints rotationPoint) {
         //leftRotator.setPosition(rotationPoint.left);
         rightRotator.setPosition(rotationPoint.right);
     }
@@ -275,10 +287,10 @@ public class LinearSlide extends BaseComponent {
 
         @Override
         public void start() {
-            leftMotor.setTargetPosition(ticks);
+            leftMotor.setTargetPosition(ticks - getStartPosition());
             leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            rightMotor.setTargetPosition(ticks);
+            rightMotor.setTargetPosition(ticks - getStartPosition());
             rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             double power = ticks > getPosition() ?
@@ -292,6 +304,11 @@ public class LinearSlide extends BaseComponent {
         @Override
         public void stop() {
             stopMotors();
+
+            //TODO implement
+            /*if(ticks == 0){
+                resetSlideTicks();
+            }*/
         }
 
         @Override
