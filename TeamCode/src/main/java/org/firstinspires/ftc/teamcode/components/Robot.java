@@ -257,7 +257,8 @@ public class Robot extends BaseComponent {
                 driveTrain.roadrunner.getLocalizer().getPoseEstimate().getX(),
                 driveTrain.roadrunner.getLocalizer().getPoseEstimate().getY(),
                 driveTrain.roadrunner.getLocalizer().getPoseEstimate().getHeading(),
-                this.context.getAlliance().toString()
+                this.context.getAlliance().toString(),
+                slide.getPosition()
         );
     }
 
@@ -273,12 +274,6 @@ public class Robot extends BaseComponent {
                     throw new IllegalArgumentException("Expected 4 lines but found [" + lines.size() + "]");
                 }
 
-                /*Position position = new Position(
-                        Double.parseDouble(lines.get(0)),
-                        Double.parseDouble(lines.get(1))
-                );
-                Heading heading = new Heading(Double.parseDouble(lines.get(2)));*/
-
                 Pose2d pose2d = new Pose2d(
                         Double.parseDouble(lines.get(0)),
                         Double.parseDouble(lines.get(1)),
@@ -287,7 +282,9 @@ public class Robot extends BaseComponent {
 
                 driveTrain.roadrunner.getLocalizer().setPoseEstimate(pose2d);
 
-                this.setAlliance(Objects.equals(lines.get(4), "BLUE") ? RobotContext.Alliance.BLUE : RobotContext.Alliance.RED);
+                this.setAlliance(Objects.equals(lines.get(3), "BLUE") ? RobotContext.Alliance.BLUE : RobotContext.Alliance.RED);
+
+                slide.setStartPosition(Integer.parseInt(lines.get(4)));
 
             } catch (Exception e) {
                 telemetry.log().add("Error loading position: " + ErrorUtil.convertToString(e));

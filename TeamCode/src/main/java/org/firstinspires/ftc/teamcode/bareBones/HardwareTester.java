@@ -27,6 +27,11 @@ public class HardwareTester extends OpMode {
         devices = new ArrayList<>();
         for (HardwareDevice device : hardwareMap) {
             devices.add(device);
+
+            if(device instanceof DcMotorEx){
+                ((DcMotorEx) device).setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                ((DcMotorEx) device).setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            }
         }
 
         controller = new Controller(gamepad1);
@@ -51,8 +56,8 @@ public class HardwareTester extends OpMode {
 
         if (device instanceof DcMotorEx) {
             DcMotorEx motor = (DcMotorEx) device;
-            motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
 
             telemetry.addData("Position", motor.getCurrentPosition());
             telemetry.addData("Power", motor.getPower());

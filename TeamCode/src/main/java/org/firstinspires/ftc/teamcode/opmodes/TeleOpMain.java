@@ -29,7 +29,6 @@ public class TeleOpMain extends BaseDrivingTeleOp {
 
     @Override
     public void start() {
-        robot.loadPositionFromDisk();
         robot.getSlide().moveToHeight(LinearSlide.SlideHeight.TRANSFER);
         robot.waitForCommandsToFinish();
         robot.getSlide().rotate(LinearSlide.RotationPoints.INTAKE);
@@ -91,6 +90,10 @@ public class TeleOpMain extends BaseDrivingTeleOp {
             robot.getDroneLauncher().launch();
         }
 
+        if( controller.isPressed(Controller.Button.SHARE)){
+            robot.getSlide().resetSlideTicks();
+        }
+
         //Stack Knocker
         if (controller.isPressed(Controller.Button.PS)) {
             robot.getDriveTrain().getRoadrunner().setPoseEstimate(new Pose2d(0,0,Math.toRadians(robot.getRobotContext().getAlliance().getRotation())));
@@ -101,11 +104,5 @@ public class TeleOpMain extends BaseDrivingTeleOp {
         //TODO: Make trackpad disable Geofence!!!
 
         robot.update();
-    }
-
-    @Override
-    public void stop() {
-        //robot.clearFileFromDisk();
-        super.stop();
     }
 }

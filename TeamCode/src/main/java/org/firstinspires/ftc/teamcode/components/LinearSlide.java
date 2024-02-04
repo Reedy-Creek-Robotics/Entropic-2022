@@ -16,12 +16,14 @@ public class LinearSlide extends BaseComponent {
 
     public static final double MIN_POWER = 0.01;
 
+    public int startPosition = 0;
+
     public enum SlideHeight {
         THIRD_LEVEL(2300),
         SECOND_LEVEL(2000),
         FIRST_LEVEL(1361),
         AUTO(900),
-        TRANSFER(40);
+        TRANSFER(100);
 
         private final int ticks;
 
@@ -161,8 +163,16 @@ public class LinearSlide extends BaseComponent {
     /**
      * Returns the current position of the slide
      */
-    public double getPosition() {
-        return (Math.abs(leftMotor.getCurrentPosition()) + Math.abs(rightMotor.getCurrentPosition()))/2;
+    public int getPosition() {
+        return ((Math.abs(leftMotor.getCurrentPosition()) + Math.abs(rightMotor.getCurrentPosition())) / 2) + getStartPosition();
+    }
+
+    public int getStartPosition() {
+        return startPosition;
+    }
+
+    public void setStartPosition(int startPosition) {
+        this.startPosition = startPosition;
     }
 
     public void stopMotors() {
@@ -180,6 +190,9 @@ public class LinearSlide extends BaseComponent {
         telemetry.addData("Current Position", getPosition());
 
         intakeRotation(getPosition());
+
+        //telemetry.addData("left power draw", leftMotor.getCurrent(CurrentUnit.MILLIAMPS));
+        //telemetry.addData("right power draw", rightMotor.getCurrent(CurrentUnit.MILLIAMPS));
 
         super.update();
     }
@@ -275,10 +288,10 @@ public class LinearSlide extends BaseComponent {
 
         @Override
         public void start() {
-            leftMotor.setTargetPosition(ticks);
+            leftMotor.setTargetPosition(ticks - getStartPosition());
             leftMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-            rightMotor.setTargetPosition(ticks);
+            rightMotor.setTargetPosition(ticks - getStartPosition());
             rightMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             double power = ticks > getPosition() ?
@@ -292,6 +305,11 @@ public class LinearSlide extends BaseComponent {
         @Override
         public void stop() {
             stopMotors();
+
+            //TODO implement
+            /*if(ticks == 0){
+                resetSlideTicks();
+            }*/
         }
 
         @Override
